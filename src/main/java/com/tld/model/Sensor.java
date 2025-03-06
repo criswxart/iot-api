@@ -27,6 +27,8 @@ public class Sensor {
 
     private String sensorMeta;
 
+    private String sensorMeta2;
+
     @Column(nullable = false, unique = true)
     private String sensorApiKey;
 }
