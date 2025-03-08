@@ -19,10 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration
-@EnableWebSecurity
+//@Configuration
+//@EnableWebSecurity
 public class SecurityConfig {
-	  @Bean
+	/*  @Bean
 	    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			return http
 					.httpBasic(Customizer.withDefaults())
@@ -76,5 +76,5 @@ public class SecurityConfig {
 	    @Bean
 	    PasswordEncoder passwordEncoder() {
 			return NoOpPasswordEncoder.getInstance();
-		}
+		}*/
 }
