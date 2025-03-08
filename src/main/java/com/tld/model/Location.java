@@ -34,10 +34,6 @@ public class Location {
     @JoinColumn(name = "city_id", nullable = false)	
 	private City cityId;
 	
-	@ManyToOne
-    @JoinColumn(name = "country_id", nullable = false)	
-	private Country countryId;
-
 	@Column(name="location_meta", nullable = false)
 	private String locationMeta;
 	

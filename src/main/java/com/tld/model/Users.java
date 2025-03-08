@@ -32,8 +32,8 @@ public class Users {
 	private String userPassword;	
 	
 	@ManyToOne
-    @JoinColumn(name = "rol_id", nullable = false)	
-	private Role rolId;
+    @JoinColumn(name = "role_id", nullable = false)	
+	private Role roleId;
 	
 	@Column(name="user_created_at", nullable = false)
 	private Long userCreatedAt;

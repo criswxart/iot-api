@@ -13,8 +13,7 @@ import lombok.Getter;
 @Table (name="country")
 public class Country {
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id	
 	@Column(name="country_id")
 	private Integer countryId;	
 	
