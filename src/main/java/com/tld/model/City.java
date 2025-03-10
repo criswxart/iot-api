@@ -26,6 +26,10 @@ public class City {
 	
 	@ManyToOne
     @JoinColumn (name="region_id", nullable = false)
-	private Region regionId;
+	private Region region;
+	
+	public City(Integer cityId) {
+		this.cityId=cityId;
+	}
 	
 }

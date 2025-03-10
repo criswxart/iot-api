@@ -19,5 +19,9 @@ public class Country {
 	
 	@Column(name="country_name", nullable = false, unique = true)
 	private String countryName;
+	
+	public Country(Integer countryId) {
+		this.countryId=countryId;
+	}
 
 }

@@ -33,7 +33,7 @@ public class Users {
 	
 	@ManyToOne
     @JoinColumn(name = "role_id", nullable = false)	
-	private Role roleId;
+	private Role role;
 	
 	@Column(name="user_created_at", nullable = false)
 	private Long userCreatedAt;
@@ -41,4 +41,7 @@ public class Users {
 	@Column(name="user_active", nullable = false)
 	private Boolean userActive;
 
+	public Users(Integer userId) {
+		this.userId=userId;
+	}
 }

@@ -46,6 +46,10 @@ public class Company {
 	@Column(name="company_modified_at", nullable = false)
 	private Long companyModifiedAt;
 	
+	
+	public Company(Integer companyId) {		
+		this.companyId=companyId;		
+	}
 
 }
 

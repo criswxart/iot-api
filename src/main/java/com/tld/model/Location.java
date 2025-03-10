@@ -7,15 +7,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Entity
-@Table (name="location")
+@Table (name="location",  uniqueConstraints = @UniqueConstraint(columnNames = {"city_id", "location_adress"}))
 public class Location {
 
 	@Id
@@ -32,7 +34,7 @@ public class Location {
 	
 	@ManyToOne
     @JoinColumn(name = "city_id", nullable = false)	
-	private City cityId;
+	private City city;
 	
 	@Column(name="location_meta", nullable = false)
 	private String locationMeta;
@@ -53,6 +55,22 @@ public class Location {
 	
 	@Column(name="location_modified_at", nullable = false)
 	private Long locationModifiedAt;
+	
+	
+	
+	public Location(Company company,String locationAdress, City city, String locationMeta, Users locationCreatedBy,Long locationCreatedAt, 
+			Boolean locationActive, Users locationModifiedBy,Long locationModifiedAt) {		
+		this.company=company;
+		this.locationAdress=locationAdress;
+		this.city=city;
+		this.locationMeta=locationMeta;
+		this.locationCreatedBy=locationCreatedBy;
+		this.locationCreatedAt=locationCreatedAt;
+		this.locationCreatedAt=locationCreatedAt;
+		this.locationActive=locationActive;
+		this.locationModifiedBy=locationModifiedBy;
+		this.locationModifiedAt=locationModifiedAt;		
+	}
 	
 	
 	

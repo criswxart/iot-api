@@ -25,14 +25,14 @@ public class Sensor {
 	
 	@ManyToOne
     @JoinColumn(name = "location_id", nullable = false)	
-	private Location locationId;	
+	private Location location;	
 	
 	@Column(name="sensor_name", nullable = false)
 	private String sensorName;	
 	
 	@ManyToOne
     @JoinColumn(name = "category_id", nullable = false)	
-	private Category categoryId;
+	private Category category;
 	
 	@Column(name="sensor_meta", nullable = false)
 	private String sensorMeta;
@@ -58,5 +58,5 @@ public class Sensor {
 	private Long sensorModifiedAt;
 	
 	
-	
+		
 }
