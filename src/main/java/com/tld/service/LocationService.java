@@ -1,32 +1,17 @@
 package com.tld.service;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
 import com.tld.dto.LocationDTO;
-import com.tld.jpa.repository.LocationRepository;
-import com.tld.mapper.LocationMapper;
-import com.tld.model.Location;
+import com.tld.dto.LocationInfoDTO;
 
-import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor
-public class LocationService {
+
+public interface LocationService {		
 	
-	final LocationRepository locationRepository;
+	Integer addLocation(LocationDTO locationDTO) ;
 	
-	public Integer addLocation(LocationDTO locationDTO) {	
-		
-		Location location= LocationMapper.mapLocationDTO(locationDTO);
-		
-		System.out.println("servicio  "+
-						   location.getCity().getCityId()+"  "+
-						   location.getLocationCreatedBy().getUserId()+"  "+
-						   location.getLocationModifiedBy().getUserId()+"  "+
-						   location.getCompany().getCompanyId()+" "+
-						   location.getLocationActive().toString());
-		
-		return locationRepository.save(location).getLocationId();		
-	}
+	List<LocationInfoDTO> getLocationById(Integer locationId);
+	List<List<LocationInfoDTO>> getLocationsByCountryName(String countryName);
 
 }

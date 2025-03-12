@@ -4,9 +4,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tld.dto.LocationDTO;
@@ -21,8 +23,8 @@ public class LocationController {
 
 	private final LocationService locationService;
 
-	@PostMapping
-	public ResponseEntity <?> addProduct(@RequestBody LocationDTO locationDTO){
+	@PostMapping("add")
+	public ResponseEntity <?> addLocation(@RequestBody LocationDTO locationDTO){
 		System.out.println(locationDTO);
 		
 		try {
@@ -38,4 +40,23 @@ public class LocationController {
 		}
 		
 	}
+	
+	@GetMapping("by-country")
+	public ResponseEntity<?> getLocationsByCountryName(@RequestParam String countryName){
+		try {			
+			return new  ResponseEntity<>(locationService.getLocationsByCountryName(countryName),HttpStatus.OK);
+		}catch (DataIntegrityViolationException e) {  			
+			String respuesta;
+			if(e.getMessage().contains("llave duplicada")) {
+				respuesta="No se puede ingresar la misma direccion mas de una vez en una ciudad.";
+			}else {
+				respuesta="El json presenta errores de datos o formato";
+			}			
+			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
+		}
+		
+					
+	}
+	
+	
 }
