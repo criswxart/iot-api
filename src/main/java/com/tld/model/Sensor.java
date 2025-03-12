@@ -40,19 +40,11 @@ public class Sensor {
 	@Column(name="sensor_api_key", nullable = false, unique = true )
 	private String sensorApiKey;	
 	
-	@ManyToOne
-	@JoinColumn(name="sensor_created_by", nullable = false)
-	private Users sensorCreatedBy;
-	
 	@Column(name="sensor_created_at", nullable = false)
 	private Long sensorCreatedAt;
 	
 	@Column(name="sensor_active", nullable = false)
 	private Boolean sensorActive;
-	
-	@ManyToOne
-	@JoinColumn(name="sensor_modified_by", nullable = false)
-	private Users sensorModifiedBy;
 	
 	@Column(name="sensor_modified_at", nullable = false)
 	private Long sensorModifiedAt;
