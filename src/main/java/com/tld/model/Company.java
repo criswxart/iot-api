@@ -1,4 +1,6 @@
 package com.tld.model;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,11 +11,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table (name="company")
 public class Company {
@@ -26,8 +30,10 @@ public class Company {
 	@Column(name="company_name", nullable = false)
 	private String companyName;	
 	
-	@Column(name="company_api_key", nullable = false)
-	private String companyApiKey;	
+	//@Column(name="company_api_key", nullable = false)
+	//private String companyApiKey;	
+	 @Column(nullable = false, unique = true, updatable = false)
+	 private String companyApiKey = UUID.randomUUID().toString();
 	
 	@ManyToOne
     @JoinColumn(name = "company_created_by", nullable = false)	
@@ -50,6 +56,7 @@ public class Company {
 	public Company(Integer companyId) {		
 		this.companyId=companyId;		
 	}
+
 
 }
 

@@ -16,6 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table (name="location",  uniqueConstraints = @UniqueConstraint(columnNames = {"city_id", "location_adress"}))
 public class Location {
