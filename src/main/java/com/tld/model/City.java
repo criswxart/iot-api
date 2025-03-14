@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table (name="city")
 public class City {
-	
+	//comentario de prueba
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="city_id")
