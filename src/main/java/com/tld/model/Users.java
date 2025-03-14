@@ -1,11 +1,16 @@
 package com.tld.model;
 
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -33,17 +38,30 @@ public class Users {
 	@Column(name="user_password", nullable = false)
 	private String userPassword;	
 	
-	@ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)	
-	private Role role;
+	@Column(name = "user_enabled")
+	private boolean userEnabled;
 	
-	@Column(name="user_created_at", nullable = false)
-	private Long userCreatedAt;
+//	@ManyToOne
+//    @JoinColumn(name = "role_id", nullable = false)	
+//	private Role role;
 	
-	@Column(name="user_active", nullable = false)
-	private Boolean userActive;
+	@Column(name = "account_non_expired")
+	private boolean accountNonExpired;
+	
+	@Column(name = "account_non_locked")
+	private boolean accountNonLocked;
+	
+	@Column(name = "credentials_non_expired")
+	private boolean credentialsNonExpired;
+	
 
-	public Users(Integer userId) {
-		this.userId=userId;
-	}
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
+	        name="usuarios_roles",
+	        joinColumns= @JoinColumn(name="id_usuario"),
+	        inverseJoinColumns=
+	            @JoinColumn(name="id_rol")
+	    )
+	private Set<Role> role;
+	
 }

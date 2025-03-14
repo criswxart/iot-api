@@ -28,9 +28,9 @@ public class DataInitializer {
 	        	jdbcTemplate.update("INSERT INTO role (role_id, role_name) VALUES (1,'Administrador'), (2,'Operario')");
 	        }
 	        
-	        if (!doesExistAnyRecord("users")) {
-	        	jdbcTemplate.update("INSERT INTO users (user_name, user_password, role_id, user_created_at, user_active) VALUES ('administrator','123456', 1, 10800, TRUE)	");
-	        }
+//	        if (!doesExistAnyRecord("users")) {
+//	        	jdbcTemplate.update("INSERT INTO users (user_name, user_password, role_id, user_created_at, user_active) VALUES ('administrator','123456', 1, 10800, TRUE)	");
+//	        }
 	        
 	        if (!doesExistAnyRecord("company")) {
 	        	jdbcTemplate.update("INSERT INTO company (company_name, company_api_key, company_created_by, company_created_at, company_active, company_modified_by, company_modified_at) VALUES ('Grupo 5', 'API-12345-XYZ', 1, 10800, true, 1, 10800)");
