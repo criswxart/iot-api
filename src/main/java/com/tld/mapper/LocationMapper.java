@@ -15,12 +15,13 @@ public class LocationMapper {
 				location.getLocationModifiedBy().getUserId(), location.getLocationModifiedAt());		
 	}
 	
-	public static Location mapLocationDTO(LocationDTO locationDTO) {
-		System.out.println("en mapper "+locationDTO.getLocationActive());
-		
-		return new Location (new Company (locationDTO.getCompanyId()), locationDTO.getLocationAdress(), new City(locationDTO.getCityId()),
-				locationDTO.getLocationMeta(),new Users(locationDTO.getLocationCreatedBy()), locationDTO.getLocationCreatedAt(),
-				locationDTO.getLocationActive(), new Users(locationDTO.getLocationModifiedBy()), locationDTO.getLocationModifiedAt());
-	}
+	//metodo comentado por implementacion de seguridad(correjir)
+//	public static Location mapLocationDTO(LocationDTO locationDTO) {
+//		System.out.println("en mapper "+locationDTO.getLocationActive());
+//		
+//		return new Location (new Company (locationDTO.getCompanyId()), locationDTO.getLocationAdress(), new City(locationDTO.getCityId()),
+//				locationDTO.getLocationMeta(),new Users(locationDTO.getLocationCreatedBy()), locationDTO.getLocationCreatedAt(),
+//				locationDTO.getLocationActive(), new Users(locationDTO.getLocationModifiedBy()), locationDTO.getLocationModifiedAt());
+//	}
 
 }
