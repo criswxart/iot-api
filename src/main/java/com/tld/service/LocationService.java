@@ -9,9 +9,9 @@ import com.tld.dto.LocationInfoDTO;
 
 public interface LocationService {		
 	
-	Integer addLocation(LocationDTO locationDTO) ;
+	Long addLocation(LocationDTO locationDTO) ;
 	
-	List<LocationInfoDTO> getLocationById(Integer locationId);
+	List<LocationInfoDTO> getLocationById(Long locationId);
 	List<List<LocationInfoDTO>> getLocationsByCountryName(String countryName);
 
 }

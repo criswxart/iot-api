@@ -28,12 +28,60 @@ public class DataInitializer {
 	        	jdbcTemplate.update("INSERT INTO role (role_id, role_name) VALUES (1,'Administrador'), (2,'Operario')");
 	        }
 	        
-//	        if (!doesExistAnyRecord("users")) {
-//	        	jdbcTemplate.update("INSERT INTO users (user_name, user_password, role_id, user_created_at, user_active) VALUES ('administrator','123456', 1, 10800, TRUE)	");
-//	        }
+	        if (!doesExistAnyRecord("role")) {
+	        	jdbcTemplate.update("INSERT INTO role (role_id, role_name) VALUES (1,'Administrador'), (2,'Operario')");
+	        }
+	        
+	        if (!doesExistAnyRecord("permission")) {
+	        	jdbcTemplate.update("INSERT INTO permission (permission_id, permission_name) VALUES (1,'Insertar'),(2,'Actualizar'),(3,'Borrar'),(4,'Leer') ;");
+	        }
+	        /*Admin tiene acceso a todo, operario solo a leer*/
+	        if (!doesExistAnyRecord("role_permission")) {
+	        	jdbcTemplate.update("INSERT INTO role_permission (role_id, permission_id) VALUES (1,1),(1,2),(1,3),(1,4), (2,4) ;");
+	        }      
+	        
+	        if (!doesExistAnyRecord("users")) {
+	        	jdbcTemplate.update("""
+	        			INSERT INTO users  (account_non_expired, 
+										    account_non_locked, 
+										    credentials_non_expired, 
+										    user_enabled, 
+										    user_name, 
+										    user_password
+										    ) VALUES 
+										    (TRUE, TRUE, TRUE, TRUE, 'sebastian', '{noop}123456'),
+										    (TRUE, TRUE, TRUE, TRUE, 'luis', '{noop}123456'),
+										    (TRUE, TRUE, TRUE, TRUE, 'cristian', '{noop}123456'),
+										    (TRUE, TRUE, TRUE, TRUE, 'manuel', '{noop}123456'),
+										    (TRUE, TRUE, TRUE, TRUE, 'alexis', '{noop}123456');
+	        						""");
+	        }
+	        
+	        if (!doesExistAnyRecord("users_role")) {
+	        	jdbcTemplate.update("""
+	        			 INSERT INTO users_role (user_id,role_id)  
+	        			     		      VALUES   ((select user_id from users where user_name='sebastian'),1),
+			        			     		       ((select user_id from users where user_name='luis'),1),
+			        			     		       ((select user_id from users where user_name='cristian'),1),
+			        			     		       ((select user_id from users where user_name='manuel'),1),
+			        			     		       ((select user_id from users where user_name='alexis'),2);			
+	        				""");	        			
+	        } 
 	        
 	        if (!doesExistAnyRecord("company")) {
-	        	jdbcTemplate.update("INSERT INTO company (company_name, company_api_key, company_created_by, company_created_at, company_active, company_modified_by, company_modified_at) VALUES ('Grupo 5', 'API-12345-XYZ', 1, 10800, true, 1, 10800)");
+	        	jdbcTemplate.update("""
+	        			INSERT INTO company (company_name, 
+	        			company_api_key, 
+	        			company_created_by, 
+	        			company_created_at, 
+	        			company_active, 
+	        			company_modified_by, 
+	        			company_modified_at) 
+	        			VALUES 
+	        			('company AAA', 'API-12345-ABS', (select user_id from users where user_name='sebastian'), 10800, true, (select user_id from users where user_name='sebastian'), 10800),
+	        			('company BBB', 'API-12345-DEP', (select user_id from users where user_name='luis'), 10800, true, (select user_id from users where user_name='luis'), 10800),
+	        			('company CCC', 'API-12345-ASR', (select user_id from users where user_name='cristian'), 10800, true, (select user_id from users where user_name='cristian'), 10800);
+	        			""");
 	        }
 	        
 	    }

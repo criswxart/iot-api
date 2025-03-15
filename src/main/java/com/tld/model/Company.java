@@ -25,9 +25,9 @@ public class Company {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="company_id")
-	private Integer companyId;	
+	private Long companyId;	
 	
-	@Column(name="company_name", nullable = false)
+	@Column(name="company_name", nullable = false, unique=true)
 	private String companyName;	
 	
 	//@Column(name="company_api_key", nullable = false)
@@ -53,7 +53,7 @@ public class Company {
 	private Long companyModifiedAt;
 	
 	
-	public Company(Integer companyId) {		
+	public Company(Long companyId) {		
 		this.companyId=companyId;		
 	}
 

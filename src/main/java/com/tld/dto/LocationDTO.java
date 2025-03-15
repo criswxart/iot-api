@@ -11,8 +11,8 @@ import lombok.ToString;
 
 public class LocationDTO {
 	
-	private Integer locationId;
-	private Integer companyId;
+	private Long locationId;
+	private Long companyId;
 	private String locationAdress;	
 	private Integer cityId;
 	private String locationMeta;

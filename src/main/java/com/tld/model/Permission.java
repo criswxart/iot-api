@@ -4,8 +4,6 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
@@ -18,10 +16,9 @@ import lombok.Setter;
 @Table(name = "permission")
 public class Permission {
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id	
 	@Column(name = "permission_id")
-	private Long permissionId;
+	private Integer permissionId;
 	
 	@Column(name = "permission_name")
 	private String permissionName;

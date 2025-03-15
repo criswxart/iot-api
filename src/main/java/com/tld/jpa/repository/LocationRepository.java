@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import com.tld.dto.LocationInfoDTO;
 import com.tld.model.Location;
 
-public interface LocationRepository extends JpaRepository<Location, Integer>{
+public interface LocationRepository extends JpaRepository<Location, Long>{
 	
 	 @Query(value = """
 		        SELECT 

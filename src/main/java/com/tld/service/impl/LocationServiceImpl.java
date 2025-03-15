@@ -21,24 +21,21 @@ public class LocationServiceImpl implements LocationService{
 	}
 	
 	@Override
-	public Integer addLocation(LocationDTO locationDTO) {	
-//		metodo comentado por implementacion de seguridad(correjir)
-////		Location location= LocationMapper.mapLocationDTO(locationDTO);
-//		
-////		System.out.println("servicio  "+
-////						   location.getCity().getCityId()+"  "+
-////						   location.getLocationCreatedBy().getUserId()+"  "+
-////						   location.getLocationModifiedBy().getUserId()+"  "+
-////						   location.getCompany().getCompanyId()+" "+
-////						   location.getLocationActive().toString());
-////		
-//		return locationRepository.save(location).getLocationId();		
-		return 0;
+	public Long addLocation(LocationDTO locationDTO) {	
+
+		Location location= LocationMapper.mapLocationDTO(locationDTO);		
+		System.out.println("servicio  "+
+						   location.getCity().getCityId()+"  "+
+						   location.getLocationCreatedBy().getUserId()+"  "+
+						   location.getLocationModifiedBy().getUserId()+"  "+
+						   location.getCompany().getCompanyId()+" "+
+						   location.getLocationActive().toString());		
+    	return locationRepository.save(location).getLocationId();
 		
 	}
 
 	@Override
-	public List<LocationInfoDTO> getLocationById(Integer locationId) {
+	public List<LocationInfoDTO> getLocationById(Long locationId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

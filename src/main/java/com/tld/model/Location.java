@@ -24,7 +24,7 @@ public class Location {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="location_id")
-	private Integer locationId;	
+	private Long locationId;	
 	
 	@ManyToOne
     @JoinColumn(name = "company_id", nullable = false)	

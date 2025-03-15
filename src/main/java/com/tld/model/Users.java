@@ -57,11 +57,16 @@ public class Users {
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
-	        name="usuarios_roles",
-	        joinColumns= @JoinColumn(name="id_usuario"),
+	        name="users_role",
+	        joinColumns= @JoinColumn(name="user_id"),
 	        inverseJoinColumns=
-	            @JoinColumn(name="id_rol")
+	            @JoinColumn(name="role_id")
 	    )
 	private Set<Role> role;
+	
+	public Users(Integer userId) {
+	    this.userId = userId;
+	}
+	
 	
 }
