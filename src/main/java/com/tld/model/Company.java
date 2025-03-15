@@ -1,4 +1,5 @@
 package com.tld.model;
+import java.time.Instant;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -8,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,29 +36,47 @@ public class Company {
 	//@Column(name="company_api_key", nullable = false)
 	//private String companyApiKey;	
 	 @Column(nullable = false, unique = true, updatable = false)
-	 private String companyApiKey = UUID.randomUUID().toString();
+	 private String companyApiKey;
+	 //private String companyApiKey = UUID.randomUUID().toString();
 	
 	@ManyToOne
-    @JoinColumn(name = "company_created_by", nullable = false)	
+    @JoinColumn(name = "company_created_by")	
 	private Users companyCreatedBy;
 	
-	@Column(name="company_created_at", nullable = false)
-	private Long companyCreatedAt;
+	@Column(name="company_created_at",updatable = false, nullable = false)
+	private Instant companyCreatedAt;
 	
-	@Column(name="company_active", nullable = false)
-	private Boolean companyActive;
+	@Column(name="company_is_active", nullable = false)
+	private Boolean companyIsActive;
 	
 	@ManyToOne
-	@JoinColumn(name="company_modified_by", nullable = false)
+	@JoinColumn(name="company_modified_by")
 	private Users companyModifiedBy;
 	
-	@Column(name="company_modified_at", nullable = false)
-	private Long companyModifiedAt;
+	@Column(name="company_modified_at")
+	private Instant companyModifiedAt;
+	
+	@PrePersist
+    protected void onCreate() {
+        this.companyCreatedAt = Instant.now(); // Se asigna al crear
+        this.companyModifiedAt = Instant.now(); // También se asigna para evitar nulos
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.companyModifiedAt = Instant.now(); // Solo se actualiza en update
+    }
 	
 	
 	public Company(Long companyId) {		
 		this.companyId=companyId;		
 	}
+	
+	public Company(String companyName, String companyApiKey) {		
+		this.companyName=companyName;	
+		this.companyApiKey=companyApiKey;		
+	}
+
 
 
 }

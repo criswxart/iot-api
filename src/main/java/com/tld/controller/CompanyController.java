@@ -5,20 +5,25 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tld.dto.CompanyDTO;
 import com.tld.service.CompanyService;
+import com.tld.service.LocationService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("api/companies")
+@RequiredArgsConstructor
 public class CompanyController {
 	
-	@Autowired
-    private CompanyService service;
+    private CompanyService companyService;
     
     @GetMapping
     public List<CompanyDTO> getAllCompanies() {
-        return service.getAllCompanies();
+        return companyService.getAllCompanies();
     }
+    
 }

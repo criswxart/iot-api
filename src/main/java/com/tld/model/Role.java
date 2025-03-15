@@ -1,5 +1,6 @@
 package com.tld.model;
 
+import java.time.Instant;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -10,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
@@ -31,10 +34,6 @@ public class Role {
 	@Column(name="role_name", nullable = false, unique = true)
 	private String roleName;
 	
-	public Role (Integer roleId) {
-		this.roleId=roleId;
-	}
-	
 	@ManyToMany(mappedBy = "role")
 	private Set<Users> users;
 	
@@ -46,5 +45,32 @@ public class Role {
 	            @JoinColumn(name="permission_id")
 	    )
 	private Set<Permission> permissions;
+	
+	@Column(name="role_is_active", nullable = false)
+	private Boolean roleIsActive;
+	
+	@Column(name="role_created_at", updatable = false, nullable = false)
+	private Instant roleCreatedAt;
+	
+
+	@Column(name="role_modified_at")
+	private Instant roleModifiedAt;
+	
+	
+	@PrePersist
+    protected void onCreate() {
+        this.roleCreatedAt = Instant.now(); // Se asigna al crear
+        this.roleModifiedAt = Instant.now(); // También se asigna para evitar nulos
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.roleModifiedAt = Instant.now(); // Solo se actualiza en update
+    }   
+	
+	
+	public Role (Integer roleId) {
+		this.roleId=roleId;
+	}
 
 }

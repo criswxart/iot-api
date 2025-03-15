@@ -25,7 +25,7 @@ public class LocationController {
 
 	@PostMapping("add")
 	public ResponseEntity <?> addLocation(@RequestBody LocationDTO locationDTO){
-		System.out.println(locationDTO);
+		System.out.println(locationDTO.getLocationAdress());
 		
 		try {
 			return new  ResponseEntity<>(locationService.addLocation(locationDTO),HttpStatus.CREATED);
