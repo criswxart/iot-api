@@ -156,7 +156,7 @@ public class DataInitializer {
 			        			     		       ((select user_id from users where user_name='luis'),1),
 			        			     		       ((select user_id from users where user_name='cristian'),1),
 			        			     		       ((select user_id from users where user_name='manuel'),1),
-			        			     		       ((select user_id from users where user_name='alexis'),2);			
+			        			     		       ((select user_id from users where user_name='alexis'),1);			
 	        				""");	        			
 	        } 
 	        
