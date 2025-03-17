@@ -79,6 +79,10 @@ public class Users {
     protected void onCreate() {
         this.userCreatedAt = Instant.now(); // Se asigna al crear
         this.userModifiedAt = Instant.now(); // También se asigna para evitar nulos
+        this.userEnabled = true;
+        this.accountNonExpired = true;
+        this.accountNonLocked = true;
+        this.credentialsNonExpired = true;
     }
 
     @PreUpdate
@@ -90,5 +94,7 @@ public class Users {
 	public Users(Integer userId) {
 	    this.userId = userId;
 	}
+	
+	
 	
 }

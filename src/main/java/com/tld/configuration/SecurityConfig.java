@@ -1,7 +1,6 @@
 package com.tld.configuration;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -31,11 +30,14 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(authorizeHttpRequests -> 
 			authorizeHttpRequests //Aqui se definen las reglas de acceso a las rutas.
 					.requestMatchers("/api/auth/login").permitAll() // Permite acceso sin autenticación.
-					.requestMatchers("/api/auth/register").hasRole("ADMIN") // Solo accesible por usuarios con el rol ADMIN.
-					.anyRequest().authenticated() //Cualquier otra solicitud requiere autenticación.
+					.requestMatchers("/api/sensordata/add").permitAll()
+					.requestMatchers("/api/location/add").hasRole("administrador")
+					.requestMatchers("/api/auth/register").hasRole("administrador") // Solo accesible por usuarios con el rol ADMIN.
+				.anyRequest().authenticated() //Cualquier otra solicitud requiere autenticación.
 			)
 		// Deshabilita la protección CSRF en las rutas específicas (/login, /register, /change-password, /logout)
-		.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/change-password",  "/logout"))
+		//.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/change-password",  "/logout", "/api/location/add"))
+		.csrf(csrf -> csrf.disable())
 		.formLogin(form -> form // Configura el inicio de sesión mediante formulario.
 				.successHandler(customAthenticationSuccessHandler()) //Usa un manejador de éxito personalizado cuando la autenticación es exitosa.
 		)
@@ -43,6 +45,23 @@ public class SecurityConfig {
 
 		return http.build();
 	}
+    
+//	@Bean
+//    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.authorizeHttpRequests(authorizeHttpRequests -> 
+//        authorizeHttpRequests
+//                 // Permite todas las solicitudes sin 
+//        		.requestMatchers("/api/auth/login","/api/sensordata/add").permitAll()
+//        		.requestMatchers("/api/sensor/add","/api/auth/register","/api/location/add").hasRole("administrador")
+//                .anyRequest().authenticated()
+//
+//            )
+//            .csrf(csrf -> csrf.disable()) // Deshabilita protección CSRF (opcional, dependiendo de tu caso)
+//            .formLogin(form -> form.disable()) // Deshabilita formulario de login
+//            .httpBasic(httpBasic -> httpBasic.disable()); // Deshabilita autenticación básica
+//
+//        return http.build();
+//    }
     
     //customAthenticationSuccessHandler / AuthenticationSuccessHandler personalizado.
     //Cuando el usuario se autentica correctamente, simplemente se devuelve un HTTP 200 OK

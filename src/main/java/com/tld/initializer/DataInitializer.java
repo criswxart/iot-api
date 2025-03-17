@@ -141,11 +141,11 @@ public class DataInitializer {
 	                    user_created_at, 
 	                    user_modified_at
 	                ) VALUES 
-	                (TRUE, TRUE, TRUE, TRUE, 'sebastian', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'luis', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'cristian', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'manuel', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'alexis', '{noop}123456', NOW(), NOW());
+	                (TRUE, TRUE, TRUE, TRUE, 'sebastian', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'luis', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'cristian', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'manuel', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'alexis', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW());
 	            """);
 	        }
 

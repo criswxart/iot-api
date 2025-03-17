@@ -3,6 +3,7 @@ package com.tld.service.impl;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tld.jpa.repository.UserRepository;
@@ -15,12 +16,12 @@ public class UserServiceImpl implements UserService {
 	@Autowired
     private UserRepository userRepository;
 
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Users registerUser(Users user) {
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
        return userRepository.save(user);
     	
     }
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updatePassword(Users user, String newPassword) {
-//        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUserPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 }
