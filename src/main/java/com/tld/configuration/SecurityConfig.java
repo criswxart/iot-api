@@ -29,10 +29,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(authorizeHttpRequests -> 
 			authorizeHttpRequests //Aqui se definen las reglas de acceso a las rutas.
-					.requestMatchers("/api/auth/login").permitAll() // Permite acceso sin autenticación.
-					.requestMatchers("/api/sensordata/add").permitAll()
-					.requestMatchers("/api/location/add").hasRole("administrador")
-					.requestMatchers("/api/auth/register").hasRole("administrador") // Solo accesible por usuarios con el rol ADMIN.
+					.requestMatchers("/api/auth/login","/api/sensordata","/api/sensor").permitAll()//Aca se definen los end point que no necesitan validacion de usuario
+					.requestMatchers("/api/location","/api/auth/register").hasRole("administrador") //Aca definen las rutas restringidas, en este caso solo para usuarios con rol administrador
 				.anyRequest().authenticated() //Cualquier otra solicitud requiere autenticación.
 			)
 		// Deshabilita la protección CSRF en las rutas específicas (/login, /register, /change-password, /logout)
