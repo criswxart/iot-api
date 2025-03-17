@@ -109,8 +109,8 @@ public class DataInitializer {
 	    	if (!doesExistAnyRecord("role")) {
 	    	    jdbcTemplate.update("""
 	    	        INSERT INTO role (role_id, role_name, role_is_active, role_created_at, role_modified_at) VALUES
-	    	        (1, 'ROL_administrador', true, now(), now()), 
-	    	        (2, 'ROL_operario', true, now(), now());
+	    	        (1, 'ROLE_administrador', true, now(), now()), 
+	    	        (2, 'ROLE_operario', true, now(), now());
 	    	    """);
 	    	}
 
@@ -141,11 +141,11 @@ public class DataInitializer {
 	                    user_created_at, 
 	                    user_modified_at
 	                ) VALUES 
-	                (TRUE, TRUE, TRUE, TRUE, 'sebastian', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'luis', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'cristian', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'manuel', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'alexis', '$2a$10$eBfJwA0P8Nf3f8KcBtpZ1OKeH9dXhFGLpe39yR3jJ6OaFJm2llj6O', NOW(), NOW());
+	                (TRUE, TRUE, TRUE, TRUE, 'sebastian', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'luis', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'cristian', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'manuel', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'alexis', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW());
 	            """);
 	        }
 
