@@ -109,8 +109,8 @@ public class DataInitializer {
 	    	if (!doesExistAnyRecord("role")) {
 	    	    jdbcTemplate.update("""
 	    	        INSERT INTO role (role_id, role_name, role_is_active, role_created_at, role_modified_at) VALUES
-	    	        (1, 'Administrador', true, now(), now()), 
-	    	        (2, 'Operario', true, now(), now());
+	    	        (1, 'ROLE_administrador', true, now(), now()), 
+	    	        (2, 'ROLE_operario', true, now(), now());
 	    	    """);
 	    	}
 
@@ -141,11 +141,11 @@ public class DataInitializer {
 	                    user_created_at, 
 	                    user_modified_at
 	                ) VALUES 
-	                (TRUE, TRUE, TRUE, TRUE, 'sebastian', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'luis', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'cristian', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'manuel', '{noop}123456', NOW(), NOW()),
-	                (TRUE, TRUE, TRUE, TRUE, 'alexis', '{noop}123456', NOW(), NOW());
+	                (TRUE, TRUE, TRUE, TRUE, 'sebastian', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'luis', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'cristian', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'manuel', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW()),
+	                (TRUE, TRUE, TRUE, TRUE, 'alexis', '$2a$10$oqdyssusFOvctG0qbNrFQOsTQHyd.cPBVX.lBrGxzqQn.RS3c4GmK', NOW(), NOW());
 	            """);
 	        }
 
@@ -156,7 +156,7 @@ public class DataInitializer {
 			        			     		       ((select user_id from users where user_name='luis'),1),
 			        			     		       ((select user_id from users where user_name='cristian'),1),
 			        			     		       ((select user_id from users where user_name='manuel'),1),
-			        			     		       ((select user_id from users where user_name='alexis'),2);			
+			        			     		       ((select user_id from users where user_name='alexis'),1);			
 	        				""");	        			
 	        } 
 	        

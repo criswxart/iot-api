@@ -72,5 +72,5 @@ public class Role {
 	public Role (Integer roleId) {
 		this.roleId=roleId;
 	}
-
+	
 }
