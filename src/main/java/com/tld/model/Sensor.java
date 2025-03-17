@@ -1,4 +1,6 @@
 package com.tld.model;
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,28 +8,80 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "sensor")
-public class Sensor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long sensorId;
+@Table (name="sensor")
+public class Sensor {	
 
-    @ManyToOne
-    @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="sensor_id")
+	private Long sensorId;	
+	
+	@ManyToOne
+    @JoinColumn(name = "location_id", nullable = false)	
+	private Location location;	
+	
+	@Column(name="sensor_name", nullable = false)
+	private String sensorName;	
+	
+	@ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)	
+	private Category category;
+	
+	@Column(name="sensor_meta", nullable = false)
+	private String sensorMeta;
+	
+	@Column(name="sensor_api_key", nullable = false, unique = true )
+	private String sensorApiKey;	
+	
+	@Column(name="sensor_created_at", updatable = false, nullable = false)
+	private Instant sensorCreatedAt;
+	
+	@Column(name="sensor_is_active", nullable = false)
+	private Boolean sensorIsActive;
+	
+	@Column(name="sensor_modified_at")
+	private Instant sensorModifiedAt;	
+	
+	@PrePersist
+    protected void onCreate() {
+        this.sensorCreatedAt = Instant.now(); // Se asigna al crear
+        this.sensorModifiedAt = Instant.now(); // También se asigna para evitar nulos
+        this.sensorIsActive=true;
+    }
 
-    @Column(nullable = false)
-    private String sensorName;
+    @PreUpdate
+    protected void onUpdate() {
+        this.sensorModifiedAt = Instant.now(); // Solo se actualiza en update
+    }   
+	
 
-    @Column(nullable = false)
-    private String sensorCategory;
+	public Sensor (Long sensorId) {
+		this.sensorId=sensorId;
+	}
+	
+	
+	public Sensor(Location location, String sensorName, Category category, String sensorMeta, String sensorApiKey) {
+		this.location=location;
+		this.sensorName=sensorName;
+		this.category=category;
+		this.sensorMeta=sensorMeta;
+		this.sensorApiKey=sensorApiKey;		
+	}
 
-    private String sensorMeta;
-
-    @Column(nullable = false, unique = true)
-    private String sensorApiKey;
+	
+	
+		
 }
-
