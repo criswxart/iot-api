@@ -109,8 +109,8 @@ public class DataInitializer {
 	    	if (!doesExistAnyRecord("role")) {
 	    	    jdbcTemplate.update("""
 	    	        INSERT INTO role (role_id, role_name, role_is_active, role_created_at, role_modified_at) VALUES
-	    	        (1, 'Administrador', true, now(), now()), 
-	    	        (2, 'Operario', true, now(), now());
+	    	        (1, 'ROL_administrador', true, now(), now()), 
+	    	        (2, 'ROL_operario', true, now(), now());
 	    	    """);
 	    	}
 
