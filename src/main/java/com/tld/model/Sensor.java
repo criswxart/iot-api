@@ -1,4 +1,6 @@
 package com.tld.model;
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +27,7 @@ public class Sensor {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="sensor_id")
-	private Integer sensorId;	
+	private Long sensorId;	
 	
 	@ManyToOne
     @JoinColumn(name = "location_id", nullable = false)	
@@ -42,14 +46,41 @@ public class Sensor {
 	@Column(name="sensor_api_key", nullable = false, unique = true )
 	private String sensorApiKey;	
 	
-	@Column(name="sensor_created_at", nullable = false)
-	private Long sensorCreatedAt;
+	@Column(name="sensor_created_at", updatable = false, nullable = false)
+	private Instant sensorCreatedAt;
 	
-	@Column(name="sensor_active", nullable = false)
-	private Boolean sensorActive;
+	@Column(name="sensor_is_active", nullable = false)
+	private Boolean sensorIsActive;
 	
-	@Column(name="sensor_modified_at", nullable = false)
-	private Long sensorModifiedAt;
+	@Column(name="sensor_modified_at")
+	private Instant sensorModifiedAt;	
+	
+	@PrePersist
+    protected void onCreate() {
+        this.sensorCreatedAt = Instant.now(); // Se asigna al crear
+        this.sensorModifiedAt = Instant.now(); // También se asigna para evitar nulos
+        this.sensorIsActive=true;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.sensorModifiedAt = Instant.now(); // Solo se actualiza en update
+    }   
+	
+
+	public Sensor (Long sensorId) {
+		this.sensorId=sensorId;
+	}
+	
+	
+	public Sensor(Location location, String sensorName, Category category, String sensorMeta, String sensorApiKey) {
+		this.location=location;
+		this.sensorName=sensorName;
+		this.category=category;
+		this.sensorMeta=sensorMeta;
+		this.sensorApiKey=sensorApiKey;		
+	}
+
 	
 	
 		

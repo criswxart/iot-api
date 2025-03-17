@@ -1,4 +1,6 @@
 package com.tld.model;
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -24,7 +28,7 @@ public class Location {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="location_id")
-	private Integer locationId;	
+	private Long locationId;	
 	
 	@ManyToOne
     @JoinColumn(name = "company_id", nullable = false)	
@@ -44,34 +48,49 @@ public class Location {
 	@JoinColumn(name="location_created_by", nullable = false)
 	private Users locationCreatedBy;
 	
-	@Column(name="location_created_at", nullable = false)
-	private Long locationCreatedAt;
+	@Column(name="location_created_at", updatable = false, nullable = false)
+	private Instant locationCreatedAt;
 	
-	@Column(name="location_active", nullable = false)
-	private Boolean locationActive;
+	@Column(name="location_is_active", nullable = false)
+	private Boolean locationIsActive;
 	
 	@ManyToOne
 	@JoinColumn(name="location_modified_by", nullable = false)
 	private Users locationModifiedBy;
 	
-	@Column(name="location_modified_at", nullable = false)
-	private Long locationModifiedAt;
+	@Column(name="location_modified_at")
+	private Instant locationModifiedAt;
+	
+	
+	@PrePersist
+    protected void onCreate() {
+        this.locationCreatedAt = Instant.now(); // Se asigna al crear
+        this.locationModifiedAt = Instant.now(); // También se asigna para evitar nulos
+        this.locationIsActive=true;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.locationModifiedAt = Instant.now(); // Solo se actualiza en update
+    }
 	
 	
 	
-	public Location(Company company,String locationAdress, City city, String locationMeta, Users locationCreatedBy,Long locationCreatedAt, 
-			Boolean locationActive, Users locationModifiedBy,Long locationModifiedAt) {		
+	public Location(Company company,String locationAdress, City city, String locationMeta, Users locationCreatedBy, Users locationModifiedBy) {		
 		this.company=company;
 		this.locationAdress=locationAdress;
 		this.city=city;
 		this.locationMeta=locationMeta;
-		this.locationCreatedBy=locationCreatedBy;
-		this.locationCreatedAt=locationCreatedAt;
-		this.locationCreatedAt=locationCreatedAt;
-		this.locationActive=locationActive;
-		this.locationModifiedBy=locationModifiedBy;
-		this.locationModifiedAt=locationModifiedAt;		
+		this.locationCreatedBy=locationCreatedBy;		
+		this.locationModifiedBy=locationModifiedBy;	
 	}
+	
+	
+	public Location(Long locationId) {
+		this.locationId=locationId;
+	}
+	
+	
 	
 	
 	

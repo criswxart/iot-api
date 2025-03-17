@@ -8,20 +8,18 @@ import com.tld.model.Users;
 
 public class LocationMapper {
 	
-	public static LocationDTO mapLocation(Location location) {	
-		
+	public static LocationDTO toDTO(Location location) {			
 		return new LocationDTO(location.getLocationId(),location.getCompany().getCompanyId(), location.getLocationAdress(), location.getCity().getCityId(),
-				location.getLocationMeta(), location.getLocationCreatedBy().getUserId(), location.getLocationCreatedAt(), location.getLocationActive(),
-				location.getLocationModifiedBy().getUserId(), location.getLocationModifiedAt());		
+				location.getLocationMeta(), location.getLocationCreatedBy().getUserId(), 
+				location.getLocationModifiedBy().getUserId());		
 	}
 	
-	//metodo comentado por implementacion de seguridad(correjir)
-//	public static Location mapLocationDTO(LocationDTO locationDTO) {
-//		System.out.println("en mapper "+locationDTO.getLocationActive());
-//		
-//		return new Location (new Company (locationDTO.getCompanyId()), locationDTO.getLocationAdress(), new City(locationDTO.getCityId()),
-//				locationDTO.getLocationMeta(),new Users(locationDTO.getLocationCreatedBy()), locationDTO.getLocationCreatedAt(),
-//				locationDTO.getLocationActive(), new Users(locationDTO.getLocationModifiedBy()), locationDTO.getLocationModifiedAt());
-//	}
+	//
+	public static Location toEntity(LocationDTO locationDTO) {		
+		return new Location (new Company (locationDTO.getCompanyId()), locationDTO.getLocationAdress(), new City(locationDTO.getCityId()),				
+				locationDTO.getLocationMeta(),new Users(locationDTO.getLocationCreatedBy()),
+				new Users(locationDTO.getLocationModifiedBy()));
+		
+	}
 
 }

@@ -10,43 +10,31 @@ import com.tld.mapper.LocationMapper;
 import com.tld.model.Location;
 import com.tld.service.LocationService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService{
 	
 	final LocationRepository locationRepository;
 	
-	@Autowired
-	public LocationServiceImpl(LocationRepository locationRepository) {
-		this.locationRepository=locationRepository;		
-	}
-	
+
 	@Override
-	public Integer addLocation(LocationDTO locationDTO) {	
-//		metodo comentado por implementacion de seguridad(correjir)
-////		Location location= LocationMapper.mapLocationDTO(locationDTO);
-//		
-////		System.out.println("servicio  "+
-////						   location.getCity().getCityId()+"  "+
-////						   location.getLocationCreatedBy().getUserId()+"  "+
-////						   location.getLocationModifiedBy().getUserId()+"  "+
-////						   location.getCompany().getCompanyId()+" "+
-////						   location.getLocationActive().toString());
-////		
-//		return locationRepository.save(location).getLocationId();		
-		return 0;
+	public Long addLocation(LocationDTO locationDTO) {	
+
+		Location location= LocationMapper.toEntity(locationDTO);	
+    	return locationRepository.save(location).getLocationId();
 		
 	}
 
 	@Override
-	public List<LocationInfoDTO> getLocationById(Integer locationId) {
-		// TODO Auto-generated method stub
+	public List<LocationInfoDTO> getLocationById(Long locationId) {
 		return null;
 	}
 
 	@Override
 	public List<List<LocationInfoDTO>> getLocationsByCountryName(String countryName) {		
-		return  locationRepository.findByCountryName(countryName);
-		
+		return  locationRepository.findByCountryName(countryName);		
 	}
 
 }

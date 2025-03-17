@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CompanyDTO {
 	
-	private Integer id;
+	private Long companyId;
     private String companyName;
     private String companyApiKey;
 }

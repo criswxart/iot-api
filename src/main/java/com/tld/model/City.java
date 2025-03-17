@@ -1,5 +1,7 @@
 package com.tld.model;
 
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,8 +36,32 @@ public class City {
     @JoinColumn (name="region_id", nullable = false)
 	private Region region;
 	
+	@Column(name="city_is_active", nullable = false)
+	private Boolean cityIsActive;
+	
+	@Column(name="city_created_at", updatable = false, nullable = false)
+	private Instant cityCreatedAt;
+	
+
+	@Column(name="city_modified_at")
+	private Instant cityModifiedAt;
+	
+	
+	@PrePersist
+    protected void onCreate() {
+        this.cityCreatedAt = Instant.now(); // Se asigna al crear
+        this.cityModifiedAt = Instant.now(); // También se asigna para evitar nulos
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.cityModifiedAt = Instant.now(); // Solo se actualiza en update
+    }
+    
+	
 	public City(Integer cityId) {
 		this.cityId=cityId;
 	}
+	
 	
 }

@@ -1,5 +1,6 @@
 package com.tld.model;
 
+import java.time.Instant;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -12,6 +13,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -57,11 +60,35 @@ public class Users {
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
-	        name="usuarios_roles",
-	        joinColumns= @JoinColumn(name="id_usuario"),
+	        name="users_role",
+	        joinColumns= @JoinColumn(name="user_id"),
 	        inverseJoinColumns=
-	            @JoinColumn(name="id_rol")
+	            @JoinColumn(name="role_id")
 	    )
-	private Set<Role> role;
+	private Set<Role> role;	
+
+	@Column(name="user_created_at", updatable = false, nullable = false)
+	private Instant userCreatedAt;
+	
+
+	@Column(name="user_modified_at")
+	private Instant userModifiedAt;
+	
+	
+	@PrePersist
+    protected void onCreate() {
+        this.userCreatedAt = Instant.now(); // Se asigna al crear
+        this.userModifiedAt = Instant.now(); // También se asigna para evitar nulos
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.userModifiedAt = Instant.now(); // Solo se actualiza en update
+    }   
+    
+
+	public Users(Integer userId) {
+	    this.userId = userId;
+	}
 	
 }
