@@ -13,6 +13,7 @@ public class LocationInfoDTO {
     private String cityName;
     private String regionName;
     private String countryName;
-
-
+    private String locationMeta;
+    private String userNameC;
+    private String userNameM;
 }

@@ -9,23 +9,81 @@ import org.springframework.data.repository.query.Param;
 import com.tld.dto.LocationInfoDTO;
 import com.tld.model.Location;
 
+
 public interface LocationRepository extends JpaRepository<Location, Long>{
-	
-	 @Query(value = """
-		        SELECT 
-		            c.company_name AS companyName, 
-		            l.location_adress AS locationAddress, 
-		            ct.city_name AS cityName, 
-		            r.region_name AS regionName, 
-		            co.country_name AS countryName
-		        FROM location l
-		        JOIN company c ON l.company_id = c.company_id
-		        JOIN city ct ON l.city_id = ct.city_id
-		        JOIN region r ON ct.region_id = r.region_id
-		        JOIN country co ON r.country_id = co.country_id
-		        WHERE LOWER(co.country_name) LIKE LOWER(CONCAT('%', :countryName, '%'))
-		    """, nativeQuery = true)
-	  List<List<LocationInfoDTO>> findByCountryName(@Param("countryName") String countryName);
+
 	
 
+	 @Query(value = """
+	 		    select  company.company_name, location.location_address, city.city_name,
+						region.region_name, country.country_name, location.location_meta,
+						c.user_name as userNameC ,m.user_name as userNameM 
+				from location
+				join company on
+					company.company_id =location.company_id
+				join city on
+					city.city_id =location.city_id 
+				join region on
+					region.region_id =city.region_id  
+				join country on
+					country.country_id =region.country_id
+				join users c on
+					c.user_id =location.location_created_by
+				join users m on
+					m.user_id =location.location_modified_by
+				where
+					location.location_is_active = true and
+					LOWER(country_name) LIKE LOWER(CONCAT('%', :countryName , '%'))
+		    """, nativeQuery = true)
+	 List<LocationInfoDTO> findByCountryName(@Param("countryName") String countryName);
+	
+	 
+	 @Query(value = """
+  		       select   company.company_name, location.location_address, city.city_name,
+						region.region_name, country.country_name, location.location_meta,
+						c.user_name as userNameC ,m.user_name as userNameM
+				from location
+				join company on
+					company.company_id =location.company_id
+				join city on
+					city.city_id =location.city_id 
+				join region on
+					region.region_id =city.region_id  
+				join country on
+					country.country_id =region.country_id
+				join users c on
+					c.user_id =location.location_created_by
+				join users m on
+					m.user_id =location.location_modified_by
+				where
+					location.location_id=:locationId;
+		    """, nativeQuery = true)
+	 LocationInfoDTO findLocationById(@Param("locationId") Long locationId);
+	 
+	 
+	 
+	 @Query(value = """
+	 		 	select  company.company_name, location.location_address, city.city_name,
+						region.region_name, country.country_name, location.location_meta,
+						c.user_name as userNameC ,m.user_name as userNameM
+				from location
+				join company on
+					company.company_id =location.company_id
+				join city on
+					city.city_id =location.city_id 
+				join region on
+					region.region_id =city.region_id  
+				join country on
+					country.country_id =region.country_id
+				join users c on
+					c.user_id =location.location_created_by
+				join users m on
+					m.user_id =location.location_modified_by
+				where
+					location.location_is_active = true	
+	 		
+	 		   """, nativeQuery = true)	 	
+	 List<LocationInfoDTO>findAllLocation();	 	 	 
+	 
+	
 }
