@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.tld.dto.CompanyDTO;
+import com.tld.dto.CompanyInfoDTO;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.mapper.CompanyMapper;
 import com.tld.service.CompanyService;
@@ -19,17 +20,17 @@ public class CompanyServiceImpl implements CompanyService{
 		
     final CompanyRepository  companyRepository;	
     
-    
-    
-    @Override
-    public List<CompanyDTO> getAllCompanies() {
-        return companyRepository.findAll().stream()
-                .map(CompanyMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
 	@Override
 	public Optional<CompanyDTO> getCompanyByApiKey(String apiKey) {			
 		 return companyRepository.findByCompanyApiKey(apiKey).map(CompanyMapper::toDTO);
 	}
+	
+	@Override
+	public List<CompanyInfoDTO> getCompanies(String field, String value) {
+		System.out.println("valores en IMPL "+field+"   "
+				+ ""+value );
+		
+		return companyRepository.findCompanies(field, value);
+	}	
+   
 }

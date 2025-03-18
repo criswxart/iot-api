@@ -23,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table (name="location",  uniqueConstraints = @UniqueConstraint(columnNames = {"city_id", "location_adress"}))
+@Table (name="location",  uniqueConstraints = @UniqueConstraint(columnNames = {"company_id", "city_id", "location_address"}))
 public class Location {
 
 	@Id

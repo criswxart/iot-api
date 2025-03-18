@@ -60,6 +60,7 @@ public class Company {
     protected void onCreate() {
         this.companyCreatedAt = Instant.now(); // Se asigna al crear
         this.companyModifiedAt = Instant.now(); // También se asigna para evitar nulos
+        this.companyIsActive = true;
     }
 
     @PreUpdate

@@ -33,7 +33,7 @@ public class LocationController {
 
 	private final LocationService locationService;	
 	private final UserService userService;	
-	@PostMapping()
+	@PostMapping
 	public ResponseEntity <?> addLocation(@RequestBody LocationDTO locationDTO){
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -57,10 +57,12 @@ public class LocationController {
 		
 	}
 	
-	@GetMapping("country")
-	public ResponseEntity<?> getLocationsByCountryName(@RequestParam String countryName){
+	//Parametro field puede ser; ciudad, pais, direccion, id, usuario
+	//Parametro value puede ser; iquique, chile, calleX, 1, luis
+	@GetMapping
+	public ResponseEntity<?> getLocations(@RequestParam String field, @RequestParam String value){
 		try {			
-			return new  ResponseEntity<>(locationService.getLocationsByCountryName(countryName),HttpStatus.OK);
+			return new  ResponseEntity<>(locationService.getLocations(field, value),HttpStatus.OK);
 		}catch (DataIntegrityViolationException e) {  			
 			String respuesta;
 			if(e.getMessage().contains("llave duplicada")) {
@@ -72,39 +74,7 @@ public class LocationController {
 		}
 					
 	}
-	
-	@GetMapping()
-	public ResponseEntity<?> getAllLocations(){
-		try {			
-			return new  ResponseEntity<>(locationService.getAllLocations(),HttpStatus.OK);
-		}catch (DataIntegrityViolationException e) {  			
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No se puede ingresar la misma direccion mas de una vez en una ciudad.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-					
-	}
-	
-	@GetMapping("id")
-	public ResponseEntity<?> getLocationsById(@RequestParam Long locationId){
-		try {			
-			return new  ResponseEntity<>(locationService.getLocationById(locationId),HttpStatus.OK);
-		}catch (DataIntegrityViolationException e) {  			
-			String respuesta;
-			if(e.getMessage().contains("not found")) {
-				respuesta="No hay nada.";
-			}else {
-				respuesta="Error";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-					
-	}
-	
+		
 	
 	@PutMapping("{locationId}")
 	public ResponseEntity <?> updateLocation(@PathVariable Long locationId, @RequestBody LocationDTO locationDTO){			

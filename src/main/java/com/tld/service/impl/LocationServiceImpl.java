@@ -38,20 +38,11 @@ public class LocationServiceImpl implements LocationService{
 	}
 
 	@Override
-	public LocationInfoDTO getLocationById(Long locationId) {
-		return  locationRepository.findLocationById(locationId);	
+	public List<LocationInfoDTO> getLocations(String field, String value) {		
+		return  locationRepository.findLocations(field, value);		
 	}
 
-	@Override
-	public List<LocationInfoDTO> getLocationsByCountryName(String countryName) {		
-		return  locationRepository.findByCountryName(countryName);		
-	}
-
-	@Override
-	public List<LocationInfoDTO> getAllLocations() {
-		return  locationRepository.findAllLocation();		
-	}
-
+	
 	@Override
 	public LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) {
 		
@@ -77,7 +68,8 @@ public class LocationServiceImpl implements LocationService{
 		
 		Optional<Users> user = userRepository.findById(locationDTO.getLocationModifiedBy());
 				
-		location.setLocationModifiedBy(user.get());
+		location.setLocationModifiedBy(user.get());	
+		location.setLocationIsActive(true);
 		
 		locationRepository.save(location);
 		

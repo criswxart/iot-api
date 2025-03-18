@@ -177,6 +177,7 @@ public class DataInitializer {
 	            """);
 	        }
 	        
+	        //Procedimiento para obtener el correlativo maximo por cada sensor_api_key
 	        if (!doesFunctionExist("generate_sensor_correlative")) {
 	        	 jdbcTemplate.execute("""
 	 	        		CREATE OR REPLACE FUNCTION generate_sensor_correlative()
@@ -198,6 +199,135 @@ public class DataInitializer {
 	 			        $$ LANGUAGE plpgsql;	
 	 			        """);	        
 	        	
+	        }
+	        //Procedimiento para el metodo GET de location dinamico
+	        if (!doesFunctionExist("get_active_locations")) {
+	            jdbcTemplate.execute("""
+	                CREATE OR REPLACE FUNCTION get_active_locations(
+	                    identificador VARCHAR,
+	                    valor VARCHAR
+	                )
+	                RETURNS TABLE (
+	                    company_name VARCHAR(255),
+	                    location_address VARCHAR(255),
+	                    city_name VARCHAR(255),
+	                    region_name VARCHAR(255),
+	                    country_name VARCHAR(255),
+	                    location_meta VARCHAR(255),
+	                    userNameC VARCHAR(255),
+	                    userNameM VARCHAR(255)
+	                ) AS $$
+	                DECLARE
+	                    query TEXT;
+	                    column_name TEXT;
+	                BEGIN
+	                    IF LOWER(identificador) = 'ciudad' THEN
+	                        column_name := 'city_name';
+	                    ELSIF LOWER(identificador) = 'pais' THEN
+	                        column_name := 'country_name';
+	                    ELSIF LOWER(identificador) = 'direccion' THEN
+	                        column_name := 'location_address';
+	                    ELSIF LOWER(identificador) = 'id' THEN
+	                        column_name := 'location_id';
+	                    ELSIF LOWER(identificador) = 'usuario' THEN
+	                        column_name := 'c.user_name';
+	                    ELSE
+	                        column_name := NULL;
+	                    END IF;
+
+	                    query := 'SELECT company.company_name, 
+	                                     location.location_address, 
+	                                     city.city_name,
+	                                     region.region_name, 
+	                                     country.country_name, 
+	                                     location.location_meta,
+	                                     c.user_name AS userNameC, 
+	                                     m.user_name AS userNameM 
+	                              FROM location
+	                              JOIN company ON company.company_id = location.company_id
+	                              JOIN city ON city.city_id = location.city_id 
+	                              JOIN region ON region.region_id = city.region_id  
+	                              JOIN country ON country.country_id = region.country_id
+	                              JOIN users c ON c.user_id = location.location_created_by
+	                              JOIN users m ON m.user_id = location.location_modified_by
+	                              WHERE location.location_is_active = true';
+
+	                    IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
+	                        IF column_name = 'location_id' THEN
+	                            query := query || ' AND ' || column_name || ' = ' || valor::BIGINT;
+	                        ELSIF column_name = 'c.user_name' THEN
+	                            query := query || ' AND c.user_name ILIKE ' || quote_literal('%'|| valor || '%');
+	                        ELSE
+	                            query := query || ' AND ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%'||valor || '%');
+	                        END IF;
+	                    END IF;
+
+	                    RETURN QUERY EXECUTE query;
+	                END;
+	                $$ LANGUAGE plpgsql;
+	            """);
+	        }
+    
+	        if (!doesFunctionExist("get_active_companies")) {
+	            jdbcTemplate.execute(
+				"""
+	            		CREATE OR REPLACE FUNCTION get_active_companies(
+			        	    identificador VARCHAR,
+			        	    valor VARCHAR
+			        	)
+			        	RETURNS TABLE (
+			        	    company_id BIGINT,
+			        	    company_name VARCHAR(255),
+			        	    company_api_key VARCHAR(255),
+			        	    userNameC VARCHAR(255),
+			        	    company_created_at TIMESTAMP,  
+			        	    userNameM VARCHAR(255),
+			        	    company_modified_at TIMESTAMP  
+			        	) AS $$
+			        	DECLARE
+			        	    query TEXT;
+			        	    column_name TEXT;
+			        	BEGIN
+			        	    -- Determinar la columna a filtrar
+			        	    IF LOWER(identificador) = 'id' THEN
+			        	        column_name := 'company_id';
+			        	    ELSIF LOWER(identificador) = 'nombre' THEN
+			        	        column_name := 'company_name';
+			        	    ELSIF LOWER(identificador) = 'apikey' THEN
+			        	        column_name := 'company_api_key';
+			        	    ELSIF LOWER(identificador) = 'usuario' THEN
+			        	        column_name := 'c.user_name';
+			        	    ELSE
+			        	        column_name := NULL;
+			        	    END IF;
+		
+			        	    -- Construcción de la consulta base
+			        	    query := 'SELECT company.company_id, company.company_name, company.company_api_key,
+			        	                     c.user_name AS userNameC, 
+			        	                     company.company_created_at::TIMESTAMP, 
+			        	                     m.user_name AS userNameM, 
+			        	                     company.company_modified_at::TIMESTAMP
+			        	              FROM company 
+			        	              JOIN users c ON company.company_created_by = c.user_id
+			        	              JOIN users m ON company.company_modified_by = m.user_id
+			        	              WHERE company.company_is_active = TRUE';
+		
+			        	    -- Aplicar el filtro solo si valor no está vacío
+			        	IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
+	            		 	IF column_name = 'company_id' THEN
+			        	       query := query || ' AND ' || column_name || ' = ' || valor::BIGINT;
+			        	    ELSIF column_name = 'c.user_name' THEN
+			        	       query := query || ' AND c.user_name ILIKE ' || quote_literal('%' || valor || '%');
+			        	    ELSE
+			        	       query := query || ' AND ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%' || valor || '%');
+			        	    END IF;
+				        	END IF;
+			
+				        	-- Ejecutar la consulta y retornar los resultados
+				        	RETURN QUERY EXECUTE query;
+				        	END;
+				        	$$ LANGUAGE plpgsql;
+	         """   );
 	        }
 	       
 	        if (!doesTriggerExist("trg_generate_correlative")) {
