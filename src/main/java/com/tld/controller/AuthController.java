@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
+import com.tld.configuration.jwt.JwtUtils;
 import com.tld.model.Users;
 import com.tld.service.UserService;
 
@@ -30,31 +31,35 @@ public class AuthController {
 	    @Autowired
 	    private UserService userService; //registrar usuarios y gestionar credenciales.
 	    
+	    @Autowired
+	    private JwtUtils jwtUtils; // Para generar y validar tokens JWT.
 	    
-	    //Recibe el username y password en la solicitud.
+	    
+	    // Recibe el username y password y devuelve un JWT en la respuesta.
 	    @PostMapping("/login")
-	    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
+	    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
 	        try {
 	            Authentication authentication = authenticationManager.authenticate(
 	                    new UsernamePasswordAuthenticationToken(username, password));
 
-	            // Set the session
-	            SecurityContextHolder.getContext().setAuthentication(authentication); //Asigna el usuario autenticado
-	            request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext()); //Se almacena en la sesión
+	            SecurityContextHolder.getContext().setAuthentication(authentication); // Asigna el usuario autenticado
 
-	            return ResponseEntity.ok("Usuario autenticado: " + username);
+	            // Generar el token JWT
+	            String token = jwtUtils.createToken(authentication);
+
+	            return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
 	        } catch (AuthenticationException e) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error de autenticación: " + e.getMessage());
 	        }
 	    }
 
 	    @PostMapping("/register")
-	    public String register(@RequestBody Users user) {
+	    public ResponseEntity<String> register(@RequestBody Users user) {
 	        if (userService.findByUsername(user.getUserName()).isPresent()) {
-	            return "El nombre de usuario ya está en uso.";
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya está en uso.");
 	        }
 	        userService.registerUser(user);
-	        return "Usuario registrado con éxito.";
+	        return ResponseEntity.ok("Usuario registrado con éxito.");
 	    }
 
 //	    @GetMapping("/user")
@@ -67,23 +72,29 @@ public class AuthController {
 //	    }
 	    
 	    @GetMapping("/user")
-	    public ResponseEntity<String> user() {
-	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // para devolver el usuario autenticado.
-	        if (authentication != null && authentication.isAuthenticated()) {
-	            return ResponseEntity.ok("Usuario autenticado: " + authentication.getName());
-	        } else {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay usuario autenticado.");
+	    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
+	        if (token == null || !token.startsWith("Bearer ")) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
+	        }
+
+	        token = token.substring(7); // Quitar el prefijo "Bearer "
+	        
+	        try {
+	            String username = jwtUtils.getUsernameFromToken(token);
+	            return ResponseEntity.ok("Usuario autenticado: " + username);
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
 	        }
 	    }
 
 	    @PostMapping("/change-password")
-	    public String changePassword(@RequestParam String username, @RequestParam String newPassword) {
+	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword) {
 	        Optional<Users> user = userService.findByUsername(username);
 	        if (user.isPresent()) {
-	            userService.updatePassword(user.get(), newPassword); //Si el usuario existe, actualiza su contraseña y si no debe retornar una excepción
-	            return "Contraseña actualizada con éxito.";
+	            userService.updatePassword(user.get(), newPassword);
+	            return ResponseEntity.ok("Contraseña actualizada con éxito.");
 	        } else {
-	            return "Usuario no encontrado.";
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
 	        }
 	    }
 
