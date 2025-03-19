@@ -14,10 +14,8 @@ public class CompanyInfoDTO {
     private Long companyId;
     private String companyName;
     private String companyApiKey;
-    private String userNameC;
-    private java.sql.Timestamp companyCreatedAt;
-    private String userNameM;
-    private java.sql.Timestamp companyModifiedAt;
+    private String userNameC;    
+    private String userNameM;  
 
 
 }

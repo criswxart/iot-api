@@ -1,19 +1,19 @@
 package com.tld.dto;
 
+import java.time.Instant;
+
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class CompanyDTO {
+public class SensorDataInfoDTO {	
 	
-	private Long companyId;
     private String companyName;
-    private String companyApiKey;
+    private String sensorName;	
+    private String sensorEntry;
+	private Instant sensorDataCreatedAt;
 }
+

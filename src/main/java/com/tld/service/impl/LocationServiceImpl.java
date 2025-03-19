@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.tld.dto.LocationDTO;
 import com.tld.dto.LocationInfoDTO;
@@ -32,26 +34,36 @@ public class LocationServiceImpl implements LocationService{
 
 	@Override
 	public Long addLocation(LocationDTO locationDTO) {	
+		Location location= LocationMapper.toEntity(locationDTO);		
 		
-		Location location= LocationMapper.toEntity(locationDTO);	
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String userName = authentication.getName(); 		    
+	    Optional<Users> optionalUser = userRepository.findByUserName(userName);		    
+	    
+	    location.setLocationCreatedBy(optionalUser.get());
+	    location.setLocationModifiedBy(optionalUser.get());		
+			
     	return locationRepository.save(location).getLocationId();		
 	}
 
-	@Override
-	public List<LocationInfoDTO> getLocations(String field, String value) {		
-		return  locationRepository.findLocations(field, value);		
-	}
 
 	
 	@Override
-	public LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) {
+	public LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) {			
 		
 		Optional<Location> optionalLocation = locationRepository.findById(locationId);
 		if (optionalLocation.isEmpty()) {
-	    	throw new EntityNotFoundException("Location not found with ID: " + locationId);
+	    	throw new EntityNotFoundException("Location no encontrada con ID: " + locationId);
 	    }
 		
 		Location location = optionalLocation.get();
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String userName = authentication.getName(); 		    
+	    Optional<Users> optionalUser = userRepository.findByUserName(userName);    
+	    location.setLocationModifiedBy(optionalUser.get());	
+		
+		
 		
 		if(locationDTO.getLocationAddress()!=null) {
 			location.setLocationAddress(locationDTO.getLocationAddress());
@@ -66,9 +78,7 @@ public class LocationServiceImpl implements LocationService{
 			location.setLocationMeta(locationDTO.getLocationMeta());
 		}
 		
-		Optional<Users> user = userRepository.findById(locationDTO.getLocationModifiedBy());
-				
-		location.setLocationModifiedBy(user.get());	
+		
 		location.setLocationIsActive(true);
 		
 		locationRepository.save(location);
@@ -83,6 +93,11 @@ public class LocationServiceImpl implements LocationService{
 		        location.getLocationCreatedBy().getUserName(),
 		        location.getLocationModifiedBy().getUserName()
 		    );			
+	}	
+
+	@Override
+	public List<LocationInfoDTO> getLocations(String field, String value) {		
+		return  locationRepository.findLocations(field, value);		
 	}
 	
 	@Override
@@ -97,6 +112,11 @@ public class LocationServiceImpl implements LocationService{
 		}		
 	
 		Location location= optionalLocation.get();
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String userName = authentication.getName(); 		    
+	    Optional<Users> optionalUser = userRepository.findByUserName(userName);    
+	    location.setLocationModifiedBy(optionalUser.get());	
 		
 		if(!optionalLocation.get().getLocationIsActive()) {
 			return "El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+" a las "+formatter.format(location.getLocationModifiedAt());

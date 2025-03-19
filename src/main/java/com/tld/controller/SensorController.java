@@ -25,20 +25,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SensorController {
 	
-	private final SensorService sensorService;	
+	private final SensorService sensorService;
 	
-	private final CompanyService companyService;
 	
 	@PostMapping("add")
 	public ResponseEntity <?> addSensor(@RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){
-		System.out.println("apiKey "+companyApiKey+" SensorDTO"+ sensorDTO.getSensorName());
-		
-		Optional<CompanyDTO> companyDTO =companyService.getCompanyByApiKey(companyApiKey);
-		
-		if(companyDTO.isEmpty()){
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No tienes una llave valida");
-		}		
-		
+		sensorDTO.setSensorApiKey(companyApiKey);
 		try {
 			return new  ResponseEntity<>(sensorService.addSensor(sensorDTO),HttpStatus.CREATED);
 		}catch(DataIntegrityViolationException e){

@@ -32,17 +32,8 @@ import lombok.RequiredArgsConstructor;
 public class LocationController {
 
 	private final LocationService locationService;	
-	private final UserService userService;	
 	@PostMapping
 	public ResponseEntity <?> addLocation(@RequestBody LocationDTO locationDTO){
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> user = userService.findByUsername(userName);		    
-	    
-	    locationDTO.setLocationCreatedBy(user.get().getUserId());
-	    locationDTO.setLocationModifiedBy(user.get().getUserId());	        
-
 		try {
 			return new  ResponseEntity<>(locationService.addLocation(locationDTO),HttpStatus.CREATED);
 		}catch(DataIntegrityViolationException e){
@@ -78,13 +69,7 @@ public class LocationController {
 	
 	@PutMapping("{locationId}")
 	public ResponseEntity <?> updateLocation(@PathVariable Long locationId, @RequestBody LocationDTO locationDTO){			
-		try {
-			
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		    String userName = authentication.getName(); 		    
-		    Optional<Users> user = userService.findByUsername(userName);		    
-		    locationDTO.setLocationModifiedBy(user.get().getUserId());	    
-		    		    			
+		try {    			
 			LocationInfoDTO updatedLocation = locationService.updateLocation(locationId, locationDTO);
 		    return ResponseEntity.ok(updatedLocation);
 		    

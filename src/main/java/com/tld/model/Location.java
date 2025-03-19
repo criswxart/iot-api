@@ -77,13 +77,11 @@ public class Location {
 	
 	
 	
-	public Location(Company company,String locationAdress, City city, String locationMeta, Users locationCreatedBy, Users locationModifiedBy) {		
+	public Location(Company company,String locationAdress, City city, String locationMeta) {		
 		this.company=company;
 		this.locationAddress=locationAdress;
 		this.city=city;
 		this.locationMeta=locationMeta;
-		this.locationCreatedBy=locationCreatedBy;		
-		this.locationModifiedBy=locationModifiedBy;	
 	}
 	
 	

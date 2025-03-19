@@ -75,7 +75,7 @@ public class Company {
 	
 	public Company(String companyName, String companyApiKey) {		
 		this.companyName=companyName;	
-		this.companyApiKey=companyApiKey;		
+		this.companyApiKey=companyApiKey;	
 	}
 
 

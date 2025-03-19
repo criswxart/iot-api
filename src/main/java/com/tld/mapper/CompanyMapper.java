@@ -2,8 +2,10 @@ package com.tld.mapper;
 
 import org.springframework.stereotype.Component;
 
+
 import com.tld.dto.CompanyDTO;
 import com.tld.model.Company;
+import com.tld.model.Users;
 
 @Component
 public class CompanyMapper {
@@ -14,5 +16,8 @@ public class CompanyMapper {
 	
 	public static Company toEntity (CompanyDTO companyDTO) {
         return new Company(companyDTO.getCompanyName(), companyDTO.getCompanyApiKey());
+        
+        
+        
     }
 }
