@@ -30,15 +30,13 @@ public class LocationServiceImpl implements LocationService{
 	final LocationRepository locationRepository;
 	final CityRepository cityRepository;
 	final UserRepository userRepository;
-	
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
 
 	@Override
 	public Long addLocation(LocationDTO locationDTO) {	
-		Location location= LocationMapper.toEntity(locationDTO);		
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> optionalUser = userRepository.findByUserName(userName);		    
+		Location location= LocationMapper.toEntity(locationDTO);	
+				    
+	    Optional<Users> optionalUser = getAuthenticatedUser();	    
 	    
 	    location.setLocationCreatedBy(optionalUser.get());
 	    location.setLocationModifiedBy(optionalUser.get());		
@@ -58,9 +56,7 @@ public class LocationServiceImpl implements LocationService{
 		
 		Location location = optionalLocation.get();
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> optionalUser = userRepository.findByUserName(userName);    
+		Optional<Users> optionalUser = getAuthenticatedUser();	     
 	    location.setLocationModifiedBy(optionalUser.get());	
 		
 		
@@ -103,7 +99,7 @@ public class LocationServiceImpl implements LocationService{
 	@Override
 	public String deleteLocation(Long locationId) {	
 		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+		
 		
 		Optional <Location> optionalLocation=locationRepository.findById(locationId);
 		
@@ -113,9 +109,7 @@ public class LocationServiceImpl implements LocationService{
 	
 		Location location= optionalLocation.get();
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> optionalUser = userRepository.findByUserName(userName);    
+		Optional<Users> optionalUser = getAuthenticatedUser();	  
 	    location.setLocationModifiedBy(optionalUser.get());	
 		
 		if(!optionalLocation.get().getLocationIsActive()) {
@@ -127,5 +121,15 @@ public class LocationServiceImpl implements LocationService{
 		return "Se inactiva registro de direccion: "+location.getLocationAddress()+" por: "+location.getLocationModifiedBy().getUserName() 
 				+" a las "+ formatter.format(location.getLocationModifiedAt());
 	}
+	
+	 private Optional<Users> getAuthenticatedUser() {
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	        if (authentication != null && authentication.isAuthenticated()) {
+	            String userName = authentication.getName();
+	            return userRepository.findByUserName(userName);
+	        }
+	        return Optional.empty();
+	    }
 
 }

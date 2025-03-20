@@ -1,5 +1,6 @@
 package com.tld.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -32,19 +33,30 @@ public class CompanyServiceImpl implements CompanyService{
 		
     final CompanyRepository  companyRepository;
     final UserRepository userRepository;
-	  
-
+    
+    
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+    
 	@Override
-	public Long addCompany(CompanyDTO companyDTO) {		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> user = userRepository.findByUserName(userName);    
+	public CompanyInfoDTO addCompany(CompanyDTO companyDTO) {		
+	    
+	    Optional<Users> optionalUser =  getAuthenticatedUser();    
 		
 		Company company= CompanyMapper.toEntity(companyDTO);
-		company.setCompanyCreatedBy(user.get());
-		company.setCompanyModifiedBy(user.get());
-		
-    	return companyRepository.save(company).getCompanyId();	
+		company.setCompanyCreatedBy(optionalUser.get());
+		company.setCompanyModifiedBy(optionalUser.get());		
+    	companyRepository.save(company).getCompanyId();
+
+    	return new CompanyInfoDTO(	
+				company.getCompanyId(),
+				company.getCompanyName(),
+				company.getCompanyApiKey(),
+				company.getCompanyCreatedBy().getUserName(),
+				formatter.format(company.getCompanyCreatedAt()),			
+				company.getCompanyModifiedBy().getUserName(),
+				formatter.format(company.getCompanyModifiedAt())
+				
+		    );	
 	}
 	
 	@Override
@@ -60,10 +72,8 @@ public class CompanyServiceImpl implements CompanyService{
 	    }	
 		Company company = optionalCompany.get();
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> user = userRepository.findByUserName(userName);  
-	    company.setCompanyModifiedBy(user.get());
+		Optional<Users> optionalUser =  getAuthenticatedUser();    
+	    company.setCompanyModifiedBy(optionalUser.get());
 		
 		
 		if(companyDTO.getCompanyName()!=null) {
@@ -81,7 +91,10 @@ public class CompanyServiceImpl implements CompanyService{
 				company.getCompanyName(),
 				company.getCompanyApiKey(),
 				company.getCompanyCreatedBy().getUserName(),
-				company.getCompanyModifiedBy().getUserName()
+				formatter.format(company.getCompanyCreatedAt()),
+				company.getCompanyModifiedBy().getUserName(),
+				formatter.format(company.getCompanyModifiedAt())
+				
 		    );	
 	}	
 
@@ -100,10 +113,8 @@ public class CompanyServiceImpl implements CompanyService{
 		}		
 		company.setCompanyIsActive(false);
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String userName = authentication.getName(); 		    
-	    Optional<Users> user = userRepository.findByUserName(userName);  
-	    company.setCompanyModifiedBy(user.get());
+		Optional<Users> optionalUser =  getAuthenticatedUser();     
+	    company.setCompanyModifiedBy(optionalUser.get());
 		
 		companyRepository.save(company);
 		return "Se inactiva compania de nombre: "+company.getCompanyName()+" por: "+company.getCompanyModifiedBy().getUserName() 
@@ -114,5 +125,17 @@ public class CompanyServiceImpl implements CompanyService{
 	public Optional<CompanyDTO> getCompanyByApiKey(String apiKey) {			
 		 return companyRepository.findByCompanyApiKey(apiKey).map(CompanyMapper::toDTO);
 	}
+	
+	 private Optional<Users> getAuthenticatedUser() {
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	        if (authentication != null && authentication.isAuthenticated()) {
+	            String userName = authentication.getName();
+	            return userRepository.findByUserName(userName);
+	        }
+	        return Optional.empty();
+	    }
+	
+	
 	
 }

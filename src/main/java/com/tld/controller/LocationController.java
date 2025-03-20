@@ -1,9 +1,5 @@
 package com.tld.controller;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -17,13 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.tld.dto.LocationDTO;
 import com.tld.dto.LocationInfoDTO;
-import com.tld.model.Users;
 import com.tld.service.LocationService;
-import com.tld.service.UserService;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -54,14 +46,8 @@ public class LocationController {
 	public ResponseEntity<?> getLocations(@RequestParam String field, @RequestParam String value){
 		try {			
 			return new  ResponseEntity<>(locationService.getLocations(field, value),HttpStatus.OK);
-		}catch (DataIntegrityViolationException e) {  			
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No se puede ingresar la misma direccion mas de una vez en una ciudad.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
+		}catch (DataIntegrityViolationException e) {  				
+			return new ResponseEntity<>("Error "+e.getMessage(), HttpStatus.BAD_REQUEST);			
 		}
 					
 	}

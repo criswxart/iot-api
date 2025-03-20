@@ -1,5 +1,7 @@
 package com.tld.model;
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -35,7 +37,7 @@ public class Company {
 	
 	//@Column(name="company_api_key", nullable = false)
 	//private String companyApiKey;	
-	 @Column(nullable = false, unique = true, updatable = false)
+	 @Column(nullable = false, unique = true)
 	 private String companyApiKey;
 	 //private String companyApiKey = UUID.randomUUID().toString();
 	
@@ -61,6 +63,7 @@ public class Company {
         this.companyCreatedAt = Instant.now(); // Se asigna al crear
         this.companyModifiedAt = Instant.now(); // También se asigna para evitar nulos
         this.companyIsActive = true;
+        this.companyApiKey=generateRandomApiKey();
     }
 
     @PreUpdate
@@ -75,9 +78,17 @@ public class Company {
 	
 	public Company(String companyName, String companyApiKey) {		
 		this.companyName=companyName;	
-		this.companyApiKey=companyApiKey;	
+		this.companyApiKey=companyApiKey;
 	}
 
+    private String generateRandomApiKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[32]; // 32 bytes para una clave de 64 caracteres en Base64
+        random.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+	
+	
 
 
 }

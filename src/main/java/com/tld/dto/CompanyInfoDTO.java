@@ -14,8 +14,9 @@ public class CompanyInfoDTO {
     private Long companyId;
     private String companyName;
     private String companyApiKey;
-    private String userNameC;    
+    private String userNameC;  
+    private String companyCreatedAt;
     private String userNameM;  
-
+    private String companyModifiedAt;
 
 }
