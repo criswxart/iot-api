@@ -1,6 +1,5 @@
 package com.tld.dto;
 
-import java.time.Instant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,12 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SensorInfoDTO {
+	private Long sensorId;
 	private String sensorName;
 	private String companyName;
     private String locationAddress;
     private String cityName;          
-	private Instant sensorCreatedAt;
-	private Instant sensorModifiedAt;
+	private String sensorCreatedAt;
+	private String sensorModifiedAt;
 	private Boolean sensorIsActive;
 
 }

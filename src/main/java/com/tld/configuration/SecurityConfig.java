@@ -39,7 +39,7 @@ public class SecurityConfig {
 	        http
 	            .csrf(csrf -> csrf.disable()) // Deshabilita CSRF (opcional)
 	            .authorizeHttpRequests(auth -> auth
-	                .requestMatchers("/api/auth/login", "/api/sensordata/add", "/api/sensor/add").permitAll() // Endpoints públicos
+	                .requestMatchers("/api/auth/login", "/api/v1/sensordata/", "/api/v1/sensor/**").permitAll() // Endpoints públicos
 	                .requestMatchers("/api/location", "/api/auth/register").hasRole("ADMINISTRADOR") // Solo administradores
 	                .anyRequest().authenticated() // Todo lo demás requiere autenticación
 	            )

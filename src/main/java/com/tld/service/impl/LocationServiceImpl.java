@@ -97,9 +97,7 @@ public class LocationServiceImpl implements LocationService{
 	}
 	
 	@Override
-	public String deleteLocation(Long locationId) {	
-		
-		
+	public String deleteLocation(Long locationId) {			
 		
 		Optional <Location> optionalLocation=locationRepository.findById(locationId);
 		

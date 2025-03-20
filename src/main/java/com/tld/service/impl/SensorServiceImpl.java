@@ -1,16 +1,22 @@
 package com.tld.service.impl;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.tld.dto.CompanyDTO;
 import com.tld.dto.LocationInfoDTO;
 import com.tld.dto.SensorDTO;
 import com.tld.dto.SensorInfoDTO;
+import com.tld.jpa.repository.CategoryRepository;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.LocationRepository;
 import com.tld.jpa.repository.SensorRepository;
@@ -18,11 +24,9 @@ import com.tld.jpa.repository.UserRepository;
 import com.tld.mapper.CompanyMapper;
 import com.tld.mapper.SensorMapper;
 import com.tld.model.Category;
-import com.tld.model.City;
-import com.tld.model.Location;
 import com.tld.model.Sensor;
 import com.tld.model.Company;
-import com.tld.model.Users;
+import com.tld.model.Location;
 import com.tld.service.SensorService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -36,89 +40,84 @@ public class SensorServiceImpl implements SensorService{
 	final LocationRepository locationRepository;
 	final CompanyRepository companyRepository;
 	final UserRepository userRepository;
-
+	final CategoryRepository categoryRepository;
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+	
+	 
 	@Override
-	public Long addSensor(SensorDTO sensorDTO) {		
+	public SensorInfoDTO addSensor(SensorDTO sensorDTO) {		
 		//Falta validar que la direccion seleccionada pertenezca a la misma empresa
 		//Sacar una lista de direcciones con la company_id  y luego ver que la ingresada
 		//este en el listado	
 		
 		Optional<Company> optionalCompany =companyRepository.findByCompanyApiKey(sensorDTO.getSensorApiKey());
 		if (optionalCompany.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe la compania, no se grabara sensor. Valida tu apikey" + sensorDTO.getSensorApiKey());
+	    	throw new EntityNotFoundException("No existe la compania con la api key entragada, no se grabara sensor. Valida tu apikey" + sensorDTO.getSensorApiKey());
 	    }
 		
+		if (locationRepository.findIfLocationAndCompanyAreOk(optionalCompany.get().getCompanyId(),sensorDTO.getLocationId())<1){
+			throw new EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
+		}
+		
+		Optional<Category> optionalCategory=categoryRepository.findById(sensorDTO.getCategoryId());
+		if (optionalCategory.isEmpty()) {
+	    	throw new EntityNotFoundException("No existe la categoria ingresada:" + sensorDTO.getCategoryId());
+	    }		
 		Sensor sensor=SensorMapper.toEntity(sensorDTO);		
 		
-		return sensorRepository.save(sensor).getSensorId();
+		Long id= sensorRepository.save(sensor).getSensorId();
+		
+		if(id>0) {	
+			return sensorRepository.findSensorById(id);	
+			
+		}else {
+			throw new EntityNotFoundException("No se pudo grabar, informar a soporte.");
+		}
+		
+		
 	}
 
 	@Override
-	public SensorInfoDTO updateSensor(Long sensorId, SensorDTO sensorDTO) {
+	public SensorInfoDTO updateSensor(SensorDTO sensorDTO) {
 		
-		//validar company_api_key
-		Optional<Sensor> optionalSensor = sensorRepository.findById(sensorId);
+		Optional<Sensor> optionalSensor=sensorRepository.findById(sensorDTO.getSensorId());
 		if (optionalSensor.isEmpty()) {
-	    	throw new EntityNotFoundException("Location no encontrada con ID: " + sensorId);
-	    }
+	    	throw new EntityNotFoundException("No existe sensor por lo que no se actualizara nada");
+	    }		
 		
-		Sensor sensor = optionalSensor.get();	
+		Sensor sensor=optionalSensor.get();
 		
-		/*
-		Optional<Company> optionalCompany = companyRepository.findByCompanyApiKey(sensorId);
-		if (optionalSensor.isEmpty()) {
-	    	throw new EntityNotFoundException("Location no encontrada con ID: " + sensorId);
-	    }
-		
-		
-
-		if(sensorDTO.getLocationId()!=null) {
-			Optional<Location> optionalLocation = locationRepository.findById(sensorDTO.getLocationId());			
-			sensor.setLocation(new Location(sensorDTO.getLocationId()));
-		}
-		
-		
-		
-		if (optionalLocation.isEmpty()) {
-	    	throw new EntityNotFoundException("Location no encontrada con ID: " + sensorId);
+		Optional<Company> optionalCompany =companyRepository.findByCompanyApiKey(sensorDTO.getSensorApiKey());
+		if (optionalCompany.isEmpty()) {
+	    	throw new EntityNotFoundException("No existe la compania con la api key entragada, no se grabara sensor. Valida tu apikey" + sensorDTO.getSensorApiKey());
 	    }
 		
 		
-		
-		if(sensorDTO.getSensorName()!=null) {			
-			sensor.setSensorName(sensorDTO.getSensorName());		
+		if (locationRepository.findIfLocationAndCompanyAreOk(optionalCompany.get().getCompanyId(),sensorDTO.getLocationId())<1){
+			throw new EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
 		}
 		
-		if(sensorDTO.getCategoryId()!=null) {
-			sensor.setCategory(new Category(sensorDTO.getCategoryId()));
+		Optional<Category> optionalCategory=categoryRepository.findById(sensorDTO.getCategoryId());
+		if (optionalCategory.isEmpty()) {
+	    	throw new EntityNotFoundException("No existe la categoria ingresada:" + sensorDTO.getCategoryId());
+	    }	
+		
+		if(!optionalSensor.get().getSensorApiKey().equals(sensorDTO.getSensorApiKey())) {
+			Optional<Sensor> sensorByApiKey= sensorRepository.findBySensorApiKey(sensorDTO.getSensorApiKey());
+			if(!sensorByApiKey.isEmpty()) {
+				throw new EntityNotFoundException("No puedes grabar esa api key, debes cambiarla");
+			}
 		}
 		
-		if(sensorDTO.getSensorMeta()!=null) {			
-			sensor.setSensorMeta(sensorDTO.getSensorMeta());	
-		}
-		
-		if(sensorDTO.getSensorApiKey()!=null) {			
-			sensor.setSensorApiKey(sensorDTO.getSensorApiKey());		
-		}	
-				
+		sensor.setLocation(new Location(sensorDTO.getLocationId()));
+		sensor.setSensorName(sensorDTO.getSensorName());
+		sensor.setCategory(new Category (sensorDTO.getCategoryId()));
+		sensor.setSensorApiKey(sensorDTO.getSensorApiKey());		
 		sensor.setSensorIsActive(true);
 		
 		sensorRepository.save(sensor);
 		
-		//Falta repositorio categoria, region, pais para obtener campos por ID
-		return new SensorInfoDTO(
-				sensor.getSensorName(),
-				"nombre compañia",
-				""
-				private String sensorName;
-				private String companyName;
-			    private String locationAddress;
-			    private String cityName;          
-				private Instant sensorCreatedAt;
-				private Instant sensorModifiedAt;
-				private Boolean sensorIsActive;
-		    );	*/
-		return null;
+		return 	sensorRepository.findSensorById(sensor.getSensorId());	
 	}
 
 	@Override

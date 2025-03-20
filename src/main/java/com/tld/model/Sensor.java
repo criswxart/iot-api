@@ -1,5 +1,7 @@
 package com.tld.model;
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,7 +61,8 @@ public class Sensor {
     protected void onCreate() {
         this.sensorCreatedAt = Instant.now(); // Se asigna al crear
         this.sensorModifiedAt = Instant.now(); // También se asigna para evitar nulos
-        this.sensorIsActive=true;
+        this.sensorIsActive=true;        
+        this.sensorApiKey=generateRandomApiKey();
     }
 
     @PreUpdate
@@ -80,6 +83,13 @@ public class Sensor {
 		this.sensorMeta=sensorMeta;
 		this.sensorApiKey=sensorApiKey;		
 	}
+	
+    private String generateRandomApiKey() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[32]; // 32 bytes para una clave de 64 caracteres en Base64
+        random.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
 
 	
 	
