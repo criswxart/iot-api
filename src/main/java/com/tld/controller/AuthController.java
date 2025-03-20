@@ -13,6 +13,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.*;
 
 import com.tld.configuration.jwt.JwtUtils;
+import com.tld.exception.EntityNotFoundException;
 import com.tld.model.Users;
 import com.tld.service.UserService;
 
@@ -94,7 +95,7 @@ public class AuthController {
 	            userService.updatePassword(user.get(), newPassword);
 	            return ResponseEntity.ok("Contraseña actualizada con éxito.");
 	        } else {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+	        	throw new EntityNotFoundException("Usuario", "nombre", username);
 	        }
 	    }
 

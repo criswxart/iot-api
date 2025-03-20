@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tld.dto.SensorDTO;
 import com.tld.dto.SensorDataDTO;
+import com.tld.exception.DuplicateKeyException;
+import com.tld.exception.InvalidApiKeyException;
+import com.tld.exception.InvalidJsonFormatException;
 import com.tld.service.SensorDataService;
 import com.tld.service.SensorService;
 
@@ -22,35 +25,31 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api/sensordata")
 @RequiredArgsConstructor
 public class SensorDataController {
-	
-	private final SensorDataService sensorDataService;	
-	
+
+	private final SensorDataService sensorDataService;
+
 	private final SensorService sensorService;
-	
-	
+
 	@PostMapping("add")
-	public ResponseEntity <?> addSensorData(@RequestBody SensorDataDTO sensorDataDTO, @RequestHeader("sensor_api_key") String sensorApiKey){
-		System.out.println("apiKey "+sensorApiKey+" SensorDTO"+ sensorDataDTO.getSensorEntry());
+	public ResponseEntity<?> addSensorData(@RequestBody SensorDataDTO sensorDataDTO,
+			@RequestHeader("sensor_api_key") String sensorApiKey) {
+
 		sensorDataDTO.setSensorApiKey(sensorApiKey);
 		sensorDataDTO.setSensorCorrelative(null);
-		
-		Optional<SensorDTO> sensorDTO =sensorService.getSensorByApiKey(sensorApiKey);		
-		
-		if(sensorDTO.isEmpty()){
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No tienes una llave valida");
-		}		
-		
-		System.out.println(sensorDTO.get().getSensorName());
+		Optional<SensorDTO> sensorDTO = sensorService.getSensorByApiKey(sensorApiKey);
+		System.out.println("apiKey " + sensorApiKey + " SensorDTO" + sensorDataDTO.getSensorEntry());
+		if (sensorDTO.isEmpty()) {
+			throw new InvalidApiKeyException("No tienes una llave válida.");
+		}
+
 		try {
-			return new  ResponseEntity<>(sensorDataService.addSensorData(sensorDataDTO),HttpStatus.CREATED);
-		}catch(DataIntegrityViolationException e){
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="Error de clave.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
+			return new ResponseEntity<>(sensorDataService.addSensorData(sensorDataDTO), HttpStatus.CREATED);
+		} catch (DataIntegrityViolationException e) {
+			if (e.getMessage().contains("llave duplicada")) {
+				throw new DuplicateKeyException("Sensor", "sensor api key");
+			} else {
+				throw new InvalidJsonFormatException("El JSON presenta errores de datos o formato.");
+			}
 		}
 	}
 

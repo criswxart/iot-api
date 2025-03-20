@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.tld.exception.DuplicateKeyException;
+import com.tld.exception.InvalidJsonFormatException;
 import com.tld.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 
@@ -22,23 +25,18 @@ public class CompanyController {
     
     
     @GetMapping
-	public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value){
-    	
-    	System.out.println("valores en controller "+field+"   "
-				+ ""+value );
-		try {			
-			return new  ResponseEntity<>(companyService.getCompanies(field, value),HttpStatus.OK);
-		}catch (DataIntegrityViolationException e) {  			
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No se puede ingresar la misma direccion mas de una vez en una ciudad.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-					
-	}
+    public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value) {
+        try {            
+            return ResponseEntity.ok(companyService.getCompanies(field, value));
+        } catch (DataIntegrityViolationException e) {  
+            if (e.getMessage().contains("llave duplicada")) {
+                throw new DuplicateKeyException("Compañía", field);
+            } else {
+                throw new InvalidJsonFormatException("El JSON presenta errores de datos o formato.");
+            }
+        }
+    }
+
 		
     
 }
