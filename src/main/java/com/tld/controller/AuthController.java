@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.tld.configuration.jwt.JwtUtils;
 import com.tld.exception.EntityNotFoundException;
+import com.tld.exception.InvalidTokenException;
+import com.tld.exception.InvalidUserException;
 import com.tld.model.Users;
 import com.tld.service.UserService;
 
@@ -50,7 +52,7 @@ public class AuthController {
 
 	            return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
 	        } catch (AuthenticationException e) {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error de autenticación: " + e.getMessage());
+	        	throw new InvalidUserException("Usuario o contraseña incorrectos");
 	        }
 	    }
 
@@ -75,7 +77,7 @@ public class AuthController {
 	    @GetMapping("/user")
 	    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
 	        if (token == null || !token.startsWith("Bearer ")) {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
+	        	throw new InvalidTokenException("Token inválido o expirado.");
 	        }
 
 	        token = token.substring(7); // Quitar el prefijo "Bearer "
@@ -84,7 +86,7 @@ public class AuthController {
 	            String username = jwtUtils.getUsernameFromToken(token);
 	            return ResponseEntity.ok("Usuario autenticado: " + username);
 	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
+	        	throw new InvalidTokenException("Token inválido o expirado.");
 	        }
 	    }
 

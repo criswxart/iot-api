@@ -32,6 +32,16 @@ public class GlobalExceptionHandler {
 		return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 	
+	@ExceptionHandler(InvalidUserException.class)
+    public ResponseEntity<Object> handleInvalidUserException(InvalidUserException ex) {
+		return buildResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+	
+	@ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Object> handleInvalidUserException(InvalidTokenException ex) {
+		return buildResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+	
 	private ResponseEntity<Object> buildResponse(String message, HttpStatus status) {
 		Map<String, Object> response = new HashMap();
 		response.put("timestamp", LocalDateTime.now());
