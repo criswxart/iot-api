@@ -19,7 +19,7 @@ import com.tld.service.SensorService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("api/sensordata")
+@RequestMapping("api/v1/sensordata")
 @RequiredArgsConstructor
 public class SensorDataController {
 	
@@ -27,13 +27,13 @@ public class SensorDataController {
 	
 	private final SensorService sensorService;
 	
-	
-	@PostMapping("add")
+																					
+	@PostMapping
 	public ResponseEntity <?> addSensorData(@RequestBody SensorDataDTO sensorDataDTO, @RequestHeader("sensor_api_key") String sensorApiKey){
 		System.out.println("apiKey "+sensorApiKey+" SensorDTO"+ sensorDataDTO.getSensorEntry());
 		sensorDataDTO.setSensorApiKey(sensorApiKey);
 		sensorDataDTO.setSensorCorrelative(null);
-		
+		System.out.println("llega al controler");
 		Optional<SensorDTO> sensorDTO =sensorService.getSensorByApiKey(sensorApiKey);		
 		
 		if(sensorDTO.isEmpty()){

@@ -78,7 +78,7 @@ public class SensorServiceImpl implements SensorService{
 	}
 
 	@Override
-	public SensorInfoDTO updateSensor(SensorDTO sensorDTO) {
+	public SensorInfoDTO updateSensor(String companyApiKey, SensorDTO sensorDTO) {
 		
 		Optional<Sensor> optionalSensor=sensorRepository.findById(sensorDTO.getSensorId());
 		if (optionalSensor.isEmpty()) {
@@ -87,7 +87,8 @@ public class SensorServiceImpl implements SensorService{
 		
 		Sensor sensor=optionalSensor.get();
 		
-		Optional<Company> optionalCompany =companyRepository.findByCompanyApiKey(sensorDTO.getSensorApiKey());
+		//Se valida con api_key del header, en el json puede venir otro para hacer el update.
+		Optional<Company> optionalCompany =companyRepository.findByCompanyApiKey(companyApiKey);
 		if (optionalCompany.isEmpty()) {
 	    	throw new EntityNotFoundException("No existe la compania con la api key entragada, no se grabara sensor. Valida tu apikey" + sensorDTO.getSensorApiKey());
 	    }
@@ -95,24 +96,37 @@ public class SensorServiceImpl implements SensorService{
 		
 		if (locationRepository.findIfLocationAndCompanyAreOk(optionalCompany.get().getCompanyId(),sensorDTO.getLocationId())<1){
 			throw new EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
+		}else {
+			sensor.setLocation(new Location(sensorDTO.getLocationId()));
 		}
 		
-		Optional<Category> optionalCategory=categoryRepository.findById(sensorDTO.getCategoryId());
-		if (optionalCategory.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe la categoria ingresada:" + sensorDTO.getCategoryId());
-	    }	
 		
-		if(!optionalSensor.get().getSensorApiKey().equals(sensorDTO.getSensorApiKey())) {
+		if(sensorDTO.getCategoryId()!=null) {
+			Optional<Category> optionalCategory=categoryRepository.findById(sensorDTO.getCategoryId());
+			if (optionalCategory.isEmpty()) {
+		    	throw new EntityNotFoundException("No existe la categoria ingresada:" + sensorDTO.getCategoryId());
+		    }else {
+		    	sensor.setCategory(new Category (sensorDTO.getCategoryId()));	    
+		    }			
+		}
+				
+		
+		if((Optional.ofNullable(sensorDTO.getSensorApiKey()).map(String::length).orElse(0)>0)&&(!sensor.getSensorApiKey().equals(sensorDTO.getSensorApiKey()))){
 			Optional<Sensor> sensorByApiKey= sensorRepository.findBySensorApiKey(sensorDTO.getSensorApiKey());
 			if(!sensorByApiKey.isEmpty()) {
 				throw new EntityNotFoundException("No puedes grabar esa api key, debes cambiarla");
+			}else {
+				//Si existe api key en el json y es diferente a la que ya tiene asociada (la que venia en el header)
+				//se valida que no exista asociada a otro company. Si no existe en la tabla se hara un update
+				//incluyendo el nuevo api_key (si el api key viene en el json y es igual al asociado no se hara nada)
+				sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
 			}
 		}
 		
-		sensor.setLocation(new Location(sensorDTO.getLocationId()));
-		sensor.setSensorName(sensorDTO.getSensorName());
-		sensor.setCategory(new Category (sensorDTO.getCategoryId()));
-		sensor.setSensorApiKey(sensorDTO.getSensorApiKey());		
+		if(Optional.ofNullable(sensorDTO.getSensorName()).map(String::length).orElse(0)>0) {
+			sensor.setSensorName(sensorDTO.getSensorName());
+		}		
+					
 		sensor.setSensorIsActive(true);
 		
 		sensorRepository.save(sensor);

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.tld.dto.CompanyDTO;
 import com.tld.dto.CompanyInfoDTO;
+import com.tld.dto.ErrorDTO;
 import com.tld.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 
@@ -32,16 +33,14 @@ public class CompanyController {
 		try {			
 			CompanyInfoDTO addedCompany = companyService.addCompany(companyDTO);
 		    return ResponseEntity.ok(addedCompany);
-		}catch(DataIntegrityViolationException e){
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No se puede ingresar la misma compañia mas de una vez.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-		
+		    
+		   } catch (DataIntegrityViolationException e) {
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
+		    }		
 	}
     
     
@@ -49,9 +48,13 @@ public class CompanyController {
 	public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value){    
 		try {			
 			return new  ResponseEntity<>(companyService.getCompanies(field, value),HttpStatus.OK);
-		}catch (DataIntegrityViolationException e) {  	
-			return new ResponseEntity<>("Error "+e.getMessage(), HttpStatus.BAD_REQUEST);						
-		}					
+		} catch (DataIntegrityViolationException e) {
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
+	    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
+		}				
 	}
     
     @PutMapping("{companyId}")
@@ -60,17 +63,15 @@ public class CompanyController {
 			CompanyInfoDTO updatedLocation = companyService.updateCompany(companyId, companyDTO);
 		    return ResponseEntity.ok(updatedLocation);
 		    
-		}catch(DataIntegrityViolationException e){
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No se puede ingresar dos veces la misma compania o repetir la company api key.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-		
+		} catch (DataIntegrityViolationException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
+		} catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new ErrorDTO("Error inesperado", e.getMessage()));
+		}	
 	}
+    
     
     @DeleteMapping("{companyId}")
 	public ResponseEntity <String> deleteLocation(@PathVariable Long companyId){		

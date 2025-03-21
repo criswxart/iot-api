@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tld.dto.CompanyDTO;
 import com.tld.dto.CompanyInfoDTO;
+import com.tld.dto.ErrorDTO;
 import com.tld.dto.SensorDTO;
 import com.tld.dto.SensorInfoDTO;
 import com.tld.service.SensorService;
@@ -34,34 +35,28 @@ public class SensorController {
 			SensorInfoDTO addedSensor=sensorService.addSensor(sensorDTO);		
 			
 			return ResponseEntity.ok(addedSensor);
-		}catch(DataIntegrityViolationException e){
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No puedes repetir el campo sensor_api_key.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-	}
+	    } catch (DataIntegrityViolationException e) {
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
+	    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
+	    }
+	}	
 	
 	@PutMapping("{sensorId}")
-	public ResponseEntity <?> updateCompany(@PathVariable Long sensorId, @RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){		
-		sensorDTO.setSensorApiKey(companyApiKey);
+	public ResponseEntity <?> updateCompany(@PathVariable Long sensorId, @RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){	
 		sensorDTO.setSensorId(sensorId);
 		try {			    		    			
-			SensorInfoDTO updatedSensor = sensorService.updateSensor(sensorDTO);
+			SensorInfoDTO updatedSensor = sensorService.updateSensor(companyApiKey,sensorDTO);
 		    return ResponseEntity.ok(updatedSensor);
 		    
-		}catch(DataIntegrityViolationException e){
-			String respuesta;
-			if(e.getMessage().contains("llave duplicada")) {
-				respuesta="No se puede ingresar dos veces la misma compania o repetir la company api key.";
-			}else {
-				respuesta="El json presenta errores de datos o formato";
-			}			
-			return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);			
-		}
-		
-	}
+	    } catch (DataIntegrityViolationException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new ErrorDTO("Error inesperado", e.getMessage()));
+    }
+	}		
 }

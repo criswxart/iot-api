@@ -203,19 +203,22 @@ public class DataInitializer {
 	        //Procedimiento para el metodo GET de location dinamico
 	        if (!doesFunctionExist("get_active_locations")) {
 	            jdbcTemplate.execute("""
-	                CREATE OR REPLACE FUNCTION get_active_locations(
+	                    CREATE OR REPLACE FUNCTION get_active_locations(
 	                    identificador VARCHAR,
 	                    valor VARCHAR
 	                )
 	                RETURNS TABLE (
+	            		location_id BIGINT,    
 	                    company_name VARCHAR(255),
 	                    location_address VARCHAR(255),
 	                    city_name VARCHAR(255),
 	                    region_name VARCHAR(255),
 	                    country_name VARCHAR(255),
 	                    location_meta VARCHAR(255),
-	                    userNameC VARCHAR(255),
-	                    userNameM VARCHAR(255)
+	                    location_created_by VARCHAR(255),
+	                    location_created_at VARCHAR(255),
+	                    location_modified_by VARCHAR(255),
+	                    location_modified_at VARCHAR(255)
 	                ) AS $$
 	                DECLARE
 	                    query TEXT;
@@ -235,14 +238,17 @@ public class DataInitializer {
 	                        column_name := NULL;
 	                    END IF;
 
-	                    query := 'SELECT company.company_name, 
+	                    query := 'SELECT location.location_id,
+	            				         company.company_name, 
 	                                     location.location_address, 
 	                                     city.city_name,
 	                                     region.region_name, 
 	                                     country.country_name, 
 	                                     location.location_meta,
-	                                     c.user_name AS userNameC, 
-	                                     m.user_name AS userNameM 
+	                                     c.user_name AS location_created_by, 
+	                                     TO_CHAR(location_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_created_at,
+	                                     m.user_name AS location_modified_by,
+	                                     TO_CHAR(location_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_modified_at
 	                              FROM location
 	                              JOIN company ON company.company_id = location.company_id
 	                              JOIN city ON city.city_id = location.city_id 
@@ -265,6 +271,7 @@ public class DataInitializer {
 	                    RETURN QUERY EXECUTE query;
 	                END;
 	                $$ LANGUAGE plpgsql;
+
 	            """);
 	        }
     

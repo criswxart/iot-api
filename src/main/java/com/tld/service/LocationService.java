@@ -8,7 +8,7 @@ import com.tld.dto.LocationInfoDTO;
 
 public interface LocationService {		
 	
-	Long addLocation(LocationDTO locationDTO);	
+	LocationInfoDTO addLocation(LocationDTO locationDTO);	
 	LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) ;	
 	List<LocationInfoDTO> getLocations(String field, String value);
 	String deleteLocation(Long locationId);

@@ -1,5 +1,6 @@
 package com.tld.service.impl;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +31,11 @@ public class LocationServiceImpl implements LocationService{
 	final LocationRepository locationRepository;
 	final CityRepository cityRepository;
 	final UserRepository userRepository;
-	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+	//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+	
 
 	@Override
-	public Long addLocation(LocationDTO locationDTO) {	
+	public LocationInfoDTO addLocation(LocationDTO locationDTO) {	
 		Location location= LocationMapper.toEntity(locationDTO);	
 				    
 	    Optional<Users> optionalUser = getAuthenticatedUser();	    
@@ -41,7 +43,9 @@ public class LocationServiceImpl implements LocationService{
 	    location.setLocationCreatedBy(optionalUser.get());
 	    location.setLocationModifiedBy(optionalUser.get());		
 			
-    	return locationRepository.save(location).getLocationId();		
+	    //Graba location y luego hace un select custom apra obtener un json decente
+	    return locationRepository.findLocationById(locationRepository.save(location).getLocationId().toString()) ;
+		
 	}
 
 
@@ -79,16 +83,8 @@ public class LocationServiceImpl implements LocationService{
 		
 		locationRepository.save(location);
 		
-		return new LocationInfoDTO(				
-		        location.getCompany().getCompanyName(),
-		        location.getLocationAddress(),
-		        location.getCity().getCityName(),
-		        location.getCity().getRegion().getRegionName(),
-		        location.getCity().getRegion().getCountry().getCountryName(),
-		        location.getLocationMeta(),
-		        location.getLocationCreatedBy().getUserName(),
-		        location.getLocationModifiedBy().getUserName()
-		    );			
+		return locationRepository.findLocationById(location.getLocationId().toString()) ;		
+				
 	}	
 
 	@Override
@@ -111,13 +107,17 @@ public class LocationServiceImpl implements LocationService{
 	    location.setLocationModifiedBy(optionalUser.get());	
 		
 		if(!optionalLocation.get().getLocationIsActive()) {
-			return "El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+" a las "+formatter.format(location.getLocationModifiedAt());
+			return "El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+" a las "+ new String(location.getLocationModifiedAt()
+	        	    .atZone(ZoneId.of("America/Santiago"))
+	        	    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 		}
 		
 		location.setLocationIsActive(false);
 		locationRepository.save(location);
 		return "Se inactiva registro de direccion: "+location.getLocationAddress()+" por: "+location.getLocationModifiedBy().getUserName() 
-				+" a las "+ formatter.format(location.getLocationModifiedAt());
+				+" a las "+new String(location.getLocationModifiedAt()
+		        	    .atZone(ZoneId.of("America/Santiago"))
+		        	    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 	}
 	
 	 private Optional<Users> getAuthenticatedUser() {

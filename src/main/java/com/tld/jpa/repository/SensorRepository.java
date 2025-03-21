@@ -17,7 +17,7 @@ public interface SensorRepository extends JpaRepository<Sensor, Long> {
 	Optional<Sensor> findBySensorApiKey(String sensorApiKey);
 	
 	 @Query(value = """
-	 		   select sensor_id, sensor_name, company_name, location_address, city_name, TO_CHAR(sensor_created_at, 'DD-MM-YYYY HH24:MI') AS sensor_created_at, 
+	 		   select sensor_id, sensor_api_key, sensor_name, company_name, location_address, city_name, TO_CHAR(sensor_created_at, 'DD-MM-YYYY HH24:MI') AS sensor_created_at, 
 				 TO_CHAR(sensor_modified_at, 'DD-MM-YYYY HH24:MI') AS sensor_modified_at,  sensor_is_active 
 				from sensor
 				join location on
