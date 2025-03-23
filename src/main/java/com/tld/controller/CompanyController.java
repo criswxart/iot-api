@@ -44,19 +44,7 @@ public class CompanyController {
 	}
     
     
-    @GetMapping
-	public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value){    
-		try {			
-			return new  ResponseEntity<>(companyService.getCompanies(field, value),HttpStatus.OK);
-		} catch (DataIntegrityViolationException e) {
-		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
-	    } catch (Exception e) {
-		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
-		}				
-	}
-    
+   
     @PutMapping("{companyId}")
 	public ResponseEntity <?> updateCompany(@PathVariable Long companyId, @RequestBody CompanyDTO companyDTO){			
 		try {			    		    			
@@ -71,6 +59,21 @@ public class CompanyController {
 	                .body(new ErrorDTO("Error inesperado", e.getMessage()));
 		}	
 	}
+    
+    
+    @GetMapping
+   	public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value){    
+   		try {			
+   			return new  ResponseEntity<>(companyService.getCompanies(field, value),HttpStatus.OK);
+   		} catch (DataIntegrityViolationException e) {
+   		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+   		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
+   	    } catch (Exception e) {
+   		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+   		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
+   		}				
+   	}
+       
     
     
     @DeleteMapping("{companyId}")

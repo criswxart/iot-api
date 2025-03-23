@@ -10,12 +10,14 @@ import lombok.Setter;
 @Setter
 public class SensorInfoDTO {
 	private Long sensorId;
-	private String sensor_api_key;
 	private String sensorName;
-	private String companyName;
+	private String sensor_api_key;
+	private Long locationId;	
     private String locationAddress;
-    private String cityName;          
-	private String sensorCreatedAt;
+    private Long companyId;          
+	private String companyName;
+	private Long sensorTotalRecords;
+    private String sensorCreatedAt;	
 	private String sensorModifiedAt;
 	private Boolean sensorIsActive;
 

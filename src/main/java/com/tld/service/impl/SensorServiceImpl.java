@@ -30,6 +30,7 @@ import com.tld.model.Location;
 import com.tld.service.SensorService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -67,9 +68,8 @@ public class SensorServiceImpl implements SensorService{
 		
 		Long id= sensorRepository.save(sensor).getSensorId();
 		
-		if(id>0) {	
-			return sensorRepository.findSensorById(id);	
-			
+		if(id>0) {			
+			return sensorRepository.findSensors("id", sensor.getSensorId().toString(),sensorDTO.getSensorApiKey()).get(0);			
 		}else {
 			throw new EntityNotFoundException("No se pudo grabar, informar a soporte.");
 		}
@@ -131,25 +131,45 @@ public class SensorServiceImpl implements SensorService{
 		
 		sensorRepository.save(sensor);
 		
-		return 	sensorRepository.findSensorById(sensor.getSensorId());	
+		return sensorRepository.findSensors("id", sensor.getSensorId().toString(),companyApiKey).get(0);
+		//return 	sensorRepository.findSensorById(sensor.getSensorId());	
 	}
 
 	@Override
-	public List<SensorInfoDTO> getSensors(String field, String value, String companyApiKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<SensorInfoDTO> getSensors(String field, String value, String companyApiKey) {	
+		
+		List<SensorInfoDTO> resultado= sensorRepository.findSensors(field, value, companyApiKey);
+		
+		if (resultado.isEmpty()) {
+			throw new EntityNotFoundException("No hay resultados, 2 posibles razones: no existe o intentas ver informacion de otra compañia");
+		}
+		return resultado;
+		
 	}
 
 	@Override
 	public String deleteSensor(Long sensorId, String companyApiKey) {
-		// TODO Auto-generated method stub
-		return null;
+		String mensaje;
+		Optional<Sensor> optionalSensor= sensorRepository.findById(sensorId);
+		if(optionalSensor.isEmpty()) {
+			mensaje= "No puedes borrar lo que nunca existio";
+		}else {		
+			Sensor sensor=optionalSensor.get();
+			if (sensor.getSensorApiKey().equals(companyApiKey)) {
+				sensor.setSensorIsActive(false);
+				sensorRepository.save(sensor);
+				mensaje= "Has inactivado el sensor";
+			}else {
+				mensaje= "Estas intentando inactivar el sensor de otra campania o tu apiKey es invalida accion no valida";
+			}
+		}
+		return mensaje;
 	}
 		
-	@Override
+	/*@Override
 	public Optional<SensorDTO> getSensorByApiKey(String companyApiKey) {		
 		return sensorRepository.findBySensorApiKey(companyApiKey).map(SensorMapper::toDTO);
-	}
+	}*/
 
 		
 }

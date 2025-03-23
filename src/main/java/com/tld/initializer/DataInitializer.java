@@ -178,21 +178,21 @@ public class DataInitializer {
 	        }
 	        
 	        //Procedimiento para obtener el correlativo maximo por cada sensor_api_key
-	        if (!doesFunctionExist("generate_sensor_correlative")) {
+	        if (!doesFunctionExist("generate_sensor_data_correlative")) {
 	        	 jdbcTemplate.execute("""
-	 	        		CREATE OR REPLACE FUNCTION generate_sensor_correlative()
+	 	        		CREATE OR REPLACE FUNCTION generate_sensor_data_correlative()
 	 			        RETURNS TRIGGER AS $$
 	 			        DECLARE
 	 			            next_correlative BIGINT;
 	 			        BEGIN
 	 			            -- Obtener el siguiente correlativo para el sensor_api_key
-	 			            SELECT COALESCE(MAX(sensor_correlative), 0) + 1
+	 			            SELECT COALESCE(MAX(sensor_data_correlative), 0) + 1
 	 			            INTO next_correlative
 	 			            FROM sensor_data
 	 			            WHERE sensor_api_key = NEW.sensor_api_key;
 	 		
 	 			            -- Asignar el nuevo correlativo
-	 			            NEW.sensor_correlative := next_correlative;
+	 			            NEW.sensor_data_correlative := next_correlative;
 	 		
 	 			            RETURN NEW;
 	 			        END;
@@ -336,13 +336,102 @@ public class DataInitializer {
 				        	$$ LANGUAGE plpgsql;
 	         """   );
 	        }
+	        
+	        
+	        
+	        if (!doesFunctionExist("get_active_sensors")) {
+	        	jdbcTemplate.execute("""
+	        		  CREATE OR REPLACE FUNCTION get_active_sensors(
+	                    identificador VARCHAR,
+	                    valor VARCHAR,
+						company_api_key VARCHAR
+	                )
+	                RETURNS TABLE (
+	            		sensor_id BIGINT,    
+	                    sensor_name VARCHAR(255),
+						sensor_api_key VARCHAR(255),
+	                    location_id BIGINT,    
+	                    location_address VARCHAR(500),
+	                    company_id BIGINT,    
+	                    company_name VARCHAR(255),
+	                    sensor_total_records BIGINT,
+	                    sensor_created_at VARCHAR(255),	                    
+	                    sensor_modified_at VARCHAR(255),
+	                    sensor_is_active BOOLEAN
+	                ) AS $$
+	                DECLARE
+	                    query TEXT;
+	                    column_name TEXT;
+	                BEGIN
+						IF LOWER(identificador) = 'id' THEN
+	                        column_name := 'sensor.sensor_id';	               
+	                    ELSIF LOWER(identificador) = 'company' THEN
+	                        column_name := 'location.company_id';
+	                    ELSIF LOWER(identificador) = 'city' THEN
+	                        column_name := 'city.city_id';
+	                    ELSIF LOWER(identificador) = 'country' THEN
+	                        column_name := 'country.country_id';
+	                    ELSE
+	                        column_name := NULL;
+	                    END IF;
+
+		                    query := ' select sensor_id, 
+									    sensor_name, 
+							            sensor.sensor_api_key ,
+								  		sensor.location_id, 
+										CONCAT(location_address, '', '', city_name, '', '', region_name, '', '', country_name)::VARCHAR(500) AS location_address, 
+										location.company_id, 									    
+										company_name,  		 
+								  		COALESCE(sensor_data_summary.sensor_total_records, 0) AS sensor_total_records,
+								  		TO_CHAR(sensor_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_created_at,							  		 
+										TO_CHAR(sensor_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_modified_at,
+										sensor_is_active 		 
+								  from sensor 
+								  join location on
+								  sensor.location_id =location.location_id
+								  join city on
+								  location.city_id=city.city_id
+								  join region on
+								  city.region_id =region.region_id
+								  join country on
+								  region.country_id =country.country_id
+								  join company on
+								  location.company_id=company.company_id
+									  
+								LEFT JOIN (
+								    SELECT sensor_api_key, MAX(sensor_data_correlative) AS sensor_total_records
+								    FROM sensor_data
+									WHERE sensor_data_is_active=true
+								    GROUP BY sensor_api_key
+								) sensor_data_summary ON sensor.sensor_api_key = sensor_data_summary.sensor_api_key	
+								WHERE
+								company.company_api_key= '|| quote_literal(company_api_key);
+	
+		                    	IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
+			                        IF column_name in ('sensor.sensor_id','location.company_id','city.city_id','country.country_id')  THEN
+			                            query := query ||' AND '||  column_name || ' = ' || valor::BIGINT;
+	                    			END IF;
+								END IF;
+	                    RETURN QUERY EXECUTE query;
+	                END;
+	                $$ LANGUAGE plpgsql;
+	        			
+	        			""");
+	        }
+	        
+	        
+	        
+	        
+	        
+	        
+	        
 	       
 	        if (!doesTriggerExist("trg_generate_correlative")) {
 	            jdbcTemplate.execute("""
 	                    CREATE TRIGGER trg_generate_correlative
 	                    BEFORE INSERT ON sensor_data
 	                    FOR EACH ROW
-	                    EXECUTE FUNCTION generate_sensor_correlative();
+	                    EXECUTE FUNCTION generate_sensor_data_correlative();
 	                """);      
 	        }
 	        

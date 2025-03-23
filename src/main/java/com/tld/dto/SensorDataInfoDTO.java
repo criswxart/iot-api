@@ -9,11 +9,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class SensorDataInfoDTO {	
-	
+public class SensorDataInfoDTO {		
+	private Long sensorDataCorrelative;
+	private String sensorApiKey;
+	private Long sensorId;
     private String companyName;
     private String sensorName;	
     private String sensorEntry;
-	private Instant sensorDataCreatedAt;
+	private String sensorDataCreatedAt;
+	private String sensorDataModifiedAt;
+	private Boolean sensorDataIsActive;
 }
 

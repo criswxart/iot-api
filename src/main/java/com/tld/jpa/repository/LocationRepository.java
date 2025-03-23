@@ -20,12 +20,6 @@ public interface LocationRepository extends JpaRepository<Location, Long>{
 		    """, nativeQuery = true)
 	 List<LocationInfoDTO> findLocations(@Param("field") String field ,@Param("value") String value);	
 	 
-	 @Query(value = """
-	 		    SELECT * FROM get_active_locations ('id', :value);					
-		    """, nativeQuery = true)
-	 LocationInfoDTO findLocationById(@Param("value") String value);		
-
-
 	 /*@Query(value = """
 
 		select location_id, company_name, location_address, 

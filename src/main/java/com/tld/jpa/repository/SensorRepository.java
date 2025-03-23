@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.tld.dto.CompanyInfoDTO;
 import com.tld.dto.LocationInfoDTO;
 import com.tld.dto.SensorInfoDTO;
 import com.tld.model.Sensor;
@@ -30,6 +31,12 @@ public interface SensorRepository extends JpaRepository<Sensor, Long> {
 				sensor_id= :sensorId;					
 		    """, nativeQuery = true)
 	SensorInfoDTO findSensorById(@Param("sensorId") Long sensorId);		
+	 
+	 
+	 @Query(value = """
+	 		  select * from get_active_sensors(:field, :value, :companyApiKey)
+	 		""", nativeQuery = true)
+	 List<SensorInfoDTO> findSensors(@Param("field") String field ,@Param("value") String value, @Param("companyApiKey") String companyApiKey);
 
 	
 	 

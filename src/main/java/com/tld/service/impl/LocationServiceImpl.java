@@ -44,7 +44,7 @@ public class LocationServiceImpl implements LocationService{
 	    location.setLocationModifiedBy(optionalUser.get());		
 			
 	    //Graba location y luego hace un select custom apra obtener un json decente
-	    return locationRepository.findLocationById(locationRepository.save(location).getLocationId().toString()) ;
+	    return locationRepository.findLocations("id",locationRepository.save(location).getLocationId().toString()).get(0) ;
 		
 	}
 
@@ -83,7 +83,7 @@ public class LocationServiceImpl implements LocationService{
 		
 		locationRepository.save(location);
 		
-		return locationRepository.findLocationById(location.getLocationId().toString()) ;		
+		return locationRepository.findLocations("id",location.getLocationId().toString()).get(0) ;		
 				
 	}	
 

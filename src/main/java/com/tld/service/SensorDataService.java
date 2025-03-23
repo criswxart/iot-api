@@ -9,8 +9,10 @@ public interface SensorDataService {
 	
 	
 	String addSensorData (SensorDataDTO sensorDataDTO);	
-	SensorDataInfoDTO updateSensorData(String SensorDataApiKey, Long sensorDataCorrel, SensorDataDTO sensorDataDTO) ;
-	List<SensorDataInfoDTO>getSensorData(String field, String value);
-	String deleteSensorData(String SensorDataApiKey, Long sensorDataCorrel);
+	SensorDataInfoDTO updateSensorData(SensorDataDTO sensorDataDTO, String companyApiKey) ;
+	SensorDataInfoDTO getSensorDataById(Long correlative, String sensorApiKey, String companyApiKey);
+	List<SensorDataInfoDTO>getSensorDataByEpoch(Long field, Long value, String companyApiKey);
+	List<SensorDataInfoDTO>getSensorDataByCompany(String companyApiKey);
+	SensorDataInfoDTO deleteSensorData(String sensorApiKey, Long sensorDataCorrel, String companyApiKey);
 
 }

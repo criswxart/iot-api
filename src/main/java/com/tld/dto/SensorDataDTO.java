@@ -13,6 +13,7 @@ import lombok.ToString;
 @ToString
 public class SensorDataDTO {		
     private String sensorApiKey;
-    private Long sensorCorrelative;
-    private String sensorEntry;
+    private Long sensorDataCorrelative;
+    private String sensorDataEntry;
+    private Boolean sensorDataIsActive;
 }

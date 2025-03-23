@@ -17,6 +17,6 @@ public interface SensorService {
 	String deleteSensor(Long  sensorId, String companyApiKey);
 
 	//Usado para ingresar data en sensorDATA
-	Optional<SensorDTO> getSensorByApiKey(String companyApiKey);
+//	Optional<SensorDTO> getSensorByApiKey(String companyApiKey);
 	
 }
