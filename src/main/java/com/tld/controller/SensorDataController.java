@@ -35,6 +35,7 @@ public class SensorDataController {
 	@PostMapping
 	public ResponseEntity <?> addSensorData(@RequestBody SensorDataDTO sensorDataDTO, @RequestHeader("sensor_api_key") String sensorApiKey){
 		sensorDataDTO.setSensorApiKey(sensorApiKey);
+		System.out.println("******************"+sensorApiKey);
 		try {
 			String addedSensorData=sensorDataService.addSensorData(sensorDataDTO);				
 			return ResponseEntity.ok(addedSensorData);

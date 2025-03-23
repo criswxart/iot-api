@@ -9,13 +9,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import com.tld.configuration.jwt.JwtAuthenticationFilter;
 
 import org.springframework.security.core.Authentication;
 
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import com.tld.configuration.jwt.JwtAuthenticationFilter;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +37,7 @@ public class SecurityConfig {
 	        http
 	            .csrf(csrf -> csrf.disable()) // Deshabilita CSRF (opcional)
 	            .authorizeHttpRequests(auth -> auth
-	                .requestMatchers("/api/auth/login", "/api/v1/sensordata/**", "/api/v1/sensor/**").permitAll() // Endpoints públicos
+	                .requestMatchers("/api/auth/login", "/api/v1/sensordata/**", "/api/v1/sensor/**","/api/v1/rabbit/**").permitAll() // Endpoints públicos
 	                .requestMatchers("/api/location", "/api/auth/register").hasRole("ADMINISTRADOR") // Solo administradores
 	                .anyRequest().authenticated() // Todo lo demás requiere autenticación
 	            )
