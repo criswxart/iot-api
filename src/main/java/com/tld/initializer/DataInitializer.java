@@ -177,21 +177,22 @@ public class DataInitializer {
 	            """);
 	        }
 	        
-	        if (!doesFunctionExist("generate_sensor_correlative")) {
+	        //Procedimiento para obtener el correlativo maximo por cada sensor_api_key
+	        if (!doesFunctionExist("generate_sensor_data_correlative")) {
 	        	 jdbcTemplate.execute("""
-	 	        		CREATE OR REPLACE FUNCTION generate_sensor_correlative()
+	 	        		CREATE OR REPLACE FUNCTION generate_sensor_data_correlative()
 	 			        RETURNS TRIGGER AS $$
 	 			        DECLARE
 	 			            next_correlative BIGINT;
 	 			        BEGIN
 	 			            -- Obtener el siguiente correlativo para el sensor_api_key
-	 			            SELECT COALESCE(MAX(sensor_correlative), 0) + 1
+	 			            SELECT COALESCE(MAX(sensor_data_correlative), 0) + 1
 	 			            INTO next_correlative
 	 			            FROM sensor_data
 	 			            WHERE sensor_api_key = NEW.sensor_api_key;
 	 		
 	 			            -- Asignar el nuevo correlativo
-	 			            NEW.sensor_correlative := next_correlative;
+	 			            NEW.sensor_data_correlative := next_correlative;
 	 		
 	 			            RETURN NEW;
 	 			        END;
@@ -199,13 +200,238 @@ public class DataInitializer {
 	 			        """);	        
 	        	
 	        }
+	        //Procedimiento para el metodo GET de location dinamico
+	        if (!doesFunctionExist("get_active_locations")) {
+	            jdbcTemplate.execute("""
+	                    CREATE OR REPLACE FUNCTION get_active_locations(
+	                    identificador VARCHAR,
+	                    valor VARCHAR
+	                )
+	                RETURNS TABLE (
+	            		location_id BIGINT,    
+	                    company_name VARCHAR(255),
+	                    location_address VARCHAR(255),
+	                    city_name VARCHAR(255),
+	                    region_name VARCHAR(255),
+	                    country_name VARCHAR(255),
+	                    location_meta VARCHAR(255),
+	                    location_created_by VARCHAR(255),
+	                    location_created_at VARCHAR(255),
+	                    location_modified_by VARCHAR(255),
+	                    location_modified_at VARCHAR(255)
+	                ) AS $$
+	                DECLARE
+	                    query TEXT;
+	                    column_name TEXT;
+	                BEGIN
+	                    IF LOWER(identificador) = 'ciudad' THEN
+	                        column_name := 'city_name';
+	                    ELSIF LOWER(identificador) = 'pais' THEN
+	                        column_name := 'country_name';
+	                    ELSIF LOWER(identificador) = 'direccion' THEN
+	                        column_name := 'location_address';
+	                    ELSIF LOWER(identificador) = 'id' THEN
+	                        column_name := 'location_id';
+	                    ELSIF LOWER(identificador) = 'usuario' THEN
+	                        column_name := 'c.user_name';
+	                    ELSE
+	                        column_name := NULL;
+	                    END IF;
+
+	                    query := 'SELECT location.location_id,
+	            				         company.company_name, 
+	                                     location.location_address, 
+	                                     city.city_name,
+	                                     region.region_name, 
+	                                     country.country_name, 
+	                                     location.location_meta,
+	                                     c.user_name AS location_created_by, 
+	                                     TO_CHAR(location_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_created_at,
+	                                     m.user_name AS location_modified_by,
+	                                     TO_CHAR(location_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_modified_at
+	                              FROM location
+	                              JOIN company ON company.company_id = location.company_id
+	                              JOIN city ON city.city_id = location.city_id 
+	                              JOIN region ON region.region_id = city.region_id  
+	                              JOIN country ON country.country_id = region.country_id
+	                              JOIN users c ON c.user_id = location.location_created_by
+	                              JOIN users m ON m.user_id = location.location_modified_by
+	                              WHERE location.location_is_active = true';
+
+	                    IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
+	                        IF column_name = 'location_id' THEN
+	                            query := query || ' AND ' || column_name || ' = ' || valor::BIGINT;
+	                        ELSIF column_name = 'c.user_name' THEN
+	                            query := query || ' AND c.user_name ILIKE ' || quote_literal('%'|| valor || '%');
+	                        ELSE
+	                            query := query || ' AND ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%'||valor || '%');
+	                        END IF;
+	                    END IF;
+
+	                    RETURN QUERY EXECUTE query;
+	                END;
+	                $$ LANGUAGE plpgsql;
+
+	            """);
+	        }
+    
+	        if (!doesFunctionExist("get_active_companies")) {
+	            jdbcTemplate.execute(
+				"""
+	            		CREATE OR REPLACE FUNCTION get_active_companies(
+			        	    identificador VARCHAR,
+			        	    valor VARCHAR
+			        	)
+			        	RETURNS TABLE (
+			        	    company_id BIGINT,
+			        	    company_name VARCHAR(255),
+			        	    company_api_key VARCHAR(255),
+			        	    userNameC VARCHAR(255),
+			        	    company_created_at TIMESTAMP,  
+			        	    userNameM VARCHAR(255),
+			        	    company_modified_at TIMESTAMP  
+			        	) AS $$
+			        	DECLARE
+			        	    query TEXT;
+			        	    column_name TEXT;
+			        	BEGIN
+			        	    -- Determinar la columna a filtrar
+			        	    IF LOWER(identificador) = 'id' THEN
+			        	        column_name := 'company_id';
+			        	    ELSIF LOWER(identificador) = 'nombre' THEN
+			        	        column_name := 'company_name';
+			        	    ELSIF LOWER(identificador) = 'apikey' THEN
+			        	        column_name := 'company_api_key';
+			        	    ELSIF LOWER(identificador) = 'usuario' THEN
+			        	        column_name := 'c.user_name';
+			        	    ELSE
+			        	        column_name := NULL;
+			        	    END IF;
+		
+			        	    -- Construcción de la consulta base
+			        	    query := 'SELECT company.company_id, company.company_name, company.company_api_key,
+			        	                     c.user_name AS userNameC, 
+			        	                     company.company_created_at::TIMESTAMP, 
+			        	                     m.user_name AS userNameM, 
+			        	                     company.company_modified_at::TIMESTAMP
+			        	              FROM company 
+			        	              JOIN users c ON company.company_created_by = c.user_id
+			        	              JOIN users m ON company.company_modified_by = m.user_id
+			        	              WHERE company.company_is_active = TRUE';
+		
+			        	    -- Aplicar el filtro solo si valor no está vacío
+			        	IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
+	            		 	IF column_name = 'company_id' THEN
+			        	       query := query || ' AND ' || column_name || ' = ' || valor::BIGINT;
+			        	    ELSIF column_name = 'c.user_name' THEN
+			        	       query := query || ' AND c.user_name ILIKE ' || quote_literal('%' || valor || '%');
+			        	    ELSE
+			        	       query := query || ' AND ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%' || valor || '%');
+			        	    END IF;
+				        	END IF;
+			
+				        	-- Ejecutar la consulta y retornar los resultados
+				        	RETURN QUERY EXECUTE query;
+				        	END;
+				        	$$ LANGUAGE plpgsql;
+	         """   );
+	        }
+	        
+	        
+	        
+	        if (!doesFunctionExist("get_active_sensors")) {
+	        	jdbcTemplate.execute("""
+	        		  CREATE OR REPLACE FUNCTION get_active_sensors(
+	                    identificador VARCHAR,
+	                    valor VARCHAR,
+						company_api_key VARCHAR
+	                )
+	                RETURNS TABLE (
+	            		sensor_id BIGINT,    
+	                    sensor_name VARCHAR(255),
+						sensor_api_key VARCHAR(255),
+	                    location_id BIGINT,    
+	                    location_address VARCHAR(500),
+	                    company_id BIGINT,    
+	                    company_name VARCHAR(255),
+	                    sensor_total_records BIGINT,
+	                    sensor_created_at VARCHAR(255),	                    
+	                    sensor_modified_at VARCHAR(255),
+	                    sensor_is_active BOOLEAN
+	                ) AS $$
+	                DECLARE
+	                    query TEXT;
+	                    column_name TEXT;
+	                BEGIN
+						IF LOWER(identificador) = 'id' THEN
+	                        column_name := 'sensor.sensor_id';	               
+	                    ELSIF LOWER(identificador) = 'company' THEN
+	                        column_name := 'location.company_id';
+	                    ELSIF LOWER(identificador) = 'city' THEN
+	                        column_name := 'city.city_id';
+	                    ELSIF LOWER(identificador) = 'country' THEN
+	                        column_name := 'country.country_id';
+	                    ELSE
+	                        column_name := NULL;
+	                    END IF;
+
+		                    query := ' select sensor_id, 
+									    sensor_name, 
+							            sensor.sensor_api_key ,
+								  		sensor.location_id, 
+										CONCAT(location_address, '', '', city_name, '', '', region_name, '', '', country_name)::VARCHAR(500) AS location_address, 
+										location.company_id, 									    
+										company_name,  		 
+								  		COALESCE(sensor_data_summary.sensor_total_records, 0) AS sensor_total_records,
+								  		TO_CHAR(sensor_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_created_at,							  		 
+										TO_CHAR(sensor_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_modified_at,
+										sensor_is_active 		 
+								  from sensor 
+								  join location on
+								  sensor.location_id =location.location_id
+								  join city on
+								  location.city_id=city.city_id
+								  join region on
+								  city.region_id =region.region_id
+								  join country on
+								  region.country_id =country.country_id
+								  join company on
+								  location.company_id=company.company_id
+									  
+								LEFT JOIN (
+								    SELECT sensor_api_key, MAX(sensor_data_correlative) AS sensor_total_records
+								    FROM sensor_data
+									WHERE sensor_data_is_active=true
+								    GROUP BY sensor_api_key
+								) sensor_data_summary ON sensor.sensor_api_key = sensor_data_summary.sensor_api_key	
+								WHERE
+								company.company_api_key= '|| quote_literal(company_api_key);
+	
+		                    	IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
+			                        IF column_name in ('sensor.sensor_id','location.company_id','city.city_id','country.country_id')  THEN
+			                            query := query ||' AND '||  column_name || ' = ' || valor::BIGINT;
+	                    			END IF;
+								END IF;
+	                    RETURN QUERY EXECUTE query;
+	                END;
+	                $$ LANGUAGE plpgsql;
+	        			
+	        			""");
+	        }
+	        
+	        
+	        
+	        
+	        
+	        
+	        
 	       
 	        if (!doesTriggerExist("trg_generate_correlative")) {
 	            jdbcTemplate.execute("""
 	                    CREATE TRIGGER trg_generate_correlative
 	                    BEFORE INSERT ON sensor_data
 	                    FOR EACH ROW
-	                    EXECUTE FUNCTION generate_sensor_correlative();
+	                    EXECUTE FUNCTION generate_sensor_data_correlative();
 	                """);      
 	        }
 	        

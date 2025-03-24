@@ -8,11 +8,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LocationInfoDTO {
+	private Long locationId;
     private String companyName;
     private String locationAddress;
     private String cityName;
     private String regionName;
     private String countryName;
-
-
+    private String locationMeta;    
+    private String locationCreatedBy;
+    private String locationCreatedAt;    			
+    private String locationModifiedBy;
+    private String locationModifiedAt;
 }

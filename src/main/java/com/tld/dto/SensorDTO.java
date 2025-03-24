@@ -2,10 +2,13 @@ package com.tld.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
+@Setter
 @ToString
 
 public class SensorDTO {
@@ -15,6 +18,6 @@ public class SensorDTO {
 	private String sensorName;	
 	private Integer categoryId;	
 	private String sensorMeta;	
-	private String sensorApiKey;		
+	private String sensorApiKey;	
 
 }

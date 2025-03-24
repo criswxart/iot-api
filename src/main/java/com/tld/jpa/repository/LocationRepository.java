@@ -6,26 +6,53 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.tld.dto.LocationDTO;
 import com.tld.dto.LocationInfoDTO;
 import com.tld.model.Location;
 
+
 public interface LocationRepository extends JpaRepository<Location, Long>{
-	
-	 @Query(value = """
-		        SELECT 
-		            c.company_name AS companyName, 
-		            l.location_adress AS locationAddress, 
-		            ct.city_name AS cityName, 
-		            r.region_name AS regionName, 
-		            co.country_name AS countryName
-		        FROM location l
-		        JOIN company c ON l.company_id = c.company_id
-		        JOIN city ct ON l.city_id = ct.city_id
-		        JOIN region r ON ct.region_id = r.region_id
-		        JOIN country co ON r.country_id = co.country_id
-		        WHERE LOWER(co.country_name) LIKE LOWER(CONCAT('%', :countryName, '%'))
-		    """, nativeQuery = true)
-	  List<List<LocationInfoDTO>> findByCountryName(@Param("countryName") String countryName);
+
 	
 
+	 @Query(value = """
+	 		    SELECT * FROM get_active_locations (:field, :value);					
+		    """, nativeQuery = true)
+	 List<LocationInfoDTO> findLocations(@Param("field") String field ,@Param("value") String value);	
+	 
+	 /*@Query(value = """
+
+		select location_id, company_name, location_address, 
+			  location_meta,  city_name, region_name, 
+			  country_name, c.user_name  as location_created_by, TO_CHAR(location_created_at, 'DD-MM-YYYY HH24:MI') AS location_crated_at,
+			  m.user_name  as location_modified_by, TO_CHAR(location_modified_at, 'DD-MM-YYYY HH24:MI') AS location_modified_at,
+			  location_is_active
+		from location
+		join company on
+		location.company_id=company.company_id
+		join city on
+		location.city_id=city.city_id
+		join region on
+		city.city_id =region.region_id
+		join country on
+		region.country_id =country.country_id
+		join users c on
+		location.location_created_by =c.user_id
+		join users m on
+		location.location_modified_by =m.user_id
+		where 
+		location_id=19
+""", nativeQuery = true)
+	 */
+	 
+	 
+	 
+	 @Query(value = """
+	 		    SELECT count(*) FROM location 
+	 		    where
+	 		    location_is_active= true and
+	 		    company_id= :companyId and
+	 		    location_id= :locationId				
+		    """, nativeQuery = true)
+	 Short findIfLocationAndCompanyAreOk(@Param("companyId") Long companyId, @Param("locationId") Long locationId);	
 }

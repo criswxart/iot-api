@@ -3,6 +3,7 @@ import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table (name="location",  uniqueConstraints = @UniqueConstraint(columnNames = {"city_id", "location_adress"}))
+@Table (name="location",  uniqueConstraints = @UniqueConstraint(columnNames = {"company_id", "city_id", "location_address"}))
 public class Location {
 
 	@Id
@@ -34,8 +35,8 @@ public class Location {
     @JoinColumn(name = "company_id", nullable = false)	
 	private Company company;	
 	
-	@Column(name="location_adress", nullable = false)
-	private String locationAdress;	
+	@Column(name="location_address", nullable = false)
+	private String locationAddress;	
 	
 	@ManyToOne
     @JoinColumn(name = "city_id", nullable = false)	
@@ -76,13 +77,11 @@ public class Location {
 	
 	
 	
-	public Location(Company company,String locationAdress, City city, String locationMeta, Users locationCreatedBy, Users locationModifiedBy) {		
+	public Location(Company company,String locationAdress, City city, String locationMeta) {		
 		this.company=company;
-		this.locationAdress=locationAdress;
+		this.locationAddress=locationAdress;
 		this.city=city;
 		this.locationMeta=locationMeta;
-		this.locationCreatedBy=locationCreatedBy;		
-		this.locationModifiedBy=locationModifiedBy;	
 	}
 	
 	

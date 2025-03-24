@@ -12,21 +12,21 @@ public class SensorDataId implements Serializable {
     @Column(name = "sensor_api_key")
     private String sensorApiKey;
 
-    @Column(name = "sensor_correlative")
-    private Long sensorCorrelative;
+    @Column(name = "sensor_data_correlative")
+    private Long sensorDataCorrelative;
 
     public SensorDataId() {}
 
     public SensorDataId(String sensorApiKey, Long sensorCorrelative) {
         this.sensorApiKey = sensorApiKey;
-        this.sensorCorrelative = sensorCorrelative;
+        this.sensorDataCorrelative = sensorCorrelative;
     }
 
     public String getSensorApiKey() { return sensorApiKey; }
     public void setSensorApiKey(String sensorApiKey) { this.sensorApiKey = sensorApiKey; }
 
-    public Long getSensorCorrelative() { return sensorCorrelative; }
-    public void setSensorCorrelative(Long sensorCorrelative) { this.sensorCorrelative = sensorCorrelative; }
+    public Long getSensorCorrelative() { return sensorDataCorrelative; }
+    public void setSensorCorrelative(Long sensorCorrelative) { this.sensorDataCorrelative = sensorCorrelative; }
 
     @Override
     public boolean equals(Object o) {
@@ -34,11 +34,11 @@ public class SensorDataId implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         SensorDataId that = (SensorDataId) o;
         return Objects.equals(sensorApiKey, that.sensorApiKey) &&
-               Objects.equals(sensorCorrelative, that.sensorCorrelative);
+               Objects.equals(sensorDataCorrelative, that.sensorDataCorrelative);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sensorApiKey, sensorCorrelative);
+        return Objects.hash(sensorApiKey, sensorDataCorrelative);
     }
 }
