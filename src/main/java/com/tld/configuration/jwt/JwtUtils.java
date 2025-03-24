@@ -80,5 +80,15 @@ public class JwtUtils {
 	 private Key getSigninKey() {
 	        return new SecretKeySpec(Base64.getDecoder().decode(PRIVATE_KEY), SignatureAlgorithm.HS256.getJcaName());
 	    }
+	 
+	 public String getAuthoritiesFromToken(String token) {
+		    Claims claims = Jwts.parserBuilder()
+		                        .setSigningKey(getSigninKey())
+		                        .build()
+		                        .parseClaimsJws(token)
+		                        .getBody();
+
+		    return claims.get("authorities", String.class);  // Devuelve los roles como un string
+		}
 	
 }

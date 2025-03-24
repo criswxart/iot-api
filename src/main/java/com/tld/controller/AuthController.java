@@ -53,13 +53,42 @@ public class AuthController {
 	        }
 	    }
 
+//	    @PostMapping("/register")
+//	    public ResponseEntity<String> register(@RequestBody Users user) {
+//	        if (userService.findByUsername(user.getUserName()).isPresent()) {
+//	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya está en uso.");
+//	        }
+//	        userService.registerUser(user);
+//	        return ResponseEntity.ok("Usuario registrado con éxito.");
+//	    }
 	    @PostMapping("/register")
-	    public ResponseEntity<String> register(@RequestBody Users user) {
-	        if (userService.findByUsername(user.getUserName()).isPresent()) {
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya está en uso.");
+	    public ResponseEntity<String> register(@RequestBody Users user, @RequestHeader("Authorization") String token) {
+	        try {
+	            // Verificar que el token es válido y extraer el rol
+	            if (token == null || !token.startsWith("Bearer ")) {
+	                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
+	            }
+	            
+	            String jwtToken = token.substring(7); // Eliminar el prefijo "Bearer "
+	            String username = jwtUtils.getUsernameFromToken(jwtToken);
+	            
+	            // Aquí deberías verificar si el usuario tiene el rol adecuado (por ejemplo, "ADMINISTRADOR")
+	            Optional<Users> loggedInUser = userService.findByUsername(username);
+	            if (loggedInUser.isEmpty() || !loggedInUser.get().getRole().equals("ADMINISTRADOR")) {
+	                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para registrar usuarios.");
+	            }
+
+	            // Verificar si el nombre de usuario ya está en uso
+	            if (userService.findByUsername(user.getUserName()).isPresent()) {
+	                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya está en uso.");
+	            }
+
+	            userService.registerUser(user); // Registrar el nuevo usuario
+	            return ResponseEntity.ok("Usuario registrado con éxito.");
+
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor.");
 	        }
-	        userService.registerUser(user);
-	        return ResponseEntity.ok("Usuario registrado con éxito.");
 	    }
 
 //	    @GetMapping("/user")
@@ -71,6 +100,21 @@ public class AuthController {
 //	        }
 //	    }
 	    
+//	    @GetMapping("/user")
+//	    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
+//	        if (token == null || !token.startsWith("Bearer ")) {
+//	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
+//	        }
+//
+//	        token = token.substring(7); // Quitar el prefijo "Bearer "
+//	        
+//	        try {
+//	            String username = jwtUtils.getUsernameFromToken(token);
+//	            return ResponseEntity.ok("Usuario autenticado: " + username);
+//	        } catch (Exception e) {
+//	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
+//	        }
+//	    }
 	    @GetMapping("/user")
 	    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
 	        if (token == null || !token.startsWith("Bearer ")) {
@@ -81,20 +125,54 @@ public class AuthController {
 	        
 	        try {
 	            String username = jwtUtils.getUsernameFromToken(token);
-	            return ResponseEntity.ok("Usuario autenticado: " + username);
+	            String authorities = jwtUtils.getAuthoritiesFromToken(token);  // Aquí obtienes los roles
+
+	            
+	            if (authorities.contains("ROLE_ADMINISTRADOR")) {
+	                return ResponseEntity.ok("Usuario autenticado: " + username);
+	            } else {
+	                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permisos para acceder.");
+	            }
+
 	        } catch (Exception e) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
 	        }
 	    }
 
+//	    @PostMapping("/change-password")
+//	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword) {
+//	        Optional<Users> user = userService.findByUsername(username);
+//	        if (user.isPresent()) {
+//	            userService.updatePassword(user.get(), newPassword);
+//	            return ResponseEntity.ok("Contraseña actualizada con éxito.");
+//	        } else {
+//	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+//	        }
+//	    }
+	    
 	    @PostMapping("/change-password")
-	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword) {
-	        Optional<Users> user = userService.findByUsername(username);
-	        if (user.isPresent()) {
-	            userService.updatePassword(user.get(), newPassword);
-	            return ResponseEntity.ok("Contraseña actualizada con éxito.");
-	        } else {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword, @RequestHeader("Authorization") String token) {
+	        if (token == null || !token.startsWith("Bearer ")) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
+	        }
+
+	        token = token.substring(7); // Quitar el prefijo "Bearer "
+
+	        try {
+	            String loggedInUsername = jwtUtils.getUsernameFromToken(token);  // Obtener el username desde el token
+	            if (!username.equals(loggedInUsername)) {
+	                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes cambiar la contraseña de otro usuario.");
+	            }
+
+	            Optional<Users> user = userService.findByUsername(username);
+	            if (user.isPresent()) {
+	                userService.updatePassword(user.get(), newPassword);
+	                return ResponseEntity.ok("Contraseña actualizada con éxito.");
+	            } else {
+	                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+	            }
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
 	        }
 	    }
 
