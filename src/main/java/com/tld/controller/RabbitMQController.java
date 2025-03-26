@@ -38,27 +38,6 @@ public class RabbitMQController {
             return new ResponseEntity<>("Error inesperado. Intenta más tarde.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-/*
-    @PostMapping("/send")
-    public ResponseEntity<String> sendMessage(@RequestBody String message, @RequestHeader("sensor_api_key") String sensorApiKey) {
-    
-        try {
-        	String messageWithApiKey = sensorApiKey + "|" + message; // Concatenar API Key con el mensaje
-        	producer.sendMessage(messageWithApiKey);
-        	return new ResponseEntity<>("Mensaje enviado con éxito", HttpStatus.OK);
-        	 
-        }catch (AmqpConnectException e) {
-            // Error de conexión con RabbitMQ
-            System.out.println("Error de conexión con RabbitMQ: " + e.getMessage());
-            return new ResponseEntity<>("No se pudo conectar a RabbitMQ. Intenta más tarde.", HttpStatus.SERVICE_UNAVAILABLE);
-        } catch (Exception e) {
-            // Capturar cualquier otro error
-            System.out.println("Error inesperado: " + e.getMessage());
-            return new ResponseEntity<>("Error inesperado. Intenta más tarde.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
- 
-    }*/
-    
     
     @PostMapping("/masivo/{nTimes}")
     public String sendMessageNTtimes(@PathVariable Integer nTimes, @RequestBody String message, @RequestHeader("sensor_api_key") String sensorApiKey) {

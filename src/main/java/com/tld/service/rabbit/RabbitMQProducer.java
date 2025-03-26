@@ -4,7 +4,6 @@ import org.springframework.amqp.AmqpConnectException;
 import org.springframework.amqp.AmqpIOException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.policy.TimeoutRetryPolicy;
