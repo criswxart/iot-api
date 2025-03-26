@@ -49,7 +49,7 @@ public class CompanyServiceImpl implements CompanyService{
 		Company company= CompanyMapper.toEntity(companyDTO);
 		company.setCompanyCreatedBy(optionalUser.get());
 		company.setCompanyModifiedBy(optionalUser.get());		
-    	companyRepository.save(company).getCompanyId();
+    	companyRepository.save(company);
     	
     	return new CompanyInfoDTO(	
 				company.getCompanyId(),

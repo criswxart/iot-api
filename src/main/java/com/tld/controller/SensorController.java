@@ -1,6 +1,7 @@
 package com.tld.controller;
 
-import org.springframework.dao.DataIntegrityViolationException;
+import java.util.logging.Level;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,12 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tld.dto.CompanyDTO;
-import com.tld.dto.CompanyInfoDTO;
-import com.tld.dto.ErrorDTO;
 import com.tld.dto.SensorDTO;
-import com.tld.dto.SensorInfoDTO;
 import com.tld.service.SensorService;
+import com.tld.util.LogUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,55 +31,31 @@ public class SensorController {
 	
 	@PostMapping
 	public ResponseEntity <?> addSensor(@RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller addSensor");
 		sensorDTO.setSensorApiKey(companyApiKey);
-		try {
-			SensorInfoDTO addedSensor=sensorService.addSensor(sensorDTO);		
-			
-			return ResponseEntity.ok(addedSensor);
-	    } catch (DataIntegrityViolationException e) {
-		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
-	    } catch (Exception e) {
-		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
-	    }
+		return ResponseEntity.ok(sensorService.addSensor(sensorDTO));
 	}	
 	
 	@PutMapping("{sensorId}")
-	public ResponseEntity <?> updateCompany(@PathVariable Long sensorId, @RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){	
-		sensorDTO.setSensorId(sensorId);
-		try {			    		    			
-			SensorInfoDTO updatedSensor = sensorService.updateSensor(companyApiKey,sensorDTO);
-		    return ResponseEntity.ok(updatedSensor);
-		    
-	    } catch (DataIntegrityViolationException e) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new ErrorDTO("Error inesperado", e.getMessage()));
-    }
+	public ResponseEntity <?> updateSensor(@PathVariable Long sensorId, @RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){	
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller updateSensor");
+		sensorDTO.setSensorId(sensorId);	    		    			
+	    return ResponseEntity.ok(sensorService.updateSensor(companyApiKey,sensorDTO));		
 	}	
 	
 	
 	@GetMapping
-   	public ResponseEntity<?> getSensors(@RequestParam String field, @RequestParam String value,@RequestHeader("company_api_key") String companyApiKey){    
-   		try {			
-   			return new  ResponseEntity<>(sensorService.getSensors(field, value, companyApiKey),HttpStatus.OK);
-   		} catch (DataIntegrityViolationException e) {
-   		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-   		                .body(new ErrorDTO("Error de integridad de datos", e.getMessage()));
-   	    } catch (Exception e) {
-   		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-   		                .body(new ErrorDTO("Error inesperado", e.getMessage()));
-   		}				
+   	public ResponseEntity<?> getSensors(@RequestParam String field, @RequestParam String value,@RequestHeader("company_api_key") String companyApiKey){  		
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getSensors");
+		return new  ResponseEntity<>(sensorService.getSensors(field, value, companyApiKey),HttpStatus.OK);			
    	}
        
     
     
     @DeleteMapping("{sensorId}")
-	public ResponseEntity <String> deleteLocation(@PathVariable Long sensorId,@RequestHeader("company_api_key") String companyApiKey){		
-		String mensaje= sensorService.deleteSensor(sensorId, companyApiKey);
+	public ResponseEntity <String> deleteSensor(@PathVariable Long sensorId,@RequestHeader("company_api_key") String companyApiKey){		
+    	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller deleteSensor");
+    	String mensaje= sensorService.deleteSensor(sensorId, companyApiKey);
 		return ResponseEntity.ok(mensaje);
 	}
 	
