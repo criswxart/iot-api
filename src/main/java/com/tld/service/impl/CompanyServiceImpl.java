@@ -5,12 +5,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.tld.controller.CompanyController;
 import com.tld.dto.CompanyDTO;
 import com.tld.dto.CompanyInfoDTO;
 import com.tld.dto.LocationInfoDTO;
@@ -23,6 +25,7 @@ import com.tld.model.Company;
 import com.tld.model.Location;
 import com.tld.model.Users;
 import com.tld.service.CompanyService;
+import com.tld.util.LogUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -38,15 +41,16 @@ public class CompanyServiceImpl implements CompanyService{
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
     
 	@Override
-	public CompanyInfoDTO addCompany(CompanyDTO companyDTO) {		
+	public CompanyInfoDTO addCompany(CompanyDTO companyDTO) {	
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl addCompany");
 	    
 	    Optional<Users> optionalUser =  getAuthenticatedUser();    
 		
 		Company company= CompanyMapper.toEntity(companyDTO);
 		company.setCompanyCreatedBy(optionalUser.get());
 		company.setCompanyModifiedBy(optionalUser.get());		
-    	companyRepository.save(company).getCompanyId();
-
+    	companyRepository.save(company);
+    	
     	return new CompanyInfoDTO(	
 				company.getCompanyId(),
 				company.getCompanyName(),
@@ -60,12 +64,14 @@ public class CompanyServiceImpl implements CompanyService{
 	}
 	
 	@Override
-	public List<CompanyInfoDTO> getCompanies(String field, String value) {		
+	public List<CompanyInfoDTO> getCompanies(String field, String value) {	
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getCompanies");
 		return companyRepository.findCompanies(field, value);
 	}
 	
 	@Override
 	public CompanyInfoDTO updateCompany(Long companyId, CompanyDTO companyDTO) {
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl updateCompany");
 		Optional<Company> optionalCompany = companyRepository.findById(companyId);
 		if (optionalCompany.isEmpty()) {
 	    	throw new EntityNotFoundException("Company no encontrada con ID: " + companyId );
@@ -100,6 +106,7 @@ public class CompanyServiceImpl implements CompanyService{
 
 	@Override
 	public String deleteCompany(Long companyId) {
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl deleteCompany");
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));		
 		Optional <Company> optionalCompany=companyRepository.findById(companyId);		
 		if (optionalCompany.isEmpty()) {
@@ -122,7 +129,8 @@ public class CompanyServiceImpl implements CompanyService{
 	}		
 	   
 	@Override
-	public Optional<CompanyDTO> getCompanyByApiKey(String apiKey) {			
+	public Optional<CompanyDTO> getCompanyByApiKey(String apiKey) {		
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getCompanyByApiKey");
 		 return companyRepository.findByCompanyApiKey(apiKey).map(CompanyMapper::toDTO);
 	}
 	
@@ -131,8 +139,10 @@ public class CompanyServiceImpl implements CompanyService{
 
 	        if (authentication != null && authentication.isAuthenticated()) {
 	            String userName = authentication.getName();
+	            LogUtil.log(CompanyController.class, Level.INFO, "Usuario "+userName+" validado.");
 	            return userRepository.findByUserName(userName);
 	        }
+	        LogUtil.log(CompanyController.class, Level.WARNING, "Validacion de usuario fallida.");
 	        return Optional.empty();
 	    }
 	

@@ -2,12 +2,19 @@ package com.tld.dto;
 
 public class ErrorDTO {
 
-	 private String message;
+		private String code;
+		private String message;
 	    private String details;
 
-	    public ErrorDTO(String message, String details) {
+	    public ErrorDTO(String code, String message, String details) {
+	    	this.code = code;
 	        this.message = message;
 	        this.details = details;
+	    }
+	    
+
+	    public String getCode() {
+	        return code;
 	    }
 
 	    public String getMessage() {
