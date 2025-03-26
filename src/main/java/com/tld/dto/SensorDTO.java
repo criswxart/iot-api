@@ -10,7 +10,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-
+@NoArgsConstructor
 public class SensorDTO {
 	
 	private Long sensorId;		
