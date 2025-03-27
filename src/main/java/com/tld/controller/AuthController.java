@@ -38,13 +38,13 @@ public class AuthController {
 	    private JwtUtils jwtUtils; // Para generar y validar tokens JWT.
 	    
 	    
-	    @GetMapping("/{id}")
-		@Operation(summary="obtener un libro por Id")
-		@ApiResponses(value = {
-				@ApiResponse(responseCode = "200", description = "se encontro un libro", content = @Content(mediaType="aplication/json")),
-				@ApiResponse(responseCode = "404", description = "no se encontro un libro"),
-				@ApiResponse(responseCode = "500", description = "error en el servidor"),
-		})
+	   
+//		@Operation(summary="obtener un libro por Id")
+//		@ApiResponses(value = {
+//				@ApiResponse(responseCode = "200", description = "se encontro un libro", content = @Content(mediaType="aplication/json")),
+//				@ApiResponse(responseCode = "404", description = "no se encontro un libro"),
+//				@ApiResponse(responseCode = "500", description = "error en el servidor"),
+//		})
 	    // Recibe el username y password y devuelve un JWT en la respuesta.
 	    @PostMapping("/login")
 	    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
