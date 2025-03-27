@@ -10,7 +10,6 @@ import com.tld.dto.SensorDataDTO;
 import com.tld.model.Measurement;
 import com.tld.model.SensorData;
 
-@Component
 public class MeasurementMapper {
 	
 	private final SensorDataMapper sensorDataMapper; 
