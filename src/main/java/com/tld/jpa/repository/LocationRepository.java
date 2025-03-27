@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.tld.dto.LocationDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
 import com.tld.model.Location;
 
 

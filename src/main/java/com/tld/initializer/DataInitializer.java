@@ -176,7 +176,7 @@ public class DataInitializer {
 	                ('company CCC', 'API-12345-ASR', (SELECT user_id FROM users WHERE user_name='cristian'), TRUE, (SELECT user_id FROM users WHERE user_name='cristian'), NOW(), NOW());
 	            """);
 	        }
-	        
+	      /*  
 	        //Procedimiento para obtener el correlativo maximo por cada sensor_api_key
 	        if (!doesFunctionExist("generate_sensor_data_correlative")) {
 	        	 jdbcTemplate.execute("""
@@ -199,7 +199,7 @@ public class DataInitializer {
 	 			        $$ LANGUAGE plpgsql;	
 	 			        """);	        
 	        	
-	        }
+	        }*/
 	        //Procedimiento para el metodo GET de location dinamico
 	        if (!doesFunctionExist("get_active_locations")) {
 	            jdbcTemplate.execute("""
@@ -425,7 +425,7 @@ public class DataInitializer {
 	        
 	        
 	        
-	       
+	       /*
 	        if (!doesTriggerExist("trg_generate_correlative")) {
 	            jdbcTemplate.execute("""
 	                    CREATE TRIGGER trg_generate_correlative
@@ -434,7 +434,7 @@ public class DataInitializer {
 	                    EXECUTE FUNCTION generate_sensor_data_correlative();
 	                """);      
 	        }
-	        
+	        */
 	    }
 	    public boolean doesExistAnyRecord(String tableName) {	
 	    	try {

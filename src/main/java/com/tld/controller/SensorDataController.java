@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tld.dto.ErrorDTO;
 import com.tld.dto.SensorDTO;
 import com.tld.dto.SensorDataDTO;
-import com.tld.dto.SensorDataInfoDTO;
+import com.tld.dto.info.SensorDataInfoDTO;
 import com.tld.service.SensorDataService;
 import com.tld.service.SensorService;
 import com.tld.util.LogUtil;

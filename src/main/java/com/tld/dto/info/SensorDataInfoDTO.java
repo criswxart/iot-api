@@ -1,4 +1,4 @@
-package com.tld.dto;
+package com.tld.dto.info;
 
 import java.time.Instant;
 

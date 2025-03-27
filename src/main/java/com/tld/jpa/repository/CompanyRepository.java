@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.tld.dto.CompanyInfoDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.CompanyInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
 import com.tld.model.Company;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.tld.dto.CompanyDTO;
-import com.tld.dto.CompanyInfoDTO;
 import com.tld.dto.LocationDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.CompanyInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
 
 public interface CompanyService {
 	

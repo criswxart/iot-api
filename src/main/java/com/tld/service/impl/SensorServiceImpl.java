@@ -13,9 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.tld.dto.CompanyDTO;
-import com.tld.dto.LocationInfoDTO;
 import com.tld.dto.SensorDTO;
-import com.tld.dto.SensorInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
+import com.tld.dto.info.SensorInfoDTO;
 import com.tld.jpa.repository.CategoryRepository;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.LocationRepository;

@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.tld.controller.CompanyController;
 import com.tld.dto.CompanyDTO;
-import com.tld.dto.CompanyInfoDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.CompanyInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.UserRepository;
 import com.tld.mapper.CompanyMapper;

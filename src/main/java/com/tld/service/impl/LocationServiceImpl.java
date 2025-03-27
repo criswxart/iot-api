@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.tld.dto.LocationDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
 import com.tld.jpa.repository.UserRepository;
 import com.tld.jpa.repository.CityRepository;
 import com.tld.jpa.repository.LocationRepository;

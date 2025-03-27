@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.tld.dto.SensorDataDTO;
-import com.tld.dto.SensorDataInfoDTO;
-import com.tld.dto.SensorInfoDTO;
+import com.tld.dto.info.SensorDataInfoDTO;
+import com.tld.dto.info.SensorInfoDTO;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.SensorDataRepository;
 import com.tld.jpa.repository.SensorRepository;
