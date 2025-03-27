@@ -1,4 +1,5 @@
-
+******************NO DESCARGAR - EN PROGRESO*****************
+(feature-sebastian tiene el proyecto para ser usado en servidor aws con version sensorData antiguo)
 En AWS server debes:
 
 -Tener instalado postgres > crear BD iot-api
