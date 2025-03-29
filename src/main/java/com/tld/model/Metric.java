@@ -27,7 +27,7 @@ public class Metric {
 	@Column(name="metric_id")
 	private Integer metricId;
 	
-	@Column(name="sensor_metric_name")
+	@Column(name="metric_name")
 	private String metricName;
 	
 	@Column(name="metric_created_at")

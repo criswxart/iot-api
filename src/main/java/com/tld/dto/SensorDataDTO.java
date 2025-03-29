@@ -1,6 +1,11 @@
 package com.tld.dto;
 
 
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tld.dto.deserializer.SensorDataDeserializer;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,9 +17,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@JsonDeserialize(using = SensorDataDeserializer.class)
 public class SensorDataDTO {
 	
-    private String metricName;  
-    private Double sensorDataValue;		
-    private Long sensorDataDateTime;
+	private Map<String, Object> sensorData;
+    private Long datetime;
 }

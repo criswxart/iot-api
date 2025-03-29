@@ -11,7 +11,8 @@ import com.tld.dto.info.SensorInfoDTO;
 
 public interface SensorService {
 	
-	SensorInfoDTO addSensor (SensorDTO sensorDTO);	
+	//SensorInfoDTO addSensor (SensorDTO sensorDTO);	
+	String addSensor (SensorDTO sensorDTO);
 	SensorInfoDTO updateSensor(String companyApiKey, SensorDTO sensorDTO) ;	
 	List<SensorInfoDTO> getSensors(String field, String value, String companyApiKey);
 	String deleteSensor(Long  sensorId, String companyApiKey);

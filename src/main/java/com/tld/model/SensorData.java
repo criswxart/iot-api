@@ -1,4 +1,6 @@
 package com.tld.model;
+import java.time.Instant;
+
 import com.tld.model.id.SensorDataId;
 
 import jakarta.persistence.Column;
@@ -44,7 +46,16 @@ public class SensorData {
 	
     // 
     public SensorData(Long measurementId, Integer sensorDataCorrelative, Integer metricId) {
-        this.sensorDataId = new SensorDataId(measurementId, sensorDataCorrelative, metricId);
+        this.sensorDataId = new SensorDataId(measurementId, sensorDataCorrelative, metricId);       
     }
+    
+    public SensorData(Measurement measurement, Integer sensorDataCorrelative, Metric metric, Double sensorDataValue, Long sensorDataDateTime) {
+		this.sensorDataId = new SensorDataId(measurement.getMeasurementId(), sensorDataCorrelative, metric.getMetricId());  // Crear el ID compuesto
+		this.measurement=measurement;
+		this.metric=metric;
+	// Relación con la entidad Measurement
+		this.sensorDataValue = sensorDataValue;  // Valor de los datos del sensor
+		this.sensorDataDateTime = sensorDataDateTime;  // Timestamp del dato
+	}
 }
 

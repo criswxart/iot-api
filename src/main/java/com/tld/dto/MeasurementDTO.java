@@ -4,17 +4,19 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
 public class MeasurementDTO {
 	
 	private Long measurementId;	
-	private String sensorApiKey;
-	private List<SensorDataDTO> sensorDataList;
+	private String api_key;
+	private List<SensorDataDTO> json_data;
 	private Boolean measurementIsActive;
 }

@@ -36,7 +36,7 @@ public class Measurement {
     private Long measurementId;	
 	
 	@ManyToOne
-	@JoinColumn(name = "sensor_api_key", referencedColumnName = "sensor_api_key", insertable = false, updatable = false)
+	@JoinColumn(name = "sensor_api_key", referencedColumnName = "sensor_api_key", updatable = false)
     private Sensor sensor;	 
 	
 	@OneToMany(mappedBy = "measurement", cascade = CascadeType.ALL)
@@ -68,9 +68,9 @@ public class Measurement {
         this.measurementId = measurementId;
     }
     
-    public Measurement(Long measurementId, String sensorApiKey, List<SensorData> sensorDataList, Boolean measurementIsActive) {
+    public Measurement(Long measurementId, Sensor sensor, List<SensorData> sensorDataList, Boolean measurementIsActive) {
         this.measurementId = measurementId;
-        this.sensor.setSensorApiKey(sensorApiKey);
+        this.sensor= sensor;
         this.sensorDataList=sensorDataList;
         this.measurementIsActive=measurementIsActive;
     }

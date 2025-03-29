@@ -76,6 +76,10 @@ public class Sensor {
 		this.sensorId=sensorId;
 	}
 	
+	public Sensor (String sensorApiKey) {
+		this.sensorApiKey=sensorApiKey;
+	}
+	
 	
 	public Sensor(Location location, String sensorName, Category category, String sensorMeta, String sensorApiKey) {
 		this.location=location;

@@ -4,20 +4,20 @@ import java.time.Instant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class SensorDataInfoDTO {		
-	private Long sensorDataCorrelative;
-	private String sensorApiKey;
-	private Long sensorId;
-    private String companyName;
-    private String sensorName;	
-    private String sensorEntry;
-	private String sensorDataCreatedAt;
-	private String sensorDataModifiedAt;
-	private Boolean sensorDataIsActive;
+	private Integer correlative;
+	private Integer metric_id;
+	private String metric_name;	
+    private Double metric_value;
+    private Long datetime_epoch;
+    private Instant datetime_legible;
+	
 }
 
