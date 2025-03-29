@@ -1,4 +1,4 @@
-package com.tld.model;
+package com.tld.entity;
 
 import java.time.Instant;
 

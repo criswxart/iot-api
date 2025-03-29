@@ -2,7 +2,7 @@ package com.tld.service;
 
 import java.util.Optional;
 
-import com.tld.model.Users;
+import com.tld.entity.Users;
 
 public interface UserService {
 	

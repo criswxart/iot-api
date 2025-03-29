@@ -1,9 +1,9 @@
 package com.tld.mapper;
 
 import com.tld.dto.SensorDTO;
-import com.tld.model.Category;
-import com.tld.model.Location;
-import com.tld.model.Sensor;
+import com.tld.entity.Category;
+import com.tld.entity.Location;
+import com.tld.entity.Sensor;
 
 public class SensorMapper {
 	

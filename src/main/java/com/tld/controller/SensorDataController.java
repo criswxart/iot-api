@@ -37,7 +37,7 @@ public class SensorDataController {
 	@PostMapping
 	public ResponseEntity <?> addSensorData(@RequestBody SensorDataDTO sensorDataDTO, @RequestHeader("sensor_api_key") String sensorApiKey){
 		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller addSensorData");
-		sensorDataDTO.setSensorApiKey(sensorApiKey);
+	//	sensorDataDTO.setSensorApiKey(sensorApiKey);
 		return ResponseEntity.ok(sensorDataService.addSensorData(sensorDataDTO));
 
 	}	

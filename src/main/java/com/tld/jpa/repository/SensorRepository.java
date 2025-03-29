@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import com.tld.dto.info.CompanyInfoDTO;
 import com.tld.dto.info.LocationInfoDTO;
 import com.tld.dto.info.SensorInfoDTO;
-import com.tld.model.Sensor;
+import com.tld.entity.Sensor;
 
 public interface SensorRepository extends JpaRepository<Sensor, Long> {
 	

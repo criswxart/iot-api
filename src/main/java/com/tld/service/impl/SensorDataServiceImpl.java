@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import com.tld.dto.SensorDataDTO;
 import com.tld.dto.info.SensorDataInfoDTO;
 import com.tld.dto.info.SensorInfoDTO;
+import com.tld.entity.Company;
+import com.tld.entity.Sensor;
+import com.tld.entity.SensorData;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.SensorDataRepository;
 import com.tld.jpa.repository.SensorRepository;
 import com.tld.mapper.SensorDataMapper;
-import com.tld.model.Company;
-import com.tld.model.Sensor;
-import com.tld.model.SensorData;
 import com.tld.model.id.SensorDataId;
 import com.tld.service.SensorDataService;
 
@@ -27,13 +27,13 @@ public class SensorDataServiceImpl implements SensorDataService{
 	final SensorDataRepository sensorDataRepository;
 	final SensorRepository sensorRepository;
 	final CompanyRepository companyRepository;
-	
+/*	
 	@Override
 	public String addSensorData(SensorDataDTO sensorDataDTO) {		
 		
 		Optional <Sensor> optionalSensor=sensorRepository.findBySensorApiKey(sensorDataDTO.getSensorApiKey());		
 		if (optionalSensor.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe sensor con la api key entragada, no se grabara data. Valida tu apikey" + sensorDataDTO.getSensorApiKey());
+	    	throw new EntityNotFoundException("No se procesará solicitud" + sensorDataDTO.getSensorApiKey());
 	    }		
 		SensorData sensorData=  sensorDataRepository.save( SensorDataMapper.toEntity(sensorDataDTO));
 	
@@ -168,5 +168,35 @@ public class SensorDataServiceImpl implements SensorDataService{
 					+ "registro de entrada de datos. Valida tu apikey" + companyApiKey);
 		}
 	}
-
+*/
+	@Override
+	public String addSensorData(SensorDataDTO sensorDataDTO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public SensorDataInfoDTO updateSensorData(SensorDataDTO sensorDataDTO, String companyApiKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public SensorDataInfoDTO getSensorDataById(Long correlative, String sensorApiKey, String companyApiKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<SensorDataInfoDTO> getSensorDataByEpoch(Long field, Long value, String companyApiKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<SensorDataInfoDTO> getSensorDataByCompany(String companyApiKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public SensorDataInfoDTO deleteSensorData(String sensorApiKey, Long sensorDataCorrel, String companyApiKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

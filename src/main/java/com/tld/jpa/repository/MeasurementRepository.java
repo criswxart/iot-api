@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.tld.dto.info.SensorDataInfoDTO;
-import com.tld.model.Measurement;
+import com.tld.entity.Measurement;
 
 public interface MeasurementRepository extends JpaRepository<Measurement,Long> {
 	String querySql="""			
@@ -55,4 +55,32 @@ public interface MeasurementRepository extends JpaRepository<Measurement,Long> {
 	  List<Object[]> findMeasurementById(@Param("id") Long id, @Param("sensorApiKey") String sensorApiKey, @Param("companyApiKey") String companyApiKey);
 	
 
+	  
+	  @Query(value =querySql+"""		  
+			  where
+			  c.company_api_key=:companyApiKey and
+		      sd.sensor_data_created_at  between :from and :to; 
+	  		""", nativeQuery = true)
+	  List<Object[]> findMeasurementDataByEpoch(@Param("from") Long from, @Param("to") Long to, @Param("companyApiKey") String companyApiKey);
+  
+	  @Query(value =querySql+"""		  
+			  where
+			  c.company_api_key=:companyApiKey 
+			  order by 1,12 asc;
+	  	  	""", nativeQuery = true)
+	  List<Object[]>  findMeasurementDataByCompany(@Param("companyApiKey") String companyApiKey);
+	  
+	  
+	  @Query(value = """
+		 		SELECT count(*) FROM sensor
+				join location on
+				sensor.location_id=location.location_id
+				join company on
+				location.company_id= company.company_id
+				where
+				company_api_key= :companyApiKey and
+				sensor_api_key=:sensorApiKey ;			
+			    """, nativeQuery = true)
+	  Short findIfCompanyAndSensorAreOk(@Param("companyApiKey") String companyApiKey, @Param("sensorApiKey") String sensorApiKey);	
+	  
 }

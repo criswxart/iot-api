@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.tld.dto.LocationDTO;
 import com.tld.dto.info.LocationInfoDTO;
-import com.tld.model.Location;
+import com.tld.entity.Location;
 
 
 public interface LocationRepository extends JpaRepository<Location, Long>{

@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.tld.dto.info.CompanyInfoDTO;
 import com.tld.dto.info.LocationInfoDTO;
-import com.tld.model.Company;
+import com.tld.entity.Company;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 	

@@ -10,11 +10,11 @@ import com.tld.dto.info.SensorDataInfoDTO;
 public interface MeasurementService {
 	
 	MeasurementDTO addSensorData (MeasurementDTO measurementDTO, String sensorApiKey);	
-	SensorDataInfoDTO updateSensorData(MeasurementDTO measurementDTO, String companyApiKey) ;
+	MeasurementInfoDTO updateSensorData(String sensorApiKey, Long measurementId, String companyApiKey);
 	MeasurementInfoDTO getSensorDataById(Long measurementID,String sensorApiKey, String companyApiKey);
-	List<SensorDataInfoDTO>getSensorDataByEpoch(Long field, Long value, String companyApiKey);
-	List<SensorDataInfoDTO>getSensorDataByCompany(String companyApiKey);
-	SensorDataInfoDTO deleteSensorData(String sensorApiKey, Long measurementID,String companyApiKey);
+	List<MeasurementInfoDTO>getSensorDataByEpoch(Long from, Long to, String companyApiKey);
+	List<MeasurementInfoDTO>getSensorDataByCompany(String companyApiKey);
+	MeasurementInfoDTO deleteSensorData(String sensorApiKey, Long measurementID,String companyApiKey);
 
 
 }

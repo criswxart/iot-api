@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.tld.entity.Users;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.model.Users;
 import com.tld.service.UserService;
 
 @Service

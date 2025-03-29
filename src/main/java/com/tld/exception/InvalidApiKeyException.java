@@ -15,7 +15,7 @@ public class InvalidApiKeyException extends RuntimeException {
     // Constructor con mensaje personalizado
     public InvalidApiKeyException(String message) {
         super(message);
-        this.errorDTO = new ErrorDTO("INVALID_API_KEY", message, "The provided API key is invalid.");
+        this.errorDTO = new ErrorDTO("INVALID_API_KEY", message, "La Api Key entregada no es valida.");
     }
 
     // Constructor con mensaje, causa y ErrorDTO

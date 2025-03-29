@@ -36,9 +36,9 @@ public class MeasurementController {
 	}	
 	
 	@PutMapping
-	public ResponseEntity <?> updateSensorData(@RequestBody MeasurementDTO measurementDTO, @RequestHeader("company_api_key") String companyApiKey){		
+	public ResponseEntity <?> updateSensorData(@RequestParam Long id, @RequestParam String sensorApiKey, @RequestHeader("company_api_key") String companyApiKey){		
 		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller updateSensorData");
-		return ResponseEntity.ok(measurementService.updateSensorData(measurementDTO, companyApiKey));
+		return ResponseEntity.ok(measurementService.updateSensorData(sensorApiKey, id, companyApiKey));
 		
 	}	
 	
@@ -63,8 +63,8 @@ public class MeasurementController {
     
     
     @DeleteMapping
-	public ResponseEntity <?> deleteSensorData(@RequestParam Long measurementId, @RequestParam String sensorApiKey, @RequestHeader("company_api_key") String companyApiKey){
+	public ResponseEntity <?> deleteSensorData(@RequestParam Long id, @RequestParam String sensorApiKey, @RequestHeader("company_api_key") String companyApiKey){
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller deleteSensorData");
-    	return new  ResponseEntity<>(measurementService.deleteSensorData(sensorApiKey,measurementId,companyApiKey),HttpStatus.OK);
+    	return new  ResponseEntity<>(measurementService.deleteSensorData(sensorApiKey,id,companyApiKey),HttpStatus.OK);
 	}
 }

@@ -9,8 +9,8 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.tld.dto.SensorDataDTO;
-import com.tld.model.Metric;
-import com.tld.model.SensorData;
+import com.tld.entity.Metric;
+import com.tld.entity.SensorData;
 
 @Component
 public class SensorDataMapper {	

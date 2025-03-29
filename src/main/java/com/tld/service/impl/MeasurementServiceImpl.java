@@ -1,34 +1,30 @@
 package com.tld.service.impl;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.logging.Level;
 
 import org.springframework.stereotype.Service;
 
+import com.tld.controller.CompanyController;
 import com.tld.dto.MeasurementDTO;
 import com.tld.dto.SensorDataDTO;
 import com.tld.dto.info.MeasurementInfoDTO;
-import com.tld.dto.info.SensorDataInfoDTO;
+import com.tld.entity.Measurement;
+import com.tld.entity.Metric;
+import com.tld.entity.Sensor;
+import com.tld.entity.SensorData;
+import com.tld.exception.InvalidApiKeyException;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.MeasurementRepository;
 import com.tld.jpa.repository.MetricRepository;
 import com.tld.jpa.repository.SensorDataRepository;
 import com.tld.jpa.repository.SensorRepository;
 import com.tld.mapper.MeasurementMapper;
-import com.tld.mapper.SensorDataMapper;
-import com.tld.model.Measurement;
-import com.tld.model.Metric;
-import com.tld.model.Sensor;
-import com.tld.model.SensorData;
-import com.tld.model.id.SensorDataId;
 import com.tld.service.MeasurementService;
-
-import jakarta.persistence.EntityNotFoundException;
+import com.tld.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,18 +40,18 @@ public class MeasurementServiceImpl implements MeasurementService{
 	
 	
 	@Override
-	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {
-		
+	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {	
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl addSensorData");
 		if(sensorApiKey.isEmpty()) {
 			if(measurementDTO.getApi_key().isEmpty()) {}
-			 new RuntimeException("No ha entregado sensorApiKey, no se procesa solicitud");
+			throw new InvalidApiKeyException ("Sensor / Api key vacio");
 		}else {
 			measurementDTO.setApi_key(sensorApiKey);
 		}
 				
 		//Busco sensor
 		Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_key())
-						.orElseThrow(() -> new RuntimeException("Sensor no encontrado, no se puede procesar solicitud."));
+						.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado."));
 
 		Measurement measurement = new Measurement();
 		measurement.setSensor(sensor);	
@@ -78,19 +74,12 @@ public class MeasurementServiceImpl implements MeasurementService{
 			                return metricRepository.save(newMetric);
 			            });		
 			    SensorData sensorData = new SensorData(
-			    		measurement,
-			    		null,
-			            metric,//pasamos la entidad, donde esta la ID y nombre
-			            (Double) sensorDataMap.get(metricName),  //obtenemos el valor Duble del map, busco por nombre ej: temperatura y obtengo su valor
-			            sensorDataDTO.getDatetime() //Guardo el valor en long. Se podria eventualmente grabar en BD como instant
+			    		measurement,//aca va la tabla "padre" o "cabecera"
+			    		null, //correlativo null porque lo asigno al final
+			            metric, //Va la entidad metric y ahi esta id y nombre
+			            (Double) sensorDataMap.get(metricName),  //valores de la metrica
+			            sensorDataDTO.getDatetime()  //valor Long que envian en el json
 			    );
-			    /*
-			    System.out.println("antes de añadir a lista, valores: "+sensorData.getSensorDataId().getMeasurementId()+"/"+
-			    sensorData.getSensorDataId().getMetricId()+"/"+			    		
-			    sensorData.getSensorDataId().getSensorDataCorrelative()+"/"+	
-			    sensorData.getSensorDataValue()+"/"+
-			    sensorData.getSensorDataDateTime()
-			    		);*/
 			    sensorDataList.add(sensorData);
 			}
 		}
@@ -108,67 +97,72 @@ public class MeasurementServiceImpl implements MeasurementService{
 	}
 
 	@Override
-	public SensorDataInfoDTO updateSensorData(MeasurementDTO measurementDTO, String companyApiKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public MeasurementInfoDTO updateSensorData (String sensorApiKey, Long measurementId, String companyApiKey) {
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl updateSensorData");
+		if(measurementRepository.findIfCompanyAndSensorAreOk(companyApiKey, sensorApiKey)==0) {
+			throw new com.tld.exception.InvalidCompanySensorException("Solo puedes modificar cuando compania y sensor estan relacionados");
+		}	
+		
+		Optional<Measurement> optionalMeasurement = measurementRepository.findById(measurementId);
+		if(optionalMeasurement.isEmpty()) {
+			throw new com.tld.exception.EntityNotFoundException("No existe registro para poder inactivar");
+		}
+		
+		Measurement measurement = optionalMeasurement.get();
+		measurement.setMeasurementIsActive(true);		
+		measurementRepository.save(measurement);		
+		
+		return measurementMapper.mapToMeasurementInfoDTO( measurementRepository.findMeasurementById(measurementId,sensorApiKey,companyApiKey));
 	}
 
 
 	@Override
-	public List<SensorDataInfoDTO> getSensorDataByEpoch(Long field, Long value, String companyApiKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MeasurementInfoDTO> getSensorDataByEpoch(Long from, Long to, String companyApiKey) {
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getSensorDataByEpoch");
+		List<Object[]> info = measurementRepository.findMeasurementDataByEpoch(from, to, companyApiKey);
+		if(info.isEmpty()) {
+			throw new com.tld.exception.EntityNotFoundException("No hay resultados para la compania");
+		}
+		return measurementMapper.mapToListMeasurementInfoDTO(info);
 	}
 
 	@Override
-	public List<SensorDataInfoDTO> getSensorDataByCompany(String companyApiKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MeasurementInfoDTO> getSensorDataByCompany(String companyApiKey) {
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getSensorDataByCompany");
+		List<Object[]> info = measurementRepository.findMeasurementDataByCompany(companyApiKey);
+		if(info.isEmpty()) {
+			throw new com.tld.exception.EntityNotFoundException("No hay resultados para la compania");
+		}
+		return measurementMapper.mapToListMeasurementInfoDTO(info);
 	}
 
-
 	@Override
-	public MeasurementInfoDTO getSensorDataById(Long measurementID, String sensorApiKey, String companyApiKey) {
+	public MeasurementInfoDTO getSensorDataById(Long measurementID, String sensorApiKey, String companyApiKey) {	
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getSensorDataById");
 		List<Object[]> info = measurementRepository.findMeasurementById(measurementID, sensorApiKey, companyApiKey);
-	    MeasurementInfoDTO measurementInfoDTO = new MeasurementInfoDTO();
-	    
-	    Object[] general = info.get(0);
-	    measurementInfoDTO.setId((Long)general[0]);
-	    measurementInfoDTO.setSensor_api_key((String) general[1]);
-	    measurementInfoDTO.setSensor_name((String) general[2]);
-	    measurementInfoDTO.setCompany_name((String) general[3]);
-	    measurementInfoDTO.setLocation_adress((String) general[4]);
-	    measurementInfoDTO.setCity_name((String) general[5]);
-	    measurementInfoDTO.setRegion_name((String) general[6]);
-	    measurementInfoDTO.setCountry_name((String) general[7]);
-	    measurementInfoDTO.setRecord_saved_at((String) general[8]);
-	    measurementInfoDTO.setRecord_modified_at((String) general[9]);
-	    measurementInfoDTO.setIs_record_active((Boolean) general[10]);
-	   
-	    
-        List<SensorDataInfoDTO> sensorDataInfoList = new ArrayList<>();
-        
-        for (Object[] row : info) {       	
-        	
-            SensorDataInfoDTO sensorDataInfoDTO= new SensorDataInfoDTO();
-            sensorDataInfoDTO.setCorrelative((Integer) row[11]);
-            sensorDataInfoDTO.setMetric_id((Integer) row[12]);
-            sensorDataInfoDTO.setMetric_name((String) row[13]);
-            sensorDataInfoDTO.setMetric_value((Double) row[14]);
-            sensorDataInfoDTO.setDatetime_epoch((Long) row[15]);
-            sensorDataInfoDTO.setDatetime_legible(Instant.ofEpochMilli((Long) row[15]));            
-            sensorDataInfoList.add(sensorDataInfoDTO);             
-        	
-        }
-        measurementInfoDTO.setRecords(sensorDataInfoList);
-        
-		return measurementInfoDTO;
+		if(info.isEmpty()) {
+			throw new com.tld.exception.EntityNotFoundException("No hay resultados para la compania / sensor");
+		}
+		return measurementMapper.mapToMeasurementInfoDTO(info);
 	}
 
 	@Override
-	public SensorDataInfoDTO deleteSensorData(String sensorApiKey, Long measurementID, String companyApiKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public MeasurementInfoDTO deleteSensorData(String sensorApiKey, Long measurementID, String companyApiKey) {
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl deleteSensorData");
+		if(measurementRepository.findIfCompanyAndSensorAreOk(companyApiKey, sensorApiKey)==0) {
+			throw new com.tld.exception.InvalidCompanySensorException("Solo puedes modificar cuando compania y sensor estan relacionados");
+		}	
+		
+		Optional<Measurement> optionalMeasurement = measurementRepository.findById(measurementID);
+		if(optionalMeasurement.isEmpty()) {
+			throw new com.tld.exception.EntityNotFoundException("No existe registro para poder inactivar");
+		}
+		
+		Measurement measurement = optionalMeasurement.get();
+		measurement.setMeasurementIsActive(false);		
+		measurementRepository.save(measurement);		
+		
+		return measurementMapper.mapToMeasurementInfoDTO( measurementRepository.findMeasurementById(measurementID,sensorApiKey,companyApiKey));
 	}
 
 }

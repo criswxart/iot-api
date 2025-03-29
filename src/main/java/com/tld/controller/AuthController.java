@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.tld.configuration.jwt.JwtUtils;
-import com.tld.model.Users;
+import com.tld.entity.Users;
 import com.tld.service.UserService;
 
 import java.util.Optional;
