@@ -3,14 +3,13 @@ package com.tld.mapper;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tld.dto.MeasurementDTO;
 import com.tld.dto.SensorDataDTO;
 import com.tld.dto.info.MeasurementInfoDTO;
@@ -25,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class MeasurementMapper {
 	
 	private final SensorDataMapper sensorDataMapper; 
-	
+	 private final ObjectMapper objectMapper;
 	
 	public MeasurementDTO toDTO(Measurement measurement) {
 		
@@ -99,7 +98,7 @@ public class MeasurementMapper {
 	
 	
 	public List<MeasurementInfoDTO> mapToListMeasurementInfoDTO(List<Object[]> info) {
-	    List<MeasurementInfoDTO> measurementInfoDTOList = new ArrayList<>();
+	//    List<MeasurementInfoDTO> measurementInfoDTOList = new ArrayList<>();
 	    
 	    // Usamos un Map para almacenar datos generales y evitar duplicados en la medición
 	    Map<Long, MeasurementInfoDTO> measurementMap = new HashMap<>();
@@ -147,6 +146,16 @@ public class MeasurementMapper {
 	    return new ArrayList<>(measurementMap.values());
 	}
 
+	
+	public MeasurementDTO fromJsonToDTO(String json) {
+        try {
+            return objectMapper.readValue(json, MeasurementDTO.class);
+        } catch (Exception e) {        	
+            throw new com.tld.exception.InvalidJsonFormatException("Error al convertir JSON a MeasurementDTO", e);
+        }
+    }
+	
+	
 
 	
 	

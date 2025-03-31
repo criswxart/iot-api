@@ -41,14 +41,17 @@ public class MeasurementServiceImpl implements MeasurementService{
 	
 	@Override
 	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {	
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl addSensorData");
-		if(sensorApiKey.isEmpty()) {
-			if(measurementDTO.getApi_key().isEmpty()) {}
-			throw new InvalidApiKeyException ("Sensor / Api key vacio");
+		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl addSensorData");	
+		
+		if(sensorApiKey==null || sensorApiKey.isEmpty() ) {
+			if(measurementDTO.getApi_key()==null) {
+				throw new InvalidApiKeyException ("Sensor / Api key vacio");
+			}
 		}else {
 			measurementDTO.setApi_key(sensorApiKey);
 		}
-				
+		
+		
 		//Busco sensor
 		Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_key())
 						.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado."));

@@ -42,13 +42,13 @@ public class Measurement {
 	@OneToMany(mappedBy = "measurement", cascade = CascadeType.ALL)
     private List<SensorData> sensorDataList; 
 	
-	@Column(name="sensor_data_created_at", nullable = false)
+	@Column(name="measurement_created_at", nullable = false)
 	private Instant measurementCreatedAt;
 	
-	@Column(name="sensor_data_modified_at", nullable = false)
+	@Column(name="measurement_modified_at", nullable = false)
 	private Instant measurementModifiedAt;
 	
-	@Column(name="sensor_data_is_active", nullable = false)
+	@Column(name="measurement_is_active", nullable = false)
 	private Boolean measurementIsActive;
 	
 	@PrePersist

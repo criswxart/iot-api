@@ -46,7 +46,7 @@ public class SensorServiceImpl implements SensorService{
 	
 	 
 	@Override
-	public String addSensor(SensorDTO sensorDTO) {		
+	public SensorInfoDTO addSensor(SensorDTO sensorDTO) {		
 		//Falta validar que la direccion seleccionada pertenezca a la misma empresa
 		//Sacar una lista de direcciones con la company_id  y luego ver que la ingresada
 		//este en el listado	
@@ -69,7 +69,9 @@ public class SensorServiceImpl implements SensorService{
 		Long id= sensorRepository.save(sensor).getSensorId();
 		
 		if(id>0) {
-			return("id grabada"+id);
+			
+			return sensorRepository.findSensors("id", id.toString(),sensorDTO.getSensorApiKey()).get(0);
+			
 			//return sensorRepository.findSensors("id", sensor.getSensorId().toString(),sensorDTO.getSensorApiKey()).get(0);			
 		}else {
 			throw new EntityNotFoundException("No se pudo grabar, informar a soporte.");

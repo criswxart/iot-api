@@ -176,30 +176,7 @@ public class DataInitializer {
 	                ('company CCC', 'API-12345-ASR', (SELECT user_id FROM users WHERE user_name='cristian'), TRUE, (SELECT user_id FROM users WHERE user_name='cristian'), NOW(), NOW());
 	            """);
 	        }
-	      /*  
-	        //Procedimiento para obtener el correlativo maximo por cada sensor_api_key
-	        if (!doesFunctionExist("generate_sensor_data_correlative")) {
-	        	 jdbcTemplate.execute("""
-	 	        		CREATE OR REPLACE FUNCTION generate_sensor_data_correlative()
-	 			        RETURNS TRIGGER AS $$
-	 			        DECLARE
-	 			            next_correlative BIGINT;
-	 			        BEGIN
-	 			            -- Obtener el siguiente correlativo para el sensor_api_key
-	 			            SELECT COALESCE(MAX(sensor_data_correlative), 0) + 1
-	 			            INTO next_correlative
-	 			            FROM sensor_data
-	 			            WHERE sensor_api_key = NEW.sensor_api_key;
-	 		
-	 			            -- Asignar el nuevo correlativo
-	 			            NEW.sensor_data_correlative := next_correlative;
-	 		
-	 			            RETURN NEW;
-	 			        END;
-	 			        $$ LANGUAGE plpgsql;	
-	 			        """);	        
-	        	
-	        }*/
+	   
 	        //Procedimiento para el metodo GET de location dinamico
 	        if (!doesFunctionExist("get_active_locations")) {
 	            jdbcTemplate.execute("""
@@ -382,7 +359,7 @@ public class DataInitializer {
 										CONCAT(location_address, '', '', city_name, '', '', region_name, '', '', country_name)::VARCHAR(500) AS location_address, 
 										location.company_id, 									    
 										company_name,  		 
-								  		COALESCE(sensor_data_summary.sensor_total_records, 0) AS sensor_total_records,
+								  		COALESCE(measurement_summary.sensor_total_measurements, 0) AS sensor_total_measurements,
 								  		TO_CHAR(sensor_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_created_at,							  		 
 										TO_CHAR(sensor_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_modified_at,
 										sensor_is_active 		 
@@ -397,13 +374,12 @@ public class DataInitializer {
 								  region.country_id =country.country_id
 								  join company on
 								  location.company_id=company.company_id
-									  
-								LEFT JOIN (
-								    SELECT sensor_api_key, MAX(sensor_data_correlative) AS sensor_total_records
-								    FROM sensor_data
-									WHERE sensor_data_is_active=true
-								    GROUP BY sensor_api_key
-								) sensor_data_summary ON sensor.sensor_api_key = sensor_data_summary.sensor_api_key	
+								  LEFT JOIN (
+											    SELECT sensor_api_key, count(*) AS sensor_total_measurements
+											    FROM measurement
+												WHERE measurement_is_active=true
+											    GROUP BY sensor_api_key
+											) measurement_summary ON sensor.sensor_api_key = measurement_summary.sensor_api_key	
 								WHERE
 								company.company_api_key= '|| quote_literal(company_api_key);
 	
@@ -420,21 +396,7 @@ public class DataInitializer {
 	        }
 	        
 	        
-	        
-	        
-	        
-	        
-	        
-	       /*
-	        if (!doesTriggerExist("trg_generate_correlative")) {
-	            jdbcTemplate.execute("""
-	                    CREATE TRIGGER trg_generate_correlative
-	                    BEFORE INSERT ON sensor_data
-	                    FOR EACH ROW
-	                    EXECUTE FUNCTION generate_sensor_data_correlative();
-	                """);      
-	        }
-	        */
+	 
 	    }
 	    public boolean doesExistAnyRecord(String tableName) {	
 	    	try {

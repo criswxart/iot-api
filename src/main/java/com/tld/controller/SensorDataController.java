@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api/v1/sensordata")
 @RequiredArgsConstructor
 public class SensorDataController {
-	
+/*	
 	private final SensorDataService sensorDataService;								
 	
 	@PostMapping
@@ -76,5 +76,5 @@ public class SensorDataController {
     	return new  ResponseEntity<>(sensorDataService.deleteSensorData(sensorApiKey,sensorDataCorrel,companyApiKey),HttpStatus.OK);
 	}
 	
-
+*/
 }

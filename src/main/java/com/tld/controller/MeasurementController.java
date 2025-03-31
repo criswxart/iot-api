@@ -27,17 +27,16 @@ public class MeasurementController {
 	private final MeasurementService measurementService;								
 	
 	@PostMapping
-	public ResponseEntity <?> addSensorData(@RequestBody MeasurementDTO measurementDTO, @RequestHeader("sensor_api_key") String sensorApiKey){
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller addSensorData");
-		  LogUtil.log(CompanyController.class, Level.INFO, "JSON recibido: " + measurementDTO);
-		measurementDTO.setApi_key(sensorApiKey);
+	public ResponseEntity <?> addSensorData(@RequestBody MeasurementDTO measurementDTO, @RequestHeader(value ="sensor_api_key", required = false) String sensorApiKey){
+		LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller addSensorData");	
+		//measurementDTO.setApi_key(sensorApiKey);
 		return ResponseEntity.ok(measurementService.addSensorData(measurementDTO, sensorApiKey));
 
 	}	
 	
 	@PutMapping
 	public ResponseEntity <?> updateSensorData(@RequestParam Long id, @RequestParam String sensorApiKey, @RequestHeader("company_api_key") String companyApiKey){		
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller updateSensorData");
+		LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller updateSensorData");
 		return ResponseEntity.ok(measurementService.updateSensorData(sensorApiKey, id, companyApiKey));
 		
 	}	
@@ -45,26 +44,26 @@ public class MeasurementController {
 	
 	@GetMapping
    	public ResponseEntity<?> getSensorById(@RequestParam Long measurementID, @RequestParam String sensorApiKey, @RequestHeader("company_api_key") String companyApiKey){    
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getSensorById");
+		LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller getSensorById");
 		return new  ResponseEntity<>(measurementService.getSensorDataById(measurementID,sensorApiKey,companyApiKey),HttpStatus.OK);		
    	}
 	
 	@GetMapping("epoch")
    	public ResponseEntity<?> getSensorByEpoch(@RequestParam Long from, @RequestParam Long to, @RequestHeader("company_api_key") String companyApiKey){    
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getSensorByEpoch");
+		LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller getSensorByEpoch");
 		return new  ResponseEntity<>(measurementService.getSensorDataByEpoch(from, to, companyApiKey),HttpStatus.OK);			
    	}
 	
 	@GetMapping("company")
    	public ResponseEntity<?> getSensorByCompany(@RequestHeader("company_api_key") String companyApiKey){ 
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getSensorByCompany");
+		LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller getSensorByCompany");
 		return new  ResponseEntity<>(measurementService.getSensorDataByCompany(companyApiKey),HttpStatus.OK);			
    	}      
     
     
     @DeleteMapping
 	public ResponseEntity <?> deleteSensorData(@RequestParam Long id, @RequestParam String sensorApiKey, @RequestHeader("company_api_key") String companyApiKey){
-    	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller deleteSensorData");
+    	LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller deleteSensorData");
     	return new  ResponseEntity<>(measurementService.deleteSensorData(sensorApiKey,id,companyApiKey),HttpStatus.OK);
 	}
 }

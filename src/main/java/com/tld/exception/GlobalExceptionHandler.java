@@ -67,4 +67,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getErrorDTO(), HttpStatus.BAD_REQUEST);
     }
     
+    @ExceptionHandler(MissingParameterException.class)
+    public ResponseEntity<ErrorDTO> handleMissingParameterException(MissingParameterException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getErrorDTO());
+    }
+    
 }
