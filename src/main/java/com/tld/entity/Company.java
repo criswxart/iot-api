@@ -1,4 +1,4 @@
-package com.tld.model;
+package com.tld.entity;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;

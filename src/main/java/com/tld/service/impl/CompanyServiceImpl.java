@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 
 import com.tld.controller.CompanyController;
 import com.tld.dto.CompanyDTO;
-import com.tld.dto.CompanyInfoDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.CompanyInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
+import com.tld.entity.City;
+import com.tld.entity.Company;
+import com.tld.entity.Location;
+import com.tld.entity.Users;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.UserRepository;
 import com.tld.mapper.CompanyMapper;
 import com.tld.mapper.LocationMapper;
-import com.tld.model.City;
-import com.tld.model.Company;
-import com.tld.model.Location;
-import com.tld.model.Users;
 import com.tld.service.CompanyService;
 import com.tld.util.LogUtil;
 

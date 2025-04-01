@@ -11,10 +11,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.tld.entity.Permission;
+import com.tld.entity.Role;
+import com.tld.entity.Users;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.model.Permission;
-import com.tld.model.Role;
-import com.tld.model.Users;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

@@ -3,7 +3,7 @@ package com.tld.service;
 import java.util.List;
 
 import com.tld.dto.SensorDataDTO;
-import com.tld.dto.SensorDataInfoDTO;
+import com.tld.dto.info.SensorDataInfoDTO;
 
 public interface SensorDataService {
 	

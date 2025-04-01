@@ -11,14 +11,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.tld.dto.LocationDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
+import com.tld.entity.City;
+import com.tld.entity.Location;
+import com.tld.entity.Users;
 import com.tld.jpa.repository.UserRepository;
 import com.tld.jpa.repository.CityRepository;
 import com.tld.jpa.repository.LocationRepository;
 import com.tld.mapper.LocationMapper;
-import com.tld.model.City;
-import com.tld.model.Location;
-import com.tld.model.Users;
 import com.tld.service.LocationService;
 
 import jakarta.persistence.EntityNotFoundException;

@@ -13,16 +13,14 @@ import com.tld.service.rabbit.RabbitMQProducer;
 @RequestMapping("/api/v1/rabbit")
 public class RabbitMQController {
 
-    private final RabbitMQProducer producer;
-    
-   
+    private final RabbitMQProducer producer;   
 
     public RabbitMQController(RabbitMQProducer producer) {
         this.producer = producer;
     }
-    
+       
     @PostMapping("/add")
-    public ResponseEntity<String> sendMessage(@RequestBody String message, @RequestHeader("sensor_api_key") String sensorApiKey) {
+    public ResponseEntity<String> sendSensorData(@RequestBody String message, @RequestHeader(value ="sensor_api_key", required = false) String sensorApiKey) {
         try {
             String messageWithApiKey = sensorApiKey + "|" + message; // Concatenar API Key con el mensaje
 
@@ -38,6 +36,9 @@ public class RabbitMQController {
             return new ResponseEntity<>("Error inesperado. Intenta más tarde.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    
+    
     
     @PostMapping("/masivo/{nTimes}")
     public String sendMessageNTtimes(@PathVariable Integer nTimes, @RequestBody String message, @RequestHeader("sensor_api_key") String sensorApiKey) {

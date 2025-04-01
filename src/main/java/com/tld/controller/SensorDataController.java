@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tld.dto.ErrorDTO;
 import com.tld.dto.SensorDTO;
 import com.tld.dto.SensorDataDTO;
-import com.tld.dto.SensorDataInfoDTO;
+import com.tld.dto.info.SensorDataInfoDTO;
 import com.tld.service.SensorDataService;
 import com.tld.service.SensorService;
 import com.tld.util.LogUtil;
@@ -31,13 +31,13 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("api/v1/sensordata")
 @RequiredArgsConstructor
 public class SensorDataController {
-	
+/*	
 	private final SensorDataService sensorDataService;								
 	
 	@PostMapping
 	public ResponseEntity <?> addSensorData(@RequestBody SensorDataDTO sensorDataDTO, @RequestHeader("sensor_api_key") String sensorApiKey){
 		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller addSensorData");
-		sensorDataDTO.setSensorApiKey(sensorApiKey);
+	//	sensorDataDTO.setSensorApiKey(sensorApiKey);
 		return ResponseEntity.ok(sensorDataService.addSensorData(sensorDataDTO));
 
 	}	
@@ -76,5 +76,5 @@ public class SensorDataController {
     	return new  ResponseEntity<>(sensorDataService.deleteSensorData(sensorApiKey,sensorDataCorrel,companyApiKey),HttpStatus.OK);
 	}
 	
-
+*/
 }

@@ -1,10 +1,10 @@
 package com.tld.mapper;
 
 import com.tld.dto.LocationDTO;
-import com.tld.model.City;
-import com.tld.model.Company;
-import com.tld.model.Location;
-import com.tld.model.Users;
+import com.tld.entity.City;
+import com.tld.entity.Company;
+import com.tld.entity.Location;
+import com.tld.entity.Users;
 
 public class LocationMapper {
 	

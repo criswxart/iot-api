@@ -9,19 +9,19 @@ public class EntityNotFoundException extends RuntimeException {
     // Constructor sin mensaje ni causa
     public EntityNotFoundException() {
         super("Entity not found");
-        this.errorDTO = new ErrorDTO("ENTITY_NOT_FOUND", "Entity not found", "The entity you requested could not be found.");
+        this.errorDTO = new ErrorDTO("ENTITY_NOT_FOUND", "Entity not found", "La entidad que se busco no pudo ser encontrada.");
     }
 
     // Constructor con mensaje personalizado
     public EntityNotFoundException(String message) {
         super(message);
-        this.errorDTO = new ErrorDTO("ENTITY_NOT_FOUND", message, "The entity you requested could not be found.");
+        this.errorDTO = new ErrorDTO("ENTITY_NOT_FOUND", message, "La entidad que se busco no pudo ser encontrada.");
     }
 
     // Constructor con mensaje, causa y ErrorDTO
     public EntityNotFoundException(String message, Throwable cause) {
         super(message, cause);
-        this.errorDTO = new ErrorDTO("ENTITY_NOT_FOUND", message, "The entity you requested could not be found.");
+        this.errorDTO = new ErrorDTO("ENTITY_NOT_FOUND", message, "La entidad que se busco no pudo ser encontrada.");
     }
 
     // Constructor con causa y ErrorDTO

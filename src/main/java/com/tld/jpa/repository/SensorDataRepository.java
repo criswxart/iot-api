@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.tld.dto.SensorDataInfoDTO;
-import com.tld.dto.SensorInfoDTO;
-import com.tld.model.SensorData;
+import com.tld.dto.info.SensorDataInfoDTO;
+import com.tld.dto.info.SensorInfoDTO;
+import com.tld.entity.SensorData;
 import com.tld.model.id.SensorDataId;
 
 public interface SensorDataRepository extends JpaRepository<SensorData,SensorDataId>{

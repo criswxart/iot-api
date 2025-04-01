@@ -57,7 +57,19 @@ public class GlobalExceptionHandler {
     // Maneja excepciones generales (Throwable)
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorDTO> handleThrowable(Throwable ex) {
+    	ex.printStackTrace();
         ErrorDTO errorDTO = new ErrorDTO("GENERAL_ERROR", "An unexpected error occurred", ex.getMessage());
         return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
+    @ExceptionHandler(InvalidCompanySensorException.class)
+    public ResponseEntity<ErrorDTO> handleInvalidCompanySensor(InvalidCompanySensorException ex) {
+        return new ResponseEntity<>(ex.getErrorDTO(), HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler(MissingParameterException.class)
+    public ResponseEntity<ErrorDTO> handleMissingParameterException(MissingParameterException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getErrorDTO());
+    }
+    
 }

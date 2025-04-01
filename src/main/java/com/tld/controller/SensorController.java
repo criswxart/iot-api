@@ -31,14 +31,14 @@ public class SensorController {
 	
 	@PostMapping
 	public ResponseEntity <?> addSensor(@RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller addSensor");
+		LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller addSensor");
 		sensorDTO.setSensorApiKey(companyApiKey);
 		return ResponseEntity.ok(sensorService.addSensor(sensorDTO));
 	}	
 	
 	@PutMapping("{sensorId}")
 	public ResponseEntity <?> updateSensor(@PathVariable Long sensorId, @RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){	
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller updateSensor");
+		LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller updateSensor");
 		sensorDTO.setSensorId(sensorId);	    		    			
 	    return ResponseEntity.ok(sensorService.updateSensor(companyApiKey,sensorDTO));		
 	}	
@@ -46,7 +46,7 @@ public class SensorController {
 	
 	@GetMapping
    	public ResponseEntity<?> getSensors(@RequestParam String field, @RequestParam String value,@RequestHeader("company_api_key") String companyApiKey){  		
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getSensors");
+		LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller getSensors");
 		return new  ResponseEntity<>(sensorService.getSensors(field, value, companyApiKey),HttpStatus.OK);			
    	}
        
@@ -54,7 +54,7 @@ public class SensorController {
     
     @DeleteMapping("{sensorId}")
 	public ResponseEntity <String> deleteSensor(@PathVariable Long sensorId,@RequestHeader("company_api_key") String companyApiKey){		
-    	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller deleteSensor");
+    	LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller deleteSensor");
     	String mensaje= sensorService.deleteSensor(sensorId, companyApiKey);
 		return ResponseEntity.ok(mensaje);
 	}

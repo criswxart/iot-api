@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 
 import com.tld.dto.CompanyDTO;
-import com.tld.model.Company;
-import com.tld.model.Users;
+import com.tld.entity.Company;
+import com.tld.entity.Users;
 
 @Component
 public class CompanyMapper {
