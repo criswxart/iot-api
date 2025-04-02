@@ -1,10 +1,6 @@
 package com.tld.service.impl;
 import com.tld.dto.SensorDTO;
-import com.tld.dto.SensorInfoDTO;
-import com.tld.model.Company;
-import com.tld.model.Location;
-import com.tld.model.Sensor;
-import com.tld.model.Category;
+import com.tld.entity.Sensor;
 import com.tld.service.impl.SensorServiceImpl;
 
 import io.jsonwebtoken.lang.Collections;

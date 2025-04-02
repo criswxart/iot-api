@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.tld.configuration.jwt.JwtUtils;
-import com.tld.model.Users;
+import com.tld.entity.Users;
 import com.tld.service.UserService;
 import java.util.Optional;
 

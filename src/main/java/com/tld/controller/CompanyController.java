@@ -6,6 +6,15 @@ package com.tld.controller;
 import java.util.logging.Level;
 
 import com.tld.util.LogUtil;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,11 +34,18 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("api/v1/company")
 @RequiredArgsConstructor
+@Tag(name = "Company Controller", description = "Gestion de Compañias")
 public class CompanyController {
 	
     private final CompanyService companyService;
     
 
+    @Operation(summary = "Añadir una nueva empresa", description = "Este endpoint permite registrar una nueva empresa en el sistema.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Empresa añadida exitosamente",
+                     content = @Content(schema = @Schema(implementation = CompanyDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    })
     @PostMapping
     public ResponseEntity<?> addCompany(@RequestBody CompanyDTO companyDTO) {	
         LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller addCompany");
@@ -38,6 +54,12 @@ public class CompanyController {
 
     
    
+    @Operation(summary = "Actualizar una empresa", description = "Este endpoint permite actualizar la información de una empresa existente.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Empresa actualizada exitosamente",
+                     content = @Content(schema = @Schema(implementation = CompanyDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Empresa no encontrada")
+    })
     @PutMapping("{companyId}")
 	public ResponseEntity <?> updateCompany(@PathVariable Long companyId, @RequestBody CompanyDTO companyDTO){
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller updateCompany");		    		    			
@@ -47,6 +69,10 @@ public class CompanyController {
 	}
     
     
+    @Operation(summary = "Obtener empresas", description = "Este endpoint permite obtener empresas filtradas por un campo y valor específico.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de empresas obtenida exitosamente")
+    })
     @GetMapping
    	public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value){   
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getCompanies");		
@@ -56,6 +82,11 @@ public class CompanyController {
        
     
     
+    @Operation(summary = "Eliminar una empresa", description = "Este endpoint permite eliminar (desactivar) una empresa mediante su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Empresa eliminada exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Empresa no encontrada")
+    })
     @DeleteMapping("{companyId}")
 	public ResponseEntity <?> deleteCompany(@PathVariable Long companyId){	
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller deleteCompany");

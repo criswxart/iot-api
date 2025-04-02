@@ -14,10 +14,11 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.tld.entity.Permission;
+import com.tld.entity.Role;
+import com.tld.entity.Users;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.model.Permission;
-import com.tld.model.Role;
-import com.tld.model.Users;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.security.core.userdetails.UserDetails;

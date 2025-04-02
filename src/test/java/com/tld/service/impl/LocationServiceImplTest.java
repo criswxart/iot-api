@@ -1,10 +1,10 @@
 package com.tld.service.impl;
 
 import com.tld.dto.LocationDTO;
+import com.tld.entity.Users;
 import com.tld.jpa.repository.CityRepository;
 import com.tld.jpa.repository.LocationRepository;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.model.Users;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

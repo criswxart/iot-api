@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import com.tld.dto.SensorDTO;
-import com.tld.dto.SensorInfoDTO;
+import com.tld.dto.info.SensorInfoDTO;
 import com.tld.service.SensorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

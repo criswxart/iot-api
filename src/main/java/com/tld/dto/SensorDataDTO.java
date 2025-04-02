@@ -9,7 +9,6 @@ import com.tld.dto.deserializer.SensorDataDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -18,10 +17,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-
-public class SensorDataDTO {		
-    private String sensorApiKey;
-    private Long sensorDataCorrelative;
-    private String sensorDataEntry;
-    private Boolean sensorDataIsActive;
+@JsonDeserialize(using = SensorDataDeserializer.class)
+public class SensorDataDTO {
+	
+	private Map<String, Object> sensorData;
+    private Long datetime;
 }

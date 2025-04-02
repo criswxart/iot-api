@@ -7,8 +7,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.tld.entity.Users;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.model.Users;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

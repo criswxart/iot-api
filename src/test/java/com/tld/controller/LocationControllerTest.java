@@ -1,6 +1,6 @@
 package com.tld.controller;
 import com.tld.dto.LocationDTO;
-import com.tld.dto.LocationInfoDTO;
+import com.tld.dto.info.LocationInfoDTO;
 import com.tld.service.LocationService;
 import com.tld.util.LogUtil;
 import org.junit.jupiter.api.BeforeEach;

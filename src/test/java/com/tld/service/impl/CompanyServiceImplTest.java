@@ -6,11 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-
-
+import com.tld.entity.Users;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.model.Users;
 
 import jakarta.persistence.EntityNotFoundException;
 
