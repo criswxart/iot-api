@@ -33,10 +33,10 @@ public class Measurement {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="measurement_id")
-    private Long measurementId;	
+    private Long measurementId;
 	
 	@ManyToOne
-	@JoinColumn(name = "sensor_api_key", referencedColumnName = "sensor_api_key", updatable = false)
+	@JoinColumn(name = "sensor_id", nullable = false)
     private Sensor sensor;	 
 	
 	@OneToMany(mappedBy = "measurement", cascade = CascadeType.ALL)

@@ -4,12 +4,16 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import com.tld.controller.CompanyController;
 import com.tld.dto.LocationDTO;
 import com.tld.dto.info.LocationInfoDTO;
 import com.tld.entity.City;
@@ -20,6 +24,7 @@ import com.tld.jpa.repository.CityRepository;
 import com.tld.jpa.repository.LocationRepository;
 import com.tld.mapper.LocationMapper;
 import com.tld.service.LocationService;
+import com.tld.util.LogUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +41,29 @@ public class LocationServiceImpl implements LocationService{
 
 	@Override
 	public LocationInfoDTO addLocation(LocationDTO locationDTO) {	
-		Location location= LocationMapper.toEntity(locationDTO);	
-				    
-	    Optional<Users> optionalUser = getAuthenticatedUser();	    
+		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud recibida en impl addLocation");
+		Location location= LocationMapper.toEntity(locationDTO);					    
+		Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no valido"));   
 	    
-	    location.setLocationCreatedBy(optionalUser.get());
-	    location.setLocationModifiedBy(optionalUser.get());		
-			
-	    //Graba location y luego hace un select custom apra obtener un json decente
-	    return locationRepository.findLocations("id",locationRepository.save(location).getLocationId().toString()).get(0) ;
-		
+	    location.setLocationCreatedBy(user);
+	    location.setLocationModifiedBy(user);		
+	    
+	    
+	    try {	    	
+	    	Location savedLocation = locationRepository.save(location);
+	    	LogUtil.log(LocationServiceImpl.class, Level.INFO, "Retornando location almacenada");   
+			return    locationRepository.findLocations("id", savedLocation.getLocationId().toString())
+					    	            .stream()
+					    	            .findFirst()
+					    	            .orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No se encontro la location recien almacenada"));	
+		} catch (DataIntegrityViolationException e) {
+			String message = e.getMostSpecificCause().getMessage().toLowerCase();
+			if (message.contains("llave duplicada") || message.contains("duplicate key")) {
+		        throw new com.tld.exception.UniqueConstraintViolationException("No se puede ingresar la misma direccion mas de una vez por compania.");
+		    }
+		    throw new com.tld.exception.CustomDatabaseException("Error de integridad de datos", e);			
+		}	
+	 
 	}
 
 

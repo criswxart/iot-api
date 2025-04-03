@@ -36,6 +36,7 @@ public class MeasurementMapper {
 	        return new MeasurementDTO(
 	                measurement.getMeasurementId(),
 	                measurement.getSensor().getSensorApiKey(),
+	                measurement.getSensor().getSensorId(),
 	                sensorDataDTOList,
 	                measurement.getMeasurementIsActive()
 	        );     
@@ -49,7 +50,7 @@ public class MeasurementMapper {
 
 	        return new Measurement(
 	                measurementDTO.getMeasurementId(),
-	                new Sensor(measurementDTO.getApi_key()),
+	                new Sensor(measurementDTO.getSensorId()),
 	                sensorDataList,
 	                measurementDTO.getMeasurementIsActive()
 	        );

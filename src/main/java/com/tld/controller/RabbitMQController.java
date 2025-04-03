@@ -24,6 +24,8 @@ public class RabbitMQController {
         try {
             String messageWithApiKey = sensorApiKey + "|" + message; // Concatenar API Key con el mensaje
 
+            System.out.println(messageWithApiKey);
+            
             boolean messageSent = producer.sendMessage(messageWithApiKey);
             
             if (messageSent) {

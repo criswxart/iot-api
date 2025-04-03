@@ -72,4 +72,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getErrorDTO());
     }
     
+    @ExceptionHandler(UniqueConstraintViolationException.class)
+    public ResponseEntity<ErrorDTO> handleUniqueConstraintViolationException(UniqueConstraintViolationException ex) {
+        return new ResponseEntity<>(ex.getErrorDTO(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CustomDatabaseException.class)
+    public ResponseEntity<ErrorDTO> handleCustomDatabaseException(CustomDatabaseException ex) {
+        return new ResponseEntity<>(ex.getErrorDTO(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

@@ -12,7 +12,7 @@ import com.tld.entity.Measurement;
 public interface MeasurementRepository extends JpaRepository<Measurement,Long> {
 	String querySql="""			
 					select m.measurement_id as id ,
-						   m.sensor_api_key as sensor_api_key, 
+						   sn.sensor_api_key as sensor_api_key, 
 						   sn.sensor_name as sensor_name,
 						   c.company_name as company_name, 
 						   l.location_address as location_adress,
@@ -33,7 +33,7 @@ public interface MeasurementRepository extends JpaRepository<Measurement,Long> {
 					join metric mt on
 						   sd.metric_id=mt.metric_id
 					join sensor sn on
-						   sn.sensor_api_key = m.sensor_api_key
+						   sn.sensor_id = m.sensor_id
 					join location l on
 						   sn.location_id =l.location_id
 					join company c on

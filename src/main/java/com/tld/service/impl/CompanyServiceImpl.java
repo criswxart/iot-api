@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,15 +43,25 @@ public class CompanyServiceImpl implements CompanyService{
     
 	@Override
 	public CompanyInfoDTO addCompany(CompanyDTO companyDTO) {	
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl addCompany");
+		LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Solicitud recibida en impl addCompany");
 	    
-	    Optional<Users> optionalUser =  getAuthenticatedUser();    
+		Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no valido"));   
 		
 		Company company= CompanyMapper.toEntity(companyDTO);
-		company.setCompanyCreatedBy(optionalUser.get());
-		company.setCompanyModifiedBy(optionalUser.get());		
-    	companyRepository.save(company);
+		company.setCompanyCreatedBy(user);
+		company.setCompanyModifiedBy(user);	
+		
+		try {
+			 company = companyRepository.save(company);
+		} catch (DataIntegrityViolationException e) {
+			String message = e.getMostSpecificCause().getMessage().toLowerCase();
+			if (message.contains("llave duplicada") || message.contains("duplicate key")) {
+		        throw new com.tld.exception.UniqueConstraintViolationException("No se puede ingresar mas de una vez el mismo nombre de compania.");
+		    }
+		    throw new com.tld.exception.CustomDatabaseException("Error de integridad de datos", e);
+		}
     	
+    	LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Se retorna DTO con compania almacenada");
     	return new CompanyInfoDTO(	
 				company.getCompanyId(),
 				company.getCompanyName(),
@@ -58,20 +69,19 @@ public class CompanyServiceImpl implements CompanyService{
 				company.getCompanyCreatedBy().getUserName(),
 				formatter.format(company.getCompanyCreatedAt()),			
 				company.getCompanyModifiedBy().getUserName(),
-				formatter.format(company.getCompanyModifiedAt())
-				
+				formatter.format(company.getCompanyModifiedAt())				
 		    );	
 	}
 	
 	@Override
 	public List<CompanyInfoDTO> getCompanies(String field, String value) {	
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getCompanies");
+		LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Solicitud recibida en impl getCompanies");
 		return companyRepository.findCompanies(field, value);
 	}
 	
 	@Override
 	public CompanyInfoDTO updateCompany(Long companyId, CompanyDTO companyDTO) {
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl updateCompany");
+		LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Solicitud recibida en impl updateCompany");
 		Optional<Company> optionalCompany = companyRepository.findById(companyId);
 		if (optionalCompany.isEmpty()) {
 	    	throw new EntityNotFoundException("Company no encontrada con ID: " + companyId );
@@ -106,7 +116,7 @@ public class CompanyServiceImpl implements CompanyService{
 
 	@Override
 	public String deleteCompany(Long companyId) {
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl deleteCompany");
+		LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Solicitud recibida en impl deleteCompany");
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));		
 		Optional <Company> optionalCompany=companyRepository.findById(companyId);		
 		if (optionalCompany.isEmpty()) {
@@ -130,7 +140,7 @@ public class CompanyServiceImpl implements CompanyService{
 	   
 	@Override
 	public Optional<CompanyDTO> getCompanyByApiKey(String apiKey) {		
-		LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en impl getCompanyByApiKey");
+		LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Solicitud recibida en impl getCompanyByApiKey");
 		 return companyRepository.findByCompanyApiKey(apiKey).map(CompanyMapper::toDTO);
 	}
 	
@@ -139,10 +149,10 @@ public class CompanyServiceImpl implements CompanyService{
 
 	        if (authentication != null && authentication.isAuthenticated()) {
 	            String userName = authentication.getName();
-	            LogUtil.log(CompanyController.class, Level.INFO, "Usuario "+userName+" validado.");
+	            LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Usuario "+userName+" validado.");
 	            return userRepository.findByUserName(userName);
 	        }
-	        LogUtil.log(CompanyController.class, Level.WARNING, "Validacion de usuario fallida.");
+	        LogUtil.log(CompanyServiceImpl.class, Level.WARNING, "Validacion de usuario fallida.");
 	        return Optional.empty();
 	    }
 	

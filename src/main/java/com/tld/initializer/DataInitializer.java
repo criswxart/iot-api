@@ -352,7 +352,7 @@ public class DataInitializer {
 	                        column_name := NULL;
 	                    END IF;
 
-		                    query := ' select sensor_id, 
+		                    query := ' select sensor.sensor_id, 
 									    sensor_name, 
 							            sensor.sensor_api_key ,
 								  		sensor.location_id, 
@@ -375,11 +375,11 @@ public class DataInitializer {
 								  join company on
 								  location.company_id=company.company_id
 								  LEFT JOIN (
-											    SELECT sensor_api_key, count(*) AS sensor_total_measurements
+											    SELECT sensor_id, count(*) AS sensor_total_measurements
 											    FROM measurement
 												WHERE measurement_is_active=true
-											    GROUP BY sensor_api_key
-											) measurement_summary ON sensor.sensor_api_key = measurement_summary.sensor_api_key	
+											    GROUP BY sensor_id
+											) measurement_summary ON sensor.sensor_id = measurement_summary.sensor_id	
 								WHERE
 								company.company_api_key= '|| quote_literal(company_api_key);
 	
