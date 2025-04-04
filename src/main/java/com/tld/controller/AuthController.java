@@ -8,13 +8,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import com.tld.configuration.jwt.JwtUtils;
+import com.tld.entity.Role;
 import com.tld.entity.Users;
 import com.tld.service.UserService;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -42,10 +48,30 @@ public class AuthController {
 
 	            SecurityContextHolder.getContext().setAuthentication(authentication); // Asigna el usuario autenticado
 
+	            Users user = userService.findByUsername(username)
+	                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+	            // Obtener roles en formato de lista de Strings
+	            List<String> roles = user.getRole().stream()
+	                    .map(Role::getRoleName) // Asegúrate de que este es el getter correcto
+	                    .collect(Collectors.toList());
+
 	            // Generar el token JWT
 	            String token = jwtUtils.createToken(authentication);
 
-	            return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
+	            // Crear la respuesta en JSON
+	            Map<String, Object> response = new HashMap<>();
+	            Map<String, Object> userData = new HashMap<>();
+	            
+	            userData.put("name", user.getUserName());
+	            userData.put("userEnabled", user.isUserEnabled());
+	            userData.put("role", roles);
+
+	            response.put("user", userData);
+	            response.put("token", token);
+
+	            return ResponseEntity.ok(response);
+	         
 	        } catch (AuthenticationException e) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error de autenticación: " + e.getMessage());
 	        }
@@ -119,23 +145,38 @@ public class AuthController {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
 	        }
 
-	        token = token.substring(7); // Quitar el prefijo "Bearer "
-	        
-	        try {
-	            String username = jwtUtils.getUsernameFromToken(token);
-	            String authorities = jwtUtils.getAuthoritiesFromToken(token);  // Aquí obtienes los roles
+	        token = token.substring(7); // Quitar "Bearer "
 
+	        try {
+	            // Obtener el username desde el token
+	            String username = jwtUtils.getUsernameFromToken(token);
+
+	            // Buscar usuario en la BD
+	            Users user = userService.findByUsername(username)
+	                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+	            // Obtener roles en formato de lista de Strings
+	            List<String> roles = user.getRole().stream()
+	                    .map(Role::getRoleName)
+	                    .collect(Collectors.toList());
+
+	            // Crear la respuesta en JSON
+	            Map<String, Object> response = new HashMap<>();
+	            Map<String, Object> userData = new HashMap<>();
 	            
-	            if (authorities.contains("ROLE_ADMINISTRADOR")) {
-	                return ResponseEntity.ok("Usuario autenticado: " + username);
-	            } else {
-	                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permisos para acceder.");
-	            }
+	            userData.put("name", user.getUserName());
+	            userData.put("userEnabled", user.isUserEnabled());
+	            userData.put("role", roles);
+
+	            response.put("user", userData);
+
+	            return ResponseEntity.ok(response);
 
 	        } catch (Exception e) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
 	        }
 	    }
+
 
 //	    @PostMapping("/change-password")
 //	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword) {
