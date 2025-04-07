@@ -68,6 +68,7 @@ public class MeasurementServiceImpl implements MeasurementService{
 				
 		List<SensorData> sensorDataList = new ArrayList<>();;
 		
+		int correlativo = 1;
 		for(int i=0; i < measurementDTO.getJson_data().size(); i++ ) {			
 			SensorDataDTO sensorDataDTO = measurementDTO.getJson_data().get(i);			
 			Map<String, Object> sensorDataMap = sensorDataDTO.getSensorData();
@@ -85,7 +86,7 @@ public class MeasurementServiceImpl implements MeasurementService{
 			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Armando sensor_data");
 			    SensorData sensorData = new SensorData(
 			    		measurement, //padre
-			    		null, //correlativo null porque lo asigno antes de grabarlo
+			    		correlativo ++, //correlativo 
 			            metric, //Va la entidad metric y ahi esta id y nombre
 			            (Double) sensorDataMap.get(metricName),  //valores de la metrica
 			            sensorDataDTO.getDatetime()  //valor Long fecha epoch que envian en el json
@@ -93,16 +94,8 @@ public class MeasurementServiceImpl implements MeasurementService{
 			    sensorDataList.add(sensorData);
 			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a lista");
 			}
-		}
-		
-		int correlativo=1;
-		//Seteo correlativo de detalle, asi queda ordenado y sabremos facil cuantos registros tuvo cada Measurement
-		for (SensorData dto:sensorDataList) {
-			LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Seteando correlativos "+correlativo);
-			dto.getSensorDataId().setSensorDataCorrelative(correlativo++);				
-		}				
-		sensorDataRepository.saveAll(sensorDataList);
-		
+		}			
+		sensorDataRepository.saveAll(sensorDataList);		
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Lista sensorData guardada");
 		
 		//Esto es solo para ver respuesta, como un sensor envia data es irrelevante mostrarle un mensaje (creo que ni se enteran 
