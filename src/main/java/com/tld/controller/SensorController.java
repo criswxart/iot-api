@@ -31,9 +31,8 @@ public class SensorController {
 	
 	@PostMapping
 	public ResponseEntity <?> addSensor(@RequestBody SensorDTO sensorDTO, @RequestHeader("company_api_key") String companyApiKey){
-		LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller addSensor");
-		sensorDTO.setSensorApiKey(companyApiKey);
-		return ResponseEntity.ok(sensorService.addSensor(sensorDTO));
+		LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller addSensor");		
+		return ResponseEntity.ok(sensorService.addSensor(sensorDTO,companyApiKey));
 	}	
 	
 	@PutMapping("{sensorId}")
@@ -53,10 +52,9 @@ public class SensorController {
     
     
     @DeleteMapping("{sensorId}")
-	public ResponseEntity <String> deleteSensor(@PathVariable Long sensorId,@RequestHeader("company_api_key") String companyApiKey){		
+	public ResponseEntity <?>  deleteSensor(@PathVariable Long sensorId,@RequestHeader("company_api_key") String companyApiKey){		
     	LogUtil.log(SensorController.class, Level.INFO, "Solicitud recibida en controller deleteSensor");
-    	String mensaje= sensorService.deleteSensor(sensorId, companyApiKey);
-		return ResponseEntity.ok(mensaje);
+    	return new  ResponseEntity<>(sensorService.deleteSensor(sensorId, companyApiKey),HttpStatus.OK);	    	
 	}
 	
 	

@@ -3,20 +3,18 @@ package com.tld.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 
 import org.springframework.stereotype.Service;
 
-import com.tld.controller.CompanyController;
 import com.tld.dto.MeasurementDTO;
 import com.tld.dto.SensorDataDTO;
 import com.tld.dto.info.MeasurementInfoDTO;
+import com.tld.entity.Company;
 import com.tld.entity.Measurement;
 import com.tld.entity.Metric;
 import com.tld.entity.Sensor;
 import com.tld.entity.SensorData;
-import com.tld.exception.InvalidApiKeyException;
 import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.MeasurementRepository;
 import com.tld.jpa.repository.MetricRepository;
@@ -25,6 +23,8 @@ import com.tld.jpa.repository.SensorRepository;
 import com.tld.mapper.MeasurementMapper;
 import com.tld.service.MeasurementService;
 import com.tld.util.LogUtil;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,32 +40,32 @@ public class MeasurementServiceImpl implements MeasurementService{
 	
 	
 	@Override
-	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {	
+	@Transactional
+	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {
+		
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl addSensorData");	
 		
 		if(sensorApiKey==null || sensorApiKey.isEmpty() ) {
 			if(measurementDTO.getApi_Key()==null) {
-				throw new InvalidApiKeyException ("Sensor / Api key vacio");
+				throw new com.tld.exception.InvalidApiKeyException ("Sensor Api key vacio");
 			}
 		}else {
 			measurementDTO.setApi_Key(sensorApiKey);
-		}
+		}	
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud tiene apikey "+measurementDTO.getApi_Key()+" se busca entidad.");
+	
+		final Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_Key())
+						.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado. No se grabarán metricas recibidas"));		
 		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud tiene apikey "+measurementDTO.getApi_Key());	
-		
-		//Busco sensor
-		Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_Key())
-						.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado."));
-		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor valido, id: "+sensor.getSensorId());
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Entidad Sensor encontrada, id: "+sensor.getSensorId()+" nombre: "+sensor.getSensorName());
+				
 		Measurement measurement = new Measurement();
 		measurement.setSensor(sensor);		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Entidad Measurement creado y seteado");
-		Measurement savedMeasurement = measurementRepository.save(measurement);
-		Long measurementId = savedMeasurement.getMeasurementId();	
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Entidad Measurement creado y seteado con");
+		
+		Long measurementId = measurementRepository.save(measurement).getMeasurementId();
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Measurement insertado, id: "+measurementId);		
-		
-		
+				
 		List<SensorData> sensorDataList = new ArrayList<>();;
 		
 		for(int i=0; i < measurementDTO.getJson_data().size(); i++ ) {			
@@ -74,7 +74,7 @@ public class MeasurementServiceImpl implements MeasurementService{
 			
 			for (String key : sensorDataMap.keySet()) {
 			    String metricName = key;
-			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Buscando metrica");
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Buscando metrica con nombre "+metricName);
 			    Metric metric = metricRepository.findByMetricName(metricName)
 			            .orElseGet(() -> {
 			                Metric newMetric = new Metric();
@@ -82,13 +82,13 @@ public class MeasurementServiceImpl implements MeasurementService{
 			                LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Se grabo metrica, id: "+newMetric.getMetricId());
 			                return metricRepository.save(newMetric);
 			            });	
-			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Armando un sensor_data");
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Armando sensor_data");
 			    SensorData sensorData = new SensorData(
-			    		measurement,//aca va la tabla "padre" o "cabecera"
-			    		null, //correlativo null porque lo asigno al final
+			    		measurement, //padre
+			    		null, //correlativo null porque lo asigno antes de grabarlo
 			            metric, //Va la entidad metric y ahi esta id y nombre
 			            (Double) sensorDataMap.get(metricName),  //valores de la metrica
-			            sensorDataDTO.getDatetime()  //valor Long que envian en el json
+			            sensorDataDTO.getDatetime()  //valor Long fecha epoch que envian en el json
 			    );
 			    sensorDataList.add(sensorData);
 			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a lista");
@@ -99,12 +99,14 @@ public class MeasurementServiceImpl implements MeasurementService{
 		//Seteo correlativo de detalle, asi queda ordenado y sabremos facil cuantos registros tuvo cada Measurement
 		for (SensorData dto:sensorDataList) {
 			LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Seteando correlativos "+correlativo);
-			dto.getSensorDataId().setSensorDataCorrelative(correlativo);			
-			sensorDataRepository.save(dto);
-			LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data id "+correlativo+" ingresado a BD");
-			correlativo++;
-		}
+			dto.getSensorDataId().setSensorDataCorrelative(correlativo++);				
+		}				
+		sensorDataRepository.saveAll(sensorDataList);
 		
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Lista sensorData guardada");
+		
+		//Esto es solo para ver respuesta, como un sensor envia data es irrelevante mostrarle un mensaje (creo que ni se enteran 
+		//de la respuesta)
 		measurementDTO.setMeasurementId(measurementId);
 		measurementDTO.setSensorId(sensor.getSensorId());
 		measurementDTO.setMeasurementIsActive(true);
@@ -113,20 +115,25 @@ public class MeasurementServiceImpl implements MeasurementService{
 
 	@Override
 	public MeasurementInfoDTO updateSensorData (String sensorApiKey, Long measurementId, String companyApiKey) {
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl updateSensorData");
-		if(measurementRepository.findIfCompanyAndSensorAreOk(companyApiKey, sensorApiKey)==0) {
-			throw new com.tld.exception.InvalidCompanySensorException("Solo puedes modificar cuando compania y sensor estan relacionados");
-		}	
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl updateSensorData");		
 		
-		Optional<Measurement> optionalMeasurement = measurementRepository.findById(measurementId);
-		if(optionalMeasurement.isEmpty()) {
-			throw new com.tld.exception.EntityNotFoundException("No existe registro para poder inactivar");
+		final Company company= getCompanyByApiKey(companyApiKey);
+		
+		final Measurement measurement = measurementRepository.findById(measurementId)
+				.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No existe registro para poder inactivar"));
+		
+		if (measurement.getSensor() == null) {
+		    throw new com.tld.exception.EntityNotFoundException("El sensor asociado a la medición no existe");
 		}
 		
-		Measurement measurement = optionalMeasurement.get();
-		measurement.setMeasurementIsActive(true);		
+		if(sensorRepository.findIfCompanyAndSensorAreOk(company.getCompanyId(), measurement.getSensor().getSensorId())==0) {
+			throw new com.tld.exception.InvalidCompanySensorException("Solo puedes modificar cuando tu compania y el sensor estan relacionados");
+		}			
+
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Seteamos el estado a activo, id: "+measurementId);	
+		measurement.setMeasurementIsActive(true);
 		measurementRepository.save(measurement);		
-		
+		//Se piden todos los valores porque al ser sqls genericos validamos que exista relacion entre los parametros entregados (para un posible metodo get)
 		return measurementMapper.mapToMeasurementInfoDTO( measurementRepository.findMeasurementById(measurementId,sensorApiKey,companyApiKey));
 	}
 
@@ -134,6 +141,10 @@ public class MeasurementServiceImpl implements MeasurementService{
 	@Override
 	public List<MeasurementInfoDTO> getSensorDataByEpoch(Long from, Long to, String companyApiKey) {
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl getSensorDataByEpoch");
+		//Validar que el header sea valido
+		getCompanyByApiKey(companyApiKey);
+		
+		//Valido la relacion entre company y sensor en los sqls gracias a los joins entre tablas		
 		List<Object[]> info = measurementRepository.findMeasurementDataByEpoch(from, to, companyApiKey);
 		if(info.isEmpty()) {
 			throw new com.tld.exception.EntityNotFoundException("No hay resultados para la compania");
@@ -144,6 +155,8 @@ public class MeasurementServiceImpl implements MeasurementService{
 	@Override
 	public List<MeasurementInfoDTO> getSensorDataByCompany(String companyApiKey) {
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl getSensorDataByCompany");
+		//Validar que el header sea valido
+		getCompanyByApiKey(companyApiKey);
 		List<Object[]> info = measurementRepository.findMeasurementDataByCompany(companyApiKey);
 		if(info.isEmpty()) {
 			throw new com.tld.exception.EntityNotFoundException("No hay resultados para la compania");
@@ -154,6 +167,8 @@ public class MeasurementServiceImpl implements MeasurementService{
 	@Override
 	public MeasurementInfoDTO getSensorDataById(Long measurementID, String sensorApiKey, String companyApiKey) {	
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl getSensorDataById");
+		//Validar que el header sea valido
+		getCompanyByApiKey(companyApiKey);
 		List<Object[]> info = measurementRepository.findMeasurementById(measurementID, sensorApiKey, companyApiKey);
 		if(info.isEmpty()) {
 			throw new com.tld.exception.EntityNotFoundException("No hay resultados para la compania / sensor");
@@ -162,22 +177,35 @@ public class MeasurementServiceImpl implements MeasurementService{
 	}
 
 	@Override
-	public MeasurementInfoDTO deleteSensorData(String sensorApiKey, Long measurementID, String companyApiKey) {
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl deleteSensorData");
-		if(measurementRepository.findIfCompanyAndSensorAreOk(companyApiKey, sensorApiKey)==0) {
-			throw new com.tld.exception.InvalidCompanySensorException("Solo puedes modificar cuando compania y sensor estan relacionados");
-		}	
+	public MeasurementInfoDTO deleteSensorData(String sensorApiKey, Long measurementId, String companyApiKey) {
+		//Es igual al updateSensorData solo que inactiva registro. Para cumplir con requerimientos lo hice separado
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl updateSensorData");		
 		
-		Optional<Measurement> optionalMeasurement = measurementRepository.findById(measurementID);
-		if(optionalMeasurement.isEmpty()) {
-			throw new com.tld.exception.EntityNotFoundException("No existe registro para poder inactivar");
+		final Company company= getCompanyByApiKey(companyApiKey);
+		
+		final Measurement measurement = measurementRepository.findById(measurementId)
+				.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No existe registro para poder inactivar"));
+		
+		if (measurement.getSensor() == null) {
+		    throw new com.tld.exception.EntityNotFoundException("El sensor asociado a la medición no existe");
 		}
 		
-		Measurement measurement = optionalMeasurement.get();
-		measurement.setMeasurementIsActive(false);		
+		if(sensorRepository.findIfCompanyAndSensorAreOk(company.getCompanyId(), measurement.getSensor().getSensorId())==0) {
+			throw new com.tld.exception.InvalidCompanySensorException("Solo puedes modificar cuando tu compania y el sensor estan relacionados");
+		}			
+
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Seteamos el estado a activo, id: "+measurementId);	
+		measurement.setMeasurementIsActive(false);
 		measurementRepository.save(measurement);		
-		
-		return measurementMapper.mapToMeasurementInfoDTO( measurementRepository.findMeasurementById(measurementID,sensorApiKey,companyApiKey));
+		//Se piden todos los valores porque al ser sqls genericos validamos que exista relacion entre los parametros entregados (para un posible metodo get)
+		return measurementMapper.mapToMeasurementInfoDTO( measurementRepository.findMeasurementById(measurementId,sensorApiKey,companyApiKey));
+	}
+	
+	
+	private Company getCompanyByApiKey(String apiKey) {
+		LogUtil.log(SensorServiceImpl.class, Level.INFO, "Validando companyApiKey: "+apiKey);
+	    return companyRepository.findByCompanyApiKey(apiKey)
+	        .orElseThrow(() -> new com.tld.exception.InvalidApiKeyException("No existe la compañía con la API key entregada: " + apiKey));
 	}
 
 }

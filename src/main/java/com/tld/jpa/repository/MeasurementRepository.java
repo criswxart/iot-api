@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import com.tld.dto.info.SensorDataInfoDTO;
 import com.tld.entity.Measurement;
 
 public interface MeasurementRepository extends JpaRepository<Measurement,Long> {
@@ -71,16 +69,5 @@ public interface MeasurementRepository extends JpaRepository<Measurement,Long> {
 	  List<Object[]>  findMeasurementDataByCompany(@Param("companyApiKey") String companyApiKey);
 	  
 	  
-	  @Query(value = """
-		 		SELECT count(*) FROM sensor
-				join location on
-				sensor.location_id=location.location_id
-				join company on
-				location.company_id= company.company_id
-				where
-				company_api_key= :companyApiKey and
-				sensor_api_key=:sensorApiKey ;			
-			    """, nativeQuery = true)
-	  Short findIfCompanyAndSensorAreOk(@Param("companyApiKey") String companyApiKey, @Param("sensorApiKey") String sensorApiKey);	
 	  
 }
