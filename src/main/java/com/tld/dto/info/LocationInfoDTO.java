@@ -19,4 +19,5 @@ public class LocationInfoDTO {
     private String locationCreatedAt;    			
     private String locationModifiedBy;
     private String locationModifiedAt;
+    private Boolean isLocationActive;
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.tld.dto.MeasurementDTO;
@@ -38,6 +39,8 @@ public class MeasurementServiceImpl implements MeasurementService{
 	final MetricRepository metricRepository;
 	final MeasurementMapper measurementMapper;
 	
+	private final JdbcTemplate jdbcTemplate;
+	
 	
 	@Override
 	@Transactional
@@ -65,9 +68,13 @@ public class MeasurementServiceImpl implements MeasurementService{
 		
 		Long measurementId = measurementRepository.save(measurement).getMeasurementId();
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Measurement insertado, id: "+measurementId);		
-				
+	
+		/*
 		List<SensorData> sensorDataList = new ArrayList<>();;
+		*/
 		
+		
+		String sql = "INSERT INTO sensor_data (measurement_id, sensor_data_correlative, metric_id, sensor_value, sensor_data_created_at) VALUES (?, ?, ?, ?, ?)";
 		int correlativo = 1;
 		for(int i=0; i < measurementDTO.getJson_data().size(); i++ ) {			
 			SensorDataDTO sensorDataDTO = measurementDTO.getJson_data().get(i);			
@@ -83,8 +90,14 @@ public class MeasurementServiceImpl implements MeasurementService{
 			                LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Se grabo metrica, id: "+newMetric.getMetricId());
 			                return metricRepository.save(newMetric);
 			            });	
-			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Armando sensor_data");
-			    SensorData sensorData = new SensorData(
+			
+			   
+			 jdbcTemplate.update(sql, measurementId, correlativo++, metric.getMetricId(),  (Double) sensorDataMap.get(metricName), sensorDataDTO.getDatetime());
+		     LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a batch con JdbcTemplate ("+ measurementId+", "+(correlativo-1)+", "+metric.getMetricId()+", "+(Double) sensorDataMap.get(metricName)+", "+sensorDataDTO.getDatetime()+") ");
+		     			    
+			   /* 
+			    * LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "creando entidad sensor_data");
+			    * SensorData sensorData = new SensorData(
 			    		measurement, //padre
 			    		correlativo ++, //correlativo 
 			            metric, //Va la entidad metric y ahi esta id y nombre
@@ -92,11 +105,16 @@ public class MeasurementServiceImpl implements MeasurementService{
 			            sensorDataDTO.getDatetime()  //valor Long fecha epoch que envian en el json
 			    );
 			    sensorDataList.add(sensorData);
-			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a lista");
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a lista");			    
+			    */
 			}
 		}			
-		sensorDataRepository.saveAll(sensorDataList);		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Lista sensorData guardada");
+		
+		
+	/*Grabado de sensor_data usando modelo de entidad
+	 * LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Lista sensorData guardada");	
+	 * sensorDataRepository.saveAll(sensorDataList); 		
+		*/
 		
 		//Esto es solo para ver respuesta, como un sensor envia data es irrelevante mostrarle un mensaje (creo que ni se enteran 
 		//de la respuesta)

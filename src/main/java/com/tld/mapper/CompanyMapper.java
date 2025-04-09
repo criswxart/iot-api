@@ -33,7 +33,8 @@ public class CompanyMapper {
 		        company.getCompanyCreatedBy().getUserName(),
 		        formatter.format(company.getCompanyCreatedAt()),
 		        company.getCompanyModifiedBy().getUserName(),
-		        formatter.format(company.getCompanyModifiedAt())
+		        formatter.format(company.getCompanyModifiedAt()),
+		        company.getCompanyIsActive()
 		    );
 	 }
 	 

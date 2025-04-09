@@ -52,7 +52,7 @@ public class LocationController {
 	
 	
 	@DeleteMapping("{locationId}")
-	public ResponseEntity <String> deleteLocation(@PathVariable Long locationId){	
+	public ResponseEntity <?> deleteLocation(@PathVariable Long locationId){	
 		LogUtil.log(LocationController.class, Level.INFO, "Solicitud recibida en controller deleteLocation");
 		return ResponseEntity.ok(locationService.deleteLocation(locationId));
 	}

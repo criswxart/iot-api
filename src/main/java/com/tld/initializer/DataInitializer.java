@@ -195,7 +195,8 @@ public class DataInitializer {
 	                    location_created_by VARCHAR(255),
 	                    location_created_at VARCHAR(255),
 	                    location_modified_by VARCHAR(255),
-	                    location_modified_at VARCHAR(255)
+	                    location_modified_at VARCHAR(255),
+	                    is_location_active boolean
 	                ) AS $$
 	                DECLARE
 	                    query TEXT;
@@ -225,23 +226,23 @@ public class DataInitializer {
 	                                     c.user_name AS location_created_by, 
 	                                     TO_CHAR(location_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_created_at,
 	                                     m.user_name AS location_modified_by,
-	                                     TO_CHAR(location_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_modified_at
+	                                     TO_CHAR(location_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_modified_at,
+	                                     location_is_active
 	                              FROM location
 	                              JOIN company ON company.company_id = location.company_id
 	                              JOIN city ON city.city_id = location.city_id 
 	                              JOIN region ON region.region_id = city.region_id  
 	                              JOIN country ON country.country_id = region.country_id
 	                              JOIN users c ON c.user_id = location.location_created_by
-	                              JOIN users m ON m.user_id = location.location_modified_by
-	                              WHERE location.location_is_active = true';
+	                              JOIN users m ON m.user_id = location.location_modified_by ';
 
 	                    IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
 	                        IF column_name = 'location_id' THEN
-	                            query := query || ' AND ' || column_name || ' = ' || valor::BIGINT;
+	                            query := query || ' WHERE ' || column_name || ' = ' || valor::BIGINT;
 	                        ELSIF column_name = 'c.user_name' THEN
-	                            query := query || ' AND c.user_name ILIKE ' || quote_literal('%'|| valor || '%');
+	                            query := query || ' WHERE c.user_name ILIKE ' || quote_literal('%'|| valor || '%');
 	                        ELSE
-	                            query := query || ' AND ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%'||valor || '%');
+	                            query := query || ' WHERE ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%'||valor || '%');
 	                        END IF;
 	                    END IF;
 
@@ -266,7 +267,8 @@ public class DataInitializer {
 			        	    userNameC VARCHAR(255),
 			        	    company_created_at TIMESTAMP,  
 			        	    userNameM VARCHAR(255),
-			        	    company_modified_at TIMESTAMP  
+			        	    company_modified_at TIMESTAMP,
+			        	    is_company_active  boolean
 			        	) AS $$
 			        	DECLARE
 			        	    query TEXT;
@@ -290,20 +292,20 @@ public class DataInitializer {
 			        	                     c.user_name AS userNameC, 
 			        	                     company.company_created_at::TIMESTAMP, 
 			        	                     m.user_name AS userNameM, 
-			        	                     company.company_modified_at::TIMESTAMP
+			        	                     company.company_modified_at::TIMESTAMP,
+			        	                     company.company_is_active
 			        	              FROM company 
 			        	              JOIN users c ON company.company_created_by = c.user_id
-			        	              JOIN users m ON company.company_modified_by = m.user_id
-			        	              WHERE company.company_is_active = TRUE';
+			        	              JOIN users m ON company.company_modified_by = m.user_id ';
 		
 			        	    -- Aplicar el filtro solo si valor no está vacío
 			        	IF column_name IS NOT NULL AND COALESCE(valor, '') <> '' THEN
 	            		 	IF column_name = 'company_id' THEN
-			        	       query := query || ' AND ' || column_name || ' = ' || valor::BIGINT;
+			        	       query := query || ' WHERE ' ||  column_name || ' = ' || valor::BIGINT;
 			        	    ELSIF column_name = 'c.user_name' THEN
-			        	       query := query || ' AND c.user_name ILIKE ' || quote_literal('%' || valor || '%');
+			        	       query := query || ' WHERE ' || ' c.user_name ILIKE ' || quote_literal('%' || valor || '%');
 			        	    ELSE
-			        	       query := query || ' AND ' || quote_ident(column_name) || ' ILIKE ' || quote_literal('%' || valor || '%');
+			        	       query := query || ' WHERE ' ||  quote_ident(column_name) || ' ILIKE ' || quote_literal('%' || valor || '%');
 			        	    END IF;
 				        	END IF;
 			

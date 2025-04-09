@@ -87,24 +87,21 @@ public class CompanyServiceImpl implements CompanyService{
 	}	
 
 	@Override
-	public String deleteCompany(Long companyId) {
+	public CompanyInfoDTO deleteCompany(Long companyId) {		
 		final Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no valido"));
 		LogUtil.log(CompanyServiceImpl.class, Level.INFO, "Solicitud de: "+user.getUserName()+" recibida en impl deleteCompany");
-		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));		
 		
 		Company company = companyRepository.findById(companyId).orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Company no encontrada con ID: " + companyId));
 		
 		if(!company.getCompanyIsActive()) {
-			return "El registro ya esta inactivo, fue hecho por "+company.getCompanyModifiedBy().getUserName()+
-					" a las "+formatter.format(company.getCompanyModifiedAt());
-		}		
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+			throw new com.tld.exception.CustomDatabaseException("El registro ya esta inactivo, fue hecho por "+company.getCompanyModifiedBy().getUserName()+
+																" a las "+formatter.format(company.getCompanyModifiedAt()));			
+		}
 		company.setCompanyIsActive(false);		     
-	    company.setCompanyModifiedBy(user);
-	    
-	    final Company savedCompany = companyRepository.save(company);
-		return "Se inactiva compania de nombre: "+savedCompany.getCompanyName()+" por: "+savedCompany.getCompanyModifiedBy().getUserName() 
-				+" a las "+ formatter.format(savedCompany.getCompanyModifiedAt());
+	    company.setCompanyModifiedBy(user);	    
+	    final Company savedCompany = companyRepository.save(company);	
+	    return companyMapper.toInfoDTO(savedCompany);
 	}		
 	 	
 

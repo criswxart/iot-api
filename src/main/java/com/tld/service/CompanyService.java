@@ -9,6 +9,6 @@ public interface CompanyService {
 	CompanyInfoDTO addCompany(CompanyDTO companyDTO);	
 	CompanyInfoDTO updateCompany(Long companyId, CompanyDTO companyDTO) ;
 	List<CompanyInfoDTO>getCompanies(String field, String value);
-	String deleteCompany(Long companyId);
+	CompanyInfoDTO deleteCompany(Long companyId);
 
 }

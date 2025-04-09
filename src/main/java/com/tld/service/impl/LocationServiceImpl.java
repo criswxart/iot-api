@@ -97,25 +97,21 @@ public class LocationServiceImpl implements LocationService{
 	}
 	
 	@Override
-	public String deleteLocation(Long locationId) {		
+	public LocationInfoDTO deleteLocation(Long locationId) {		
 		final Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no válido"));		
 		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud de usuario: "+user.getUserName()+"recibida en impl deleteLocation");
 		Location location = locationRepository.findById(locationId)
 				   .orElseThrow(() -> new EntityNotFoundException("Location no encontrada con ID: " + locationId));		  
 		
 		if(!location.getLocationIsActive()) {
-			return "El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+" a las "+ new String(location.getLocationModifiedAt()
-	        	    .atZone(ZoneId.of("America/Santiago"))
-	        	    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-		}
-		
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+			throw new com.tld.exception.CustomDatabaseException("El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+
+																" a las "+formatter.format(location.getLocationModifiedAt()));
+		}		
 		location.setLocationIsActive(false);
 	    location.setLocationModifiedBy(user);	
 		locationRepository.save(location);
-		return "Se inactiva registro de direccion: "+location.getLocationAddress()+" por: "+location.getLocationModifiedBy().getUserName() 
-				+" a las "+new String(location.getLocationModifiedAt()
-		        	    .atZone(ZoneId.of("America/Santiago"))
-		        	    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+		return locationRepository.findLocations("id",location.getLocationId().toString()).get(0) ;
 	}
 	
 	 private Optional<Users> getAuthenticatedUser() {

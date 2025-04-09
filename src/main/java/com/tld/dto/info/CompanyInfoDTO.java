@@ -18,5 +18,6 @@ public class CompanyInfoDTO {
     private String companyCreatedAt;
     private String userNameM;  
     private String companyModifiedAt;
+    private Boolean isCompanyActive;
 
 }
