@@ -61,24 +61,24 @@ public class RabbitMQConsumer {
     @RabbitListener(queues = "sensor_cola")
     public void receiveSensorData(String message) {
     	LogUtil.log(RabbitMQConsumer.class, Level.INFO, "Solicitud recibida en consumer");             
-    	 try {
-        String[] split = message.split("\\|", 2);
-        if (split.length < 1) {
-            System.err.println("❌ Mensaje mal formado, no tiene API Key");
-            throw new com.tld.exception.MissingParameterException("Faltan parametros en peticion");
-        }               
-        
-        String sensorApiKey = split[0];
-        String json = split[1]; 
-        
-        
-        try {	
-        	measurementServiceImpl.addSensorData(measurementMapper.fromJsonToDTO(json), sensorApiKey);      
-        } catch (com.tld.exception.EntityNotFoundException e) {
-            LogUtil.log(RabbitMQConsumer.class, Level.WARNING, "Sensor o API Key no encontrado: " + sensorApiKey);           
-           return ;  
-        }
-		 } catch (Exception e) {	       
+    	try {
+	        String[] split = message.split("\\|", 2);	        
+	        if (split.length < 1) {
+	        	LogUtil.log(RabbitMQConsumer.class, Level.WARNING, "Solicitud no tiene json y header"); 
+	            throw new com.tld.exception.MissingParameterException("Faltan parametros en peticion");
+	        }              
+	        
+	        String sensorApiKey = split[0];
+	        String json = split[1]; 
+	        
+	        
+	        try {	
+	        	measurementServiceImpl.addSensorData(measurementMapper.fromJsonToDTO(json), sensorApiKey);      
+	        } catch (com.tld.exception.EntityNotFoundException e) {
+	            LogUtil.log(RabbitMQConsumer.class, Level.WARNING, "Sensor o API Key no encontrado: " + sensorApiKey);           
+	           return ;  
+	        }
+		} catch (Exception e) {	       
 	        LogUtil.log(RabbitMQConsumer.class, Level.SEVERE, "Error al procesar el mensaje");
 	        return;
 	    }

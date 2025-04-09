@@ -46,15 +46,16 @@ public class MeasurementServiceImpl implements MeasurementService{
 	@Transactional
 	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {
 		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl addSensorData");	
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl addSensorData");		
 		
-		if(sensorApiKey==null || sensorApiKey.isEmpty() ) {
-			if(measurementDTO.getApi_Key()==null) {
-				throw new com.tld.exception.InvalidApiKeyException ("Sensor Api key vacio");
+		if(measurementDTO.getApi_Key()==null) {
+			if(sensorApiKey==null || sensorApiKey.isEmpty() ) {				
+				throw new com.tld.exception.InvalidApiKeyException ("Solicitud enviada sin sensor Api key");
+			}else {
+				measurementDTO.setApi_Key(sensorApiKey);
 			}
-		}else {
-			measurementDTO.setApi_Key(sensorApiKey);
-		}	
+		}		
+		
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud tiene apikey "+measurementDTO.getApi_Key()+" se busca entidad.");
 	
 		final Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_Key())
