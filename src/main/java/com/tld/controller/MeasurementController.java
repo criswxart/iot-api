@@ -27,10 +27,11 @@ public class MeasurementController {
 	private final MeasurementService measurementService;								
 	
 	@PostMapping
-	public ResponseEntity <?> addSensorData(@RequestBody MeasurementDTO measurementDTO, @RequestHeader(value ="sensor_api_key", required = false) String sensorApiKey){
+	public ResponseEntity <String> addSensorData(@RequestBody MeasurementDTO measurementDTO, @RequestHeader(value ="sensor_api_key", required = false) String sensorApiKey){
 		LogUtil.log(MeasurementController.class, Level.INFO, "Solicitud recibida en controller addSensorData");	
 		//measurementDTO.setApi_key(sensorApiKey);
-		return ResponseEntity.ok(measurementService.addSensorData(measurementDTO, sensorApiKey));
+		measurementService.addSensorData(measurementDTO, sensorApiKey);
+		return ResponseEntity.status(HttpStatus.CREATED).body("Métrica registrada con éxito");
 
 	}	
 	

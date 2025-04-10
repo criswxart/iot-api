@@ -44,86 +44,38 @@ public class MeasurementServiceImpl implements MeasurementService{
 	
 	@Override
 	@Transactional
-	public MeasurementDTO addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {
+	public void addSensorData(MeasurementDTO measurementDTO, String sensorApiKey) {
 		
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl addSensorData");		
 		
-		if(measurementDTO.getApi_Key()==null) {
+		if(measurementDTO.getApi_key()==null) {
 			if(sensorApiKey==null || sensorApiKey.isEmpty() ) {				
 				throw new com.tld.exception.InvalidApiKeyException ("Solicitud enviada sin sensor Api key");
 			}else {
-				measurementDTO.setApi_Key(sensorApiKey);
+				measurementDTO.setApi_key(sensorApiKey);
 			}
 		}		
 		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud tiene apikey "+measurementDTO.getApi_Key()+" se busca entidad.");
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud tiene apikey "+measurementDTO.getApi_key()+" se busca entidad.");
 	
-		final Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_Key())
+		final Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_key())
 						.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado. No se grabarán metricas recibidas"));		
 		
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Entidad Sensor encontrada, id: "+sensor.getSensorId()+" nombre: "+sensor.getSensorName());
 				
-		Measurement measurement = new Measurement();
-		measurement.setSensor(sensor);		
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Entidad Measurement creado y seteado con");
+		saveMeasurementDataUsingHibernateAndJdbc(measurementDTO, sensor);	
 		
-		Long measurementId = measurementRepository.save(measurement).getMeasurementId();
-		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Measurement insertado, id: "+measurementId);		
-	
-		/*
-		List<SensorData> sensorDataList = new ArrayList<>();;
-		*/
-		
-		
-		String sql = "INSERT INTO sensor_data (measurement_id, sensor_data_correlative, metric_id, sensor_value, sensor_data_created_at) VALUES (?, ?, ?, ?, ?)";
-		int correlativo = 1;
-		for(int i=0; i < measurementDTO.getJson_data().size(); i++ ) {			
-			SensorDataDTO sensorDataDTO = measurementDTO.getJson_data().get(i);			
-			Map<String, Object> sensorDataMap = sensorDataDTO.getSensorData();
-			
-			for (String key : sensorDataMap.keySet()) {
-			    String metricName = key;
-			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Buscando metrica con nombre "+metricName);
-			    Metric metric = metricRepository.findByMetricName(metricName)
-			            .orElseGet(() -> {
-			                Metric newMetric = new Metric();
-			                newMetric.setMetricName(metricName);
-			                LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Se grabo metrica, id: "+newMetric.getMetricId());
-			                return metricRepository.save(newMetric);
-			            });	
-			
-			   
-			 jdbcTemplate.update(sql, measurementId, correlativo++, metric.getMetricId(),  (Double) sensorDataMap.get(metricName), sensorDataDTO.getDatetime());
-		     LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a batch con JdbcTemplate ("+ measurementId+", "+(correlativo-1)+", "+metric.getMetricId()+", "+(Double) sensorDataMap.get(metricName)+", "+sensorDataDTO.getDatetime()+") ");
-		     			    
-			   /* 
-			    * LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "creando entidad sensor_data");
-			    * SensorData sensorData = new SensorData(
-			    		measurement, //padre
-			    		correlativo ++, //correlativo 
-			            metric, //Va la entidad metric y ahi esta id y nombre
-			            (Double) sensorDataMap.get(metricName),  //valores de la metrica
-			            sensorDataDTO.getDatetime()  //valor Long fecha epoch que envian en el json
-			    );
-			    sensorDataList.add(sensorData);
-			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a lista");			    
-			    */
-			}
-		}			
-		
-		
-	/*Grabado de sensor_data usando modelo de entidad
-	 * LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Lista sensorData guardada");	
-	 * sensorDataRepository.saveAll(sensorDataList); 		
-		*/
-		
-		//Esto es solo para ver respuesta, como un sensor envia data es irrelevante mostrarle un mensaje (creo que ni se enteran 
-		//de la respuesta)
-		measurementDTO.setMeasurementId(measurementId);
-		measurementDTO.setSensorId(sensor.getSensorId());
-		measurementDTO.setMeasurementIsActive(true);
-		return measurementDTO;
 	}
+	
+	@Override
+	public void addSensorDataRabbit(MeasurementDTO measurementDTO) {
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl addSensorDataRabbit");	
+		final Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_key())
+				.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado. No se grabarán metricas recibidas"));		
+		saveMeasurementDataUsingHibernateAndJdbc(measurementDTO, sensor);		
+	}
+
+	
 
 	@Override
 	public MeasurementInfoDTO updateSensorData (String sensorApiKey, Long measurementId, String companyApiKey) {
@@ -220,4 +172,77 @@ public class MeasurementServiceImpl implements MeasurementService{
 	        .orElseThrow(() -> new com.tld.exception.InvalidApiKeyException("No existe la compañía con la API key entregada: " + apiKey));
 	}
 
+	
+	
+	private void saveMeasurementDataUsingHibernateAndJdbc(MeasurementDTO measurementDTO, Sensor sensor) {
+		
+		Measurement measurement = new Measurement();
+		measurement.setSensor(sensor);		
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Entidad Measurement creado y seteado con");
+		
+		Long measurementId = measurementRepository.save(measurement).getMeasurementId();
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Measurement insertado, id: "+measurementId);	
+	
+		String sql = "INSERT INTO sensor_data (measurement_id, sensor_data_correlative, metric_id, sensor_value, sensor_data_created_at) VALUES (?, ?, ?, ?, ?)";
+		int correlativo = 1;
+		for(int i=0; i < measurementDTO.getJson_data().size(); i++ ) {			
+			SensorDataDTO sensorDataDTO = measurementDTO.getJson_data().get(i);			
+			Map<String, Object> sensorDataMap = sensorDataDTO.getSensorData();			
+			for (String key : sensorDataMap.keySet()) {
+			    String metricName = key;
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Buscando metrica con nombre "+metricName);
+			    Metric metric = metricRepository.findByMetricName(metricName)
+			            .orElseGet(() -> {
+			                Metric newMetric = new Metric();
+			                newMetric.setMetricName(metricName);
+			                LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Se grabo metrica, id: "+newMetric.getMetricId());
+			                return metricRepository.save(newMetric);
+			            });				   
+			 jdbcTemplate.update(sql, measurementId, correlativo++, metric.getMetricId(),  (Double) sensorDataMap.get(metricName), sensorDataDTO.getDatetime());
+		     LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a batch con JdbcTemplate ("+ measurementId+", "+(correlativo-1)+", "+metric.getMetricId()+", "+(Double) sensorDataMap.get(metricName)+", "+sensorDataDTO.getDatetime()+") ");		
+			}
+		}	
+	}
+	
+	private void saveMeasurementDataUsingHibernate(MeasurementDTO measurementDTO, Sensor sensor) {
+		Measurement measurement = new Measurement();
+		measurement.setSensor(sensor);				
+		Long measurementId = measurementRepository.save(measurement).getMeasurementId();
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Measurement insertado, id: "+measurementId);		
+			
+		List<SensorData> sensorDataList = new ArrayList<>();		
+		int correlativo = 1;
+		for(int i=0; i < measurementDTO.getJson_data().size(); i++ ) {			
+			SensorDataDTO sensorDataDTO = measurementDTO.getJson_data().get(i);			
+			Map<String, Object> sensorDataMap = sensorDataDTO.getSensorData();
+			
+			for (String key : sensorDataMap.keySet()) {
+			    String metricName = key;
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Buscando metrica con nombre "+metricName);
+			    Metric metric = metricRepository.findByMetricName(metricName)
+			            .orElseGet(() -> {
+			                Metric newMetric = new Metric();
+			                newMetric.setMetricName(metricName);
+			                LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Se grabo metrica, id: "+newMetric.getMetricId());
+			                return metricRepository.save(newMetric);
+			            });					 			    
+			    
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "creando entidad sensor_data");
+			    SensorData sensorData = new SensorData(
+			    	measurement, //padre
+			    	correlativo ++, //correlativo 
+			        metric, //Va la entidad metric y ahi esta id y nombre
+			        (Double) sensorDataMap.get(metricName),  //valores de la metrica
+			        sensorDataDTO.getDatetime()  //valor Long fecha epoch que envian en el json
+			    );
+			    sensorDataList.add(sensorData);
+			    LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Sensor_data agregado a lista");			    
+			}
+		}			
+	  LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Lista sensorData guardada");	
+	  sensorDataRepository.saveAll(sensorDataList); 		
+
+	}
+
+	
 }

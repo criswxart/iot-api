@@ -30,7 +30,7 @@ public class RabbitMQController {
             boolean messageSent = producer.sendMessage(messageWithApiKey);
             
             if (messageSent) {
-                return new ResponseEntity<>("Mensaje enviado con éxito", HttpStatus.OK);
+                return new ResponseEntity<>("Mensaje enviado con éxito", HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>("No se pudo conectar a RabbitMQ. Intenta más tarde.", HttpStatus.SERVICE_UNAVAILABLE);
             }

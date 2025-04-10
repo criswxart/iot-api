@@ -4,10 +4,12 @@ import java.util.List;
 
 import com.tld.dto.MeasurementDTO;
 import com.tld.dto.info.MeasurementInfoDTO;
+import com.tld.entity.Sensor;
 
 public interface MeasurementService {
 	
-	MeasurementDTO addSensorData (MeasurementDTO measurementDTO, String sensorApiKey);	
+	void addSensorData (MeasurementDTO measurementDTO, String sensorApiKey);
+	void addSensorDataRabbit (MeasurementDTO measurementDTO);
 	MeasurementInfoDTO updateSensorData(String sensorApiKey, Long measurementId, String companyApiKey);
 	MeasurementInfoDTO getSensorDataById(Long measurementID,String sensorApiKey, String companyApiKey);
 	List<MeasurementInfoDTO>getSensorDataByEpoch(Long from, Long to, String companyApiKey);
