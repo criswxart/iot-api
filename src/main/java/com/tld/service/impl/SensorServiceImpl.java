@@ -1,20 +1,14 @@
 package com.tld.service.impl;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.logging.Level;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import com.tld.dto.CompanyDTO;
 import com.tld.dto.SensorDTO;
-import com.tld.dto.info.LocationInfoDTO;
 import com.tld.dto.info.SensorInfoDTO;
 import com.tld.entity.Category;
 import com.tld.entity.Company;
@@ -25,12 +19,9 @@ import com.tld.jpa.repository.CompanyRepository;
 import com.tld.jpa.repository.LocationRepository;
 import com.tld.jpa.repository.SensorRepository;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.mapper.CompanyMapper;
 import com.tld.mapper.SensorMapper;
 import com.tld.service.SensorService;
-
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.Id;
+import com.tld.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,131 +33,122 @@ public class SensorServiceImpl implements SensorService{
 	final CompanyRepository companyRepository;
 	final UserRepository userRepository;
 	final CategoryRepository categoryRepository;
+	final SensorMapper sensorMapper;
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
 	
 	 
 	@Override
-	public SensorInfoDTO addSensor(SensorDTO sensorDTO) {		
-		//Falta validar que la direccion seleccionada pertenezca a la misma empresa
-		//Sacar una lista de direcciones con la company_id  y luego ver que la ingresada
-		//este en el listado	
+	public SensorInfoDTO addSensor(SensorDTO sensorDTO, String companyApiKey) {
 		
-		Optional<Company> optionalCompany =companyRepository.findByCompanyApiKey(sensorDTO.getSensorApiKey());
-		if (optionalCompany.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe la compania con la api key entragada, no se grabara sensor. Valida tu apikey" + sensorDTO.getSensorApiKey());
-	    }
+		final Company company = getCompanyByApiKey(companyApiKey);		
+		LogUtil.log(SensorServiceImpl.class, Level.INFO, "Solicitud recibida de company: "+company.getCompanyName()+"en impl addSensor");
 		
-		if (locationRepository.findIfLocationAndCompanyAreOk(optionalCompany.get().getCompanyId(),sensorDTO.getLocationId())<1){
-			throw new EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
+		if (locationRepository.findIfLocationAndCompanyAreOk(company.getCompanyId(),sensorDTO.getLocationId())<1){
+			throw new com.tld.exception.EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
 		}
 		
-		Optional<Category> optionalCategory=categoryRepository.findById(sensorDTO.getCategoryId());
-		if (optionalCategory.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe la categoria ingresada:" + sensorDTO.getCategoryId());
-	    }		
-		Sensor sensor=SensorMapper.toEntity(sensorDTO);		
+		categoryRepository.findById(sensorDTO.getCategoryId())
+				   .orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No existe la categoria ingresada, id:" + sensorDTO.getCategoryId()));  		
 		
-		Long id= sensorRepository.save(sensor).getSensorId();
+		final Sensor sensor=sensorMapper.toEntity(sensorDTO);		
 		
-		if(id>0) {
-			
-			return sensorRepository.findSensors("id", id.toString(),sensorDTO.getSensorApiKey()).get(0);
-			
-			//return sensorRepository.findSensors("id", sensor.getSensorId().toString(),sensorDTO.getSensorApiKey()).get(0);			
+		
+		Long id= sensorRepository.save(sensor).getSensorId();  
+		if(id>0) {			
+			return sensorRepository.findSensorById(id);					
 		}else {
-			throw new EntityNotFoundException("No se pudo grabar, informar a soporte.");
-		}
-		
+			throw new com.tld.exception.EntityNotFoundException("No se pudo grabar, informar a soporte.");
+		}		
 		
 	}
 
 	@Override
-	public SensorInfoDTO updateSensor(String companyApiKey, SensorDTO sensorDTO) {
-		
-		Optional<Sensor> optionalSensor=sensorRepository.findById(sensorDTO.getSensorId());
-		if (optionalSensor.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe sensor por lo que no se actualizara nada");
-	    }		
-		
-		Sensor sensor=optionalSensor.get();
-		
-		//Se valida con api_key del header, en el json puede venir otro para hacer el update.
-		Optional<Company> optionalCompany =companyRepository.findByCompanyApiKey(companyApiKey);
-		if (optionalCompany.isEmpty()) {
-	    	throw new EntityNotFoundException("No existe la compania con la api key entragada, no se grabara sensor. Valida tu apikey" + sensorDTO.getSensorApiKey());
-	    }
+	public SensorInfoDTO updateSensor(String companyApiKey, SensorDTO sensorDTO) {	
+
+		final Company company = getCompanyByApiKey(companyApiKey);		
+		LogUtil.log(SensorServiceImpl.class, Level.INFO, "Solicitud recibida de company: "+company.getCompanyName()+"en impl updateSensro");
 		
 		
-		if (locationRepository.findIfLocationAndCompanyAreOk(optionalCompany.get().getCompanyId(),sensorDTO.getLocationId())<1){
-			throw new EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
-		}else {
-			sensor.setLocation(new Location(sensorDTO.getLocationId()));
+		final Sensor sensor= sensorRepository.findById(sensorDTO.getSensorId())
+				   .orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No existe sensor entregado en JSON, no se actualizara")); 	
+	
+			
+		//validar que sensor y company esten relacionados
+		if(sensorRepository.findIfCompanyAndSensorAreOk(company.getCompanyId(),sensor.getSensorId())==0) {
+			throw new com.tld.exception.InvalidCompanySensorException("No existe relacion entre compania (api key) y sensor (json)");
 		}
 		
-		
-		if(sensorDTO.getCategoryId()!=null) {
-			Optional<Category> optionalCategory=categoryRepository.findById(sensorDTO.getCategoryId());
-			if (optionalCategory.isEmpty()) {
-		    	throw new EntityNotFoundException("No existe la categoria ingresada:" + sensorDTO.getCategoryId());
-		    }else {
-		    	sensor.setCategory(new Category (sensorDTO.getCategoryId()));	    
-		    }			
-		}
-				
-		
-		if((Optional.ofNullable(sensorDTO.getSensorApiKey()).map(String::length).orElse(0)>0)&&(!sensor.getSensorApiKey().equals(sensorDTO.getSensorApiKey()))){
-			Optional<Sensor> sensorByApiKey= sensorRepository.findBySensorApiKey(sensorDTO.getSensorApiKey());
-			if(!sensorByApiKey.isEmpty()) {
-				throw new EntityNotFoundException("No puedes grabar esa api key, debes cambiarla");
+		if(sensorDTO.getLocationId() != null && sensorDTO.getLocationId() > 0) {
+			if (locationRepository.findIfLocationAndCompanyAreOk(company.getCompanyId(),sensorDTO.getLocationId())<1){
+				throw new com.tld.exception.EntityNotFoundException("No existe tal direccion asociada a la compañia, no se ingresara sensor");
 			}else {
-				//Si existe api key en el json y es diferente a la que ya tiene asociada (la que venia en el header)
-				//se valida que no exista asociada a otro company. Si no existe en la tabla se hara un update
-				//incluyendo el nuevo api_key (si el api key viene en el json y es igual al asociado no se hara nada)
-				sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
-			}
+				sensor.setLocation(new Location(sensorDTO.getLocationId()));
+			}			
 		}
 		
-		if(Optional.ofNullable(sensorDTO.getSensorName()).map(String::length).orElse(0)>0) {
+		if(sensorDTO.getCategoryId() != null && sensorDTO.getCategoryId() > 0) {
+			Category category=categoryRepository.findById(sensorDTO.getCategoryId())
+					   .orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No existe la categoria ingresada, id:" + sensorDTO.getCategoryId())); 
+			sensor.setCategory(category);
+		}	
+						
+		//validacion: El json tiene una apikey?, ¿El apikey en json es igual al que ya tiene grabado?		
+		String nuevaApiKey=sensorDTO.getSensorApiKey();		
+		if(StringUtils.hasText(nuevaApiKey)&&(!nuevaApiKey.equals(sensor.getSensorApiKey()))){
+			//Existe otro sensor con la apikey indicada en el json?
+			Optional<Sensor> existeSensor = sensorRepository.findBySensorApiKey(sensorDTO.getSensorApiKey());
+			if (existeSensor.isPresent()) {
+			    throw new com.tld.exception.InvalidApiKeyException("No se puede actualizar el api key contenido en json ");
+			} else {
+			    sensor.setSensorApiKey(sensorDTO.getSensorApiKey());
+			}			
+		}
+		
+		if(StringUtils.hasText(sensorDTO.getSensorName())) {
 			sensor.setSensorName(sensorDTO.getSensorName());
-		}		
-					
+		}
+		
 		sensor.setSensorIsActive(true);
 		
 		sensorRepository.save(sensor);
 		
-		return sensorRepository.findSensors("id", sensor.getSensorId().toString(),companyApiKey).get(0);
-		//return 	sensorRepository.findSensorById(sensor.getSensorId());	
+		//Retornar .get(0) para que no sea una lista de 1 elemento.
+		return sensorRepository.findSensorById(sensor.getSensorId());
+			
 	}
 
 	@Override
 	public List<SensorInfoDTO> getSensors(String field, String value, String companyApiKey) {	
+		final Company company = getCompanyByApiKey(companyApiKey);		
+		LogUtil.log(SensorServiceImpl.class, Level.INFO, "Solicitud recibida de company: "+company.getCompanyName()+"en impl getSensors");
+		//La validacion con company api key y sensores entregados ocurre directo en el sql. De no existir relacion entre sensores y company
+		//retornará vacio
 		
-		List<SensorInfoDTO> resultado= sensorRepository.findSensors(field, value, companyApiKey);
-		
+		List<SensorInfoDTO> resultado= sensorRepository.findSensors(field, value, companyApiKey);		
 		if (resultado.isEmpty()) {
-			throw new EntityNotFoundException("No hay resultados, 2 posibles razones: no existe o intentas ver informacion de otra compañia");
+			throw new com.tld.exception.EntityNotFoundException("No hay resultados, 2 posibles razones: no existe o intentas ver informacion de otra compañia");
 		}
 		return resultado;
 		
 	}
 
 	@Override
-	public String deleteSensor(Long sensorId, String companyApiKey) {
-		String mensaje;
-		Optional<Sensor> optionalSensor= sensorRepository.findById(sensorId);
-		if(optionalSensor.isEmpty()) {
-			mensaje= "No puedes borrar lo que nunca existio";
-		}else {		
-			Sensor sensor=optionalSensor.get();
-			if (sensor.getSensorApiKey().equals(companyApiKey)) {
-				sensor.setSensorIsActive(false);
-				sensorRepository.save(sensor);
-				mensaje= "Has inactivado el sensor";
-			}else {
-				mensaje= "Estas intentando inactivar el sensor de otra campania o tu apiKey es invalida accion no valida";
-			}
-		}
-		return mensaje;
+	public SensorInfoDTO deleteSensor(Long sensorId, String companyApiKey) {
+		final Company company = getCompanyByApiKey(companyApiKey);		
+		LogUtil.log(SensorServiceImpl.class, Level.INFO, "Solicitud recibida de company: "+company.getCompanyName()+"en impl deleteSensor");		
+		
+		final Sensor sensor= sensorRepository.findById(sensorId)
+				   .orElseThrow(() -> new com.tld.exception.EntityNotFoundException("No puedes eliminar lo que nunca existio")); 
+		
+		//validar que sensor y company esten relacionados
+		if(sensorRepository.findIfCompanyAndSensorAreOk(company.getCompanyId(),sensor.getSensorId())==0) {
+			throw new com.tld.exception.InvalidCompanySensorException("No existe relacion entre compania (api key) y sensor (json)");
+		}		
+		
+		sensor.setSensorIsActive(false);
+		sensorRepository.save(sensor);		
+		
+		return sensorRepository.findSensorById(sensorId);
 	}
 		
 	/*@Override
@@ -174,5 +156,10 @@ public class SensorServiceImpl implements SensorService{
 		return sensorRepository.findBySensorApiKey(companyApiKey).map(SensorMapper::toDTO);
 	}*/
 
+	private Company getCompanyByApiKey(String apiKey) {
+		LogUtil.log(SensorServiceImpl.class, Level.INFO, "Validando companyApiKey: "+apiKey);
+	    return companyRepository.findByCompanyApiKey(apiKey)
+	        .orElseThrow(() -> new com.tld.exception.InvalidApiKeyException("No existe la compañía con la API key entregada: " + apiKey));
+	}
 		
 }

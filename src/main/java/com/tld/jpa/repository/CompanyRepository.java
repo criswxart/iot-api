@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.tld.dto.info.CompanyInfoDTO;
-import com.tld.dto.info.LocationInfoDTO;
 import com.tld.entity.Company;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
@@ -22,9 +21,11 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
            usernamec,  
            TO_CHAR(company_created_at, 'DD-MM-YYYY HH24:MI') AS company_created_at, 
            usernamem, 
-           TO_CHAR(company_modified_at, 'DD-MM-YYYY HH24:MI') AS company_modified_at
+           TO_CHAR(company_modified_at, 'DD-MM-YYYY HH24:MI') AS company_modified_at,
+           is_company_active
 	 		FROM get_active_companies(:field, :value)					
 		    """, nativeQuery = true)
-	 List<CompanyInfoDTO> findCompanies(@Param("field") String field ,@Param("value") String value);
+	 List<CompanyInfoDTO> findCompanies(@Param("field") String field ,@Param("value") String value);	 
+	 
 
 }

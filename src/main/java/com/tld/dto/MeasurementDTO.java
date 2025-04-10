@@ -16,7 +16,7 @@ import lombok.ToString;
 public class MeasurementDTO {
 	
 	private Long measurementId;	
-	private String api_Key;	
+	private String api_key;	
 	private Long sensorId;	
 	private List<SensorDataDTO> json_data;
 	private Boolean measurementIsActive;

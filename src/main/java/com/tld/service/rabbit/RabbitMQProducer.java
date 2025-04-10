@@ -14,14 +14,13 @@ import org.springframework.stereotype.Service;
 public class RabbitMQProducer {
 	
 	private final RabbitTemplate rabbitTemplate;
-    private final String queueName = "sensor_cola";  // Asegúrate de que esta es la cola correcta
+    private final String queueName = "sensor_cola";  
     private final RetryTemplate retryTemplate;
     
     // Constructor
     public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
-
-        // Configurar RetryTemplate con un ExponentialBackOffPolicy
+       
         this.retryTemplate = new RetryTemplate();
         
         // Configuración de la política de retroceso fijo
@@ -46,8 +45,8 @@ public class RabbitMQProducer {
             // Ejecutar el envío del mensaje con reintentos automáticos
             retryTemplate.execute(context -> {
                 rabbitTemplate.convertAndSend(queueName, message);
-                System.out.println("📤 Mensaje enviado a RabbitMQ: " + message);
-                return null;  // No necesitamos un valor de retorno
+                System.out.println(" Mensaje enviado a RabbitMQ: " + message);
+                return null; 
             });
             return true;  // Mensaje enviado con éxito
         } catch (AmqpConnectException e) {
@@ -64,18 +63,5 @@ public class RabbitMQProducer {
             return false; // Error inesperado
         }
     }
-/*
-    private final RabbitTemplate rabbitTemplate;
-    private final String queueName = "sensor_cola";  // Asegúrate de que esta es la cola correcta
 
-    public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
-    public void sendMessage(String message) {
-        rabbitTemplate.convertAndSend(queueName, message);
-        System.out.println("📤 Mensaje enviado a RabbitMQ: " + message);
-    }
-    
-    */
 }

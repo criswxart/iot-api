@@ -1,13 +1,14 @@
 package com.tld.controller;
 
 import java.util.Random;
+import java.util.logging.Level;
 
-import org.springframework.amqp.AmqpConnectException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.tld.service.rabbit.RabbitMQProducer;
+import com.tld.util.LogUtil;
 
 @RestController
 @RequestMapping("/api/v1/rabbit")
@@ -22,14 +23,14 @@ public class RabbitMQController {
     @PostMapping("/add")
     public ResponseEntity<String> sendSensorData(@RequestBody String message, @RequestHeader(value ="sensor_api_key", required = false) String sensorApiKey) {
         try {
-            String messageWithApiKey = sensorApiKey + "|" + message; // Concatenar API Key con el mensaje
-
-            System.out.println(messageWithApiKey);
+        	
+        	LogUtil.log(RabbitMQController.class, Level.INFO, "Solicitud recibida en controller sendSensorData / Rabbit");
+            String messageWithApiKey = sensorApiKey + "|" + message; // Concatenar API Key con el mensaje      
             
             boolean messageSent = producer.sendMessage(messageWithApiKey);
             
             if (messageSent) {
-                return new ResponseEntity<>("Mensaje enviado con éxito", HttpStatus.OK);
+                return new ResponseEntity<>("Mensaje enviado con éxito", HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>("No se pudo conectar a RabbitMQ. Intenta más tarde.", HttpStatus.SERVICE_UNAVAILABLE);
             }

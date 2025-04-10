@@ -1,5 +1,4 @@
 package com.tld.entity;
-import java.time.Instant;
 
 import com.tld.model.id.SensorDataId;
 

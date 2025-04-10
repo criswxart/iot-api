@@ -1,19 +1,15 @@
 package com.tld.service.impl;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.tld.controller.CompanyController;
 import com.tld.dto.LocationDTO;
 import com.tld.dto.info.LocationInfoDTO;
 import com.tld.entity.City;
@@ -36,21 +32,21 @@ public class LocationServiceImpl implements LocationService{
 	final LocationRepository locationRepository;
 	final CityRepository cityRepository;
 	final UserRepository userRepository;
+	final LocationMapper locationMapper;
 	//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
 	
 
 	@Override
-	public LocationInfoDTO addLocation(LocationDTO locationDTO) {	
-		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud recibida en impl addLocation");
-		Location location= LocationMapper.toEntity(locationDTO);					    
-		Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no valido"));   
+	public LocationInfoDTO addLocation(LocationDTO locationDTO) {			
+		final Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no valido"));   
+		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud recibida de usuario: "+user.getUserName()+"en impl addLocation");
 	    
-	    location.setLocationCreatedBy(user);
-	    location.setLocationModifiedBy(user);		
-	    
+		Location location= locationMapper.toEntity(locationDTO);					    
+		location.setLocationCreatedBy(user);
+	    location.setLocationModifiedBy(user);		    
 	    
 	    try {	    	
-	    	Location savedLocation = locationRepository.save(location);
+	    	final Location savedLocation = locationRepository.save(location);
 	    	LogUtil.log(LocationServiceImpl.class, Level.INFO, "Retornando location almacenada");   
 			return    locationRepository.findLocations("id", savedLocation.getLocationId().toString())
 					    	            .stream()
@@ -66,86 +62,69 @@ public class LocationServiceImpl implements LocationService{
 	 
 	}
 
-
 	
 	@Override
-	public LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) {			
+	public LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) {		
+		final Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no válido"));
+		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud de usuario: "+user.getUserName()+" recibida en impl updateLocation");
+			
+		Location location = locationRepository.findById(locationId)
+			   .orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Location no encontrada con ID: " + locationId));		
 		
-		Optional<Location> optionalLocation = locationRepository.findById(locationId);
-		if (optionalLocation.isEmpty()) {
-	    	throw new EntityNotFoundException("Location no encontrada con ID: " + locationId);
-	    }
-		
-		Location location = optionalLocation.get();
-		
-		Optional<Users> optionalUser = getAuthenticatedUser();	     
-	    location.setLocationModifiedBy(optionalUser.get());	
-		
-		
-		
-		if(locationDTO.getLocationAddress()!=null) {
-			location.setLocationAddress(locationDTO.getLocationAddress());
-		}
-		
-		if(locationDTO.getCityId()!=null) {				
-			City city =	cityRepository.getReferenceById(locationDTO.getCityId());
-			location.setCity(city);			
-		}
-		
-		if(locationDTO.getLocationMeta()!=null) {
-			location.setLocationMeta(locationDTO.getLocationMeta());
-		}
-		
+		Optional.ofNullable(locationDTO.getLocationAddress()).ifPresent(location::setLocationAddress);		
+		Optional.ofNullable(locationDTO.getCityId()).ifPresent(cityId -> {
+	        City city = cityRepository.getReferenceById(cityId);
+	        location.setCity(city);
+	    });		
+		Optional.ofNullable(locationDTO.getLocationMeta()).ifPresent(location::setLocationMeta);
+	
 		
 		location.setLocationIsActive(true);
+		location.setLocationModifiedBy(user);
 		
-		locationRepository.save(location);
+		locationRepository.save(location);		
 		
+		//get(0) para no retonar una lista con 1 elemento. 
 		return locationRepository.findLocations("id",location.getLocationId().toString()).get(0) ;		
 				
 	}	
 
 	@Override
-	public List<LocationInfoDTO> getLocations(String field, String value) {		
+	public List<LocationInfoDTO> getLocations(String field, String value) {
+		final Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no válido"));
+		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud de usuario: "+user.getUserName()+" recibida en impl getLocations");
 		return  locationRepository.findLocations(field, value);		
 	}
 	
 	@Override
-	public String deleteLocation(Long locationId) {			
+	public LocationInfoDTO deleteLocation(Long locationId) {		
+		final Users user = getAuthenticatedUser().orElseThrow(() -> new com.tld.exception.InvalidUserException("Usuario no válido"));		
+		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Solicitud de usuario: "+user.getUserName()+"recibida en impl deleteLocation");
+		Location location = locationRepository.findById(locationId)
+				   .orElseThrow(() -> new EntityNotFoundException("Location no encontrada con ID: " + locationId));		  
 		
-		Optional <Location> optionalLocation=locationRepository.findById(locationId);
-		
-		if (optionalLocation.isEmpty()) {
-			throw new EntityNotFoundException("No existe ninguna location con id: " + locationId);
+		if(!location.getLocationIsActive()) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
+			throw new com.tld.exception.CustomDatabaseException("El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+
+																" a las "+formatter.format(location.getLocationModifiedAt()));
 		}		
-	
-		Location location= optionalLocation.get();
-		
-		Optional<Users> optionalUser = getAuthenticatedUser();	  
-	    location.setLocationModifiedBy(optionalUser.get());	
-		
-		if(!optionalLocation.get().getLocationIsActive()) {
-			return "El registro ya esta inactivo, fue hecho por "+location.getLocationModifiedBy().getUserName()+" a las "+ new String(location.getLocationModifiedAt()
-	        	    .atZone(ZoneId.of("America/Santiago"))
-	        	    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-		}
-		
 		location.setLocationIsActive(false);
+	    location.setLocationModifiedBy(user);	
 		locationRepository.save(location);
-		return "Se inactiva registro de direccion: "+location.getLocationAddress()+" por: "+location.getLocationModifiedBy().getUserName() 
-				+" a las "+new String(location.getLocationModifiedAt()
-		        	    .atZone(ZoneId.of("America/Santiago"))
-		        	    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+		return locationRepository.findLocations("id",location.getLocationId().toString()).get(0) ;
 	}
 	
 	 private Optional<Users> getAuthenticatedUser() {
-	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		LogUtil.log(LocationServiceImpl.class, Level.INFO, "Validando usuario");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-	        if (authentication != null && authentication.isAuthenticated()) {
-	            String userName = authentication.getName();
-	            return userRepository.findByUserName(userName);
-	        }
-	        return Optional.empty();
-	    }
+        if (authentication != null && authentication.isAuthenticated()) {
+            String userName = authentication.getName();
+            LogUtil.log(LocationServiceImpl.class, Level.INFO, "Usuario "+userName+" validado.");
+            return userRepository.findByUserName(userName);
+        }
+        LogUtil.log(LocationServiceImpl.class, Level.WARNING, "Validacion de usuario fallida.");
+        return Optional.empty();
+    }
 
 }

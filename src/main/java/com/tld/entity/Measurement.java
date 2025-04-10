@@ -3,7 +3,6 @@ package com.tld.entity;
 import java.time.Instant;
 import java.util.List;
 
-import com.tld.model.id.SensorDataId;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

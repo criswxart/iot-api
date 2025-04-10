@@ -11,5 +11,5 @@ public interface LocationService {
 	LocationInfoDTO addLocation(LocationDTO locationDTO);	
 	LocationInfoDTO updateLocation(Long locationId, LocationDTO locationDTO) ;	
 	List<LocationInfoDTO> getLocations(String field, String value);
-	String deleteLocation(Long locationId);
+	LocationInfoDTO deleteLocation(Long locationId);
 }

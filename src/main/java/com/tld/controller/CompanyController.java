@@ -41,16 +41,14 @@ public class CompanyController {
 	public ResponseEntity <?> updateCompany(@PathVariable Long companyId, @RequestBody CompanyDTO companyDTO){
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller updateCompany");		    		    			
 		//CompanyInfoDTO updatedLocation = companyService.updateCompany(companyId, companyDTO);
-	    return ResponseEntity.ok(companyService.updateCompany(companyId, companyDTO));
-	
+	    return ResponseEntity.ok(companyService.updateCompany(companyId, companyDTO));	
 	}
     
     
     @GetMapping
    	public ResponseEntity<?> getCompanies(@RequestParam String field, @RequestParam String value){   
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller getCompanies");		
-		return new  ResponseEntity<>(companyService.getCompanies(field, value),HttpStatus.OK);
-				
+		return new  ResponseEntity<>(companyService.getCompanies(field, value),HttpStatus.OK);				
    	}
        
     
@@ -58,8 +56,7 @@ public class CompanyController {
     @DeleteMapping("{companyId}")
 	public ResponseEntity <?> deleteCompany(@PathVariable Long companyId){	
     	LogUtil.log(CompanyController.class, Level.INFO, "Solicitud recibida en controller deleteCompany");
-    	return ResponseEntity.ok(companyService.deleteCompany(companyId).toString());
-	
+    	return ResponseEntity.ok(companyService.deleteCompany(companyId));
 	}
 	
 		

@@ -12,7 +12,10 @@ import com.tld.dto.SensorDataDTO;
 import com.tld.entity.Metric;
 import com.tld.entity.SensorData;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class SensorDataMapper {	
 
 	public SensorDataDTO toDTO(SensorData sensorData) {
