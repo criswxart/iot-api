@@ -21,9 +21,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users registerUser(Users user) {
+        // Verificar si ya existe el nombre de usuario
+        if (userRepository.existsByUserName(user.getUserName())) {
+            throw new IllegalArgumentException("El nombre de usuario ya está en uso.");
+        }
+
+        // Encriptar la contraseña antes de guardar el usuario
         user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
-       return userRepository.save(user);
-    	
+        return userRepository.save(user);
     }
 
     @Override

@@ -45,7 +45,8 @@ public class SecurityConfig {
 	            .authorizeHttpRequests(auth -> auth
 	                .requestMatchers("/api/auth/login", "/api/v1/sensordata/**", "/api/v1/sensor/**","/api/v1/rabbit/**","/api/v1/measurement/**").permitAll() // Endpoints públicos
 	                .requestMatchers("/swagger-ui.html", "/swagger-ui/", "/v3/api-docs/", "/swagger-resources/", "/webjars/").permitAll()
-	                .requestMatchers("/api/location", "/api/auth/register").hasRole("ADMINISTRADOR") // Solo administradores	                
+	                //.requestMatchers("/api/location", "/api/auth/register").hasRole("ADMINISTRADOR") // Solo administradores
+	                .requestMatchers("/api/location", "/api/auth/register").hasAuthority("ROLE_administrador")
 	                .anyRequest().authenticated() // Todo lo demás requiere autenticación
 	            )
 	            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Agrega filtro JWT
@@ -86,9 +87,10 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
       CorsConfiguration configuration = new CorsConfiguration();
       configuration.setAllowCredentials(true);
+      configuration.setAllowedOrigins(List.of("*")); // Permitir todos los orígenes temporalmente
       configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Permitir Angular
       configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-      configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+      configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "company_api_key"));
 
       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
       source.registerCorsConfiguration("/**", configuration);

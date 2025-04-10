@@ -3,6 +3,7 @@ package com.tld.configuration.jwt;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
@@ -34,16 +36,16 @@ public class JwtUtils {
 	@Value("${secret.private.user.jwt}")
 	private String USER_GENERATOR;
 	
-	private final static int EXPIRATION_OFFSET = 1_800_000;
+	private final static int EXPIRATION_OFFSET = 1_800_000; //30min
 	
 	private final static int NOT_BEFORE_OFFSET = 10_000;
 
 	public String createToken(Authentication authentication) {
         final String username = authentication.getName();
 
-        final String authorities = authentication.getAuthorities().stream()
+        final List<String> authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.toList()); // <-- Aquí usamos lista
 
         return Jwts.builder()
                 .setIssuer(USER_GENERATOR)
@@ -74,8 +76,19 @@ public class JwtUtils {
 	 public String getUsernameFromToken(String token) {
 	        return parseJwt(token).getBody().getSubject();
 	    }
+//	 public Authentication getAuthentication(String token, UserDetails userDetails) {
+//	        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//	    }
 	 public Authentication getAuthentication(String token, UserDetails userDetails) {
-	        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+	        Claims claims = parseJwt(token).getBody();
+	        List<String> authorities = claims.get("authorities", List.class);
+
+	        // Convertir la lista de roles en una lista de GrantedAuthority
+	        List<GrantedAuthority> grantedAuthorities = authorities.stream()
+	                .map(SimpleGrantedAuthority::new)
+	                .collect(Collectors.toList());
+
+	        return new UsernamePasswordAuthenticationToken(userDetails, null, grantedAuthorities);
 	    }
 	 private Key getSigninKey() {
 	        return new SecretKeySpec(Base64.getDecoder().decode(PRIVATE_KEY), SignatureAlgorithm.HS256.getJcaName());

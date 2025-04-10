@@ -86,34 +86,26 @@ public class AuthController {
 //	        return ResponseEntity.ok("Usuario registrado con éxito.");
 //	    }
 	    @PostMapping("/register")
-	    public ResponseEntity<String> register(@RequestBody Users user, @RequestHeader("Authorization") String token) {
+	    public ResponseEntity<?> registerUser(@RequestBody Users user) {
 	        try {
-	            // Verificar que el token es válido y extraer el rol
-	            if (token == null || !token.startsWith("Bearer ")) {
-	                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
-	            }
-	            
-	            String jwtToken = token.substring(7); // Eliminar el prefijo "Bearer "
-	            String username = jwtUtils.getUsernameFromToken(jwtToken);
-	            
-	            // Aquí deberías verificar si el usuario tiene el rol adecuado (por ejemplo, "ADMINISTRADOR")
-	            Optional<Users> loggedInUser = userService.findByUsername(username);
-	            if (loggedInUser.isEmpty() || !loggedInUser.get().getRole().equals("ADMINISTRADOR")) {
-	                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para registrar usuarios.");
-	            }
+	            // Intentar registrar el usuario
+	            userService.registerUser(user); // Esto ya incluye la verificación si el usuario existe
 
-	            // Verificar si el nombre de usuario ya está en uso
-	            if (userService.findByUsername(user.getUserName()).isPresent()) {
-	                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya está en uso.");
-	            }
-
-	            userService.registerUser(user); // Registrar el nuevo usuario
-	            return ResponseEntity.ok("Usuario registrado con éxito.");
-
+	            // Si todo va bien, respondemos con un mensaje de éxito
+	            return ResponseEntity.status(HttpStatus.CREATED)
+	                                 .body("{\"message\":\"Usuario registrado correctamente\"}");
+	        } catch (IllegalArgumentException e) {
+	            // Si el nombre de usuario ya está en uso, la excepción será capturada aquí
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                                 .body("{\"message\":\"El nombre de usuario ya está en uso.\"}");
 	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor.");
+	            // Capturar cualquier otra excepción para casos inesperados
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                                 .body("{\"message\":\"Error interno al registrar usuario.\"}");
 	        }
 	    }
+	    
+
 
 //	    @GetMapping("/user")
 //	    public String user() {
