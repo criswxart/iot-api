@@ -82,10 +82,13 @@ public class RabbitMQConsumer {
         	measurementServiceImpl.addSensorDataRabbit(measurementDTO);    
 
 	        LogUtil.log(RabbitMQConsumer.class, Level.WARNING, "Enviada la solicitud a measurementServiceImpl > addSensorDataRabbit"); 
-		} catch (Exception e) {	       
-	        LogUtil.log(RabbitMQConsumer.class, Level.SEVERE, "Error al procesar el mensaje");
-	        return;
-	    }
+		 } catch (com.tld.exception.EntityNotFoundException e) {
+            LogUtil.log(RabbitMQConsumer.class, Level.WARNING, "Entidad no encontrada, desde MeasurementServiceImpl: " + e.getMessage());
+		 } catch (com.tld.exception.MissingParameterException e) {
+            LogUtil.log(RabbitMQConsumer.class, Level.WARNING, "Faltan parámetros en la petición: " + e.getMessage());
+		 } catch (Exception e) {
+            LogUtil.log(RabbitMQConsumer.class, Level.SEVERE, "Error al procesar el mensaje: " + e.getMessage());
+		 }
                 
     }
     

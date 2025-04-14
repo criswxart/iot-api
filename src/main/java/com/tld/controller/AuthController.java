@@ -16,6 +16,12 @@ import com.tld.entity.Role;
 import com.tld.entity.Users;
 import com.tld.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +32,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*") //Permite solicitudes desde cualquier origen (CORS habilitado globalmente).
+@Tag(name = "Auth Controller", description = "Gestion de Usuarios")
 public class AuthController {
 	
 	 	@Autowired
@@ -41,6 +48,12 @@ public class AuthController {
 	    
 	    // Recibe el username y password y devuelve un JWT en la respuesta.
 	    @PostMapping("/login")
+	    @Operation(summary = "Autenticación de usuario", description = "Permite a un usuario autenticarse con sus credenciales y recibir un token JWT.")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Autenticación exitosa", content = @Content(mediaType = "application/json")),
+	        @ApiResponse(responseCode = "401", description = "Credenciales incorrectas"),
+	        @ApiResponse(responseCode = "500", description = "Error en el servidor")
+	    })
 	    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
 	        try {
 	            Authentication authentication = authenticationManager.authenticate(
@@ -77,15 +90,15 @@ public class AuthController {
 	        }
 	    }
 
-//	    @PostMapping("/register")
-//	    public ResponseEntity<String> register(@RequestBody Users user) {
-//	        if (userService.findByUsername(user.getUserName()).isPresent()) {
-//	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya está en uso.");
-//	        }
-//	        userService.registerUser(user);
-//	        return ResponseEntity.ok("Usuario registrado con éxito.");
-//	    }
+
 	    @PostMapping("/register")
+	    @Operation(summary = "Registro de usuario", description = "Permite a un administrador registrar un nuevo usuario.")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Usuario registrado con éxito"),
+	        @ApiResponse(responseCode = "400", description = "El nombre de usuario ya está en uso"),
+	        @ApiResponse(responseCode = "403", description = "No autorizado para registrar usuarios"),
+	        @ApiResponse(responseCode = "500", description = "Error en el servidor")
+	    })
 	    public ResponseEntity<?> registerUser(@RequestBody Users user) {
 	        try {
 	            // Intentar registrar el usuario
@@ -106,32 +119,13 @@ public class AuthController {
 	    }
 	    
 
-
-//	    @GetMapping("/user")
-//	    public String user() {
-//	        try {
-//	            return "Usuario autenticado: ";
-//	        } catch (AuthenticationException e) {
-//	            return "Error de autenticación: " + e.getMessage();
-//	        }
-//	    }
-	    
-//	    @GetMapping("/user")
-//	    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
-//	        if (token == null || !token.startsWith("Bearer ")) {
-//	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
-//	        }
-//
-//	        token = token.substring(7); // Quitar el prefijo "Bearer "
-//	        
-//	        try {
-//	            String username = jwtUtils.getUsernameFromToken(token);
-//	            return ResponseEntity.ok("Usuario autenticado: " + username);
-//	        } catch (Exception e) {
-//	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o expirado.");
-//	        }
-//	    }
 	    @GetMapping("/user")
+	    @Operation(summary = "Obtener información del usuario autenticado", description = "Retorna el nombre de usuario y sus roles si el token es válido.")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Usuario autenticado"),
+	        @ApiResponse(responseCode = "401", description = "Token inválido o expirado"),
+	        @ApiResponse(responseCode = "403", description = "No tienes permisos para acceder")
+	    })
 	    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
 	        if (token == null || !token.startsWith("Bearer ")) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
@@ -169,19 +163,15 @@ public class AuthController {
 	        }
 	    }
 
-
-//	    @PostMapping("/change-password")
-//	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword) {
-//	        Optional<Users> user = userService.findByUsername(username);
-//	        if (user.isPresent()) {
-//	            userService.updatePassword(user.get(), newPassword);
-//	            return ResponseEntity.ok("Contraseña actualizada con éxito.");
-//	        } else {
-//	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
-//	        }
-//	    }
 	    
 	    @PostMapping("/change-password")
+	    @Operation(summary = "Cambio de contraseña", description = "Permite a un usuario cambiar su contraseña si está autenticado.")
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Contraseña actualizada con éxito"),
+	        @ApiResponse(responseCode = "403", description = "No puedes cambiar la contraseña de otro usuario"),
+	        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+	        @ApiResponse(responseCode = "401", description = "Token inválido o expirado")
+	    })
 	    public ResponseEntity<String> changePassword(@RequestParam String username, @RequestParam String newPassword, @RequestHeader("Authorization") String token) {
 	        if (token == null || !token.startsWith("Bearer ")) {
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido o ausente.");
