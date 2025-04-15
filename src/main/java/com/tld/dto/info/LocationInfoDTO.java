@@ -2,11 +2,13 @@ package com.tld.dto.info;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
 public class LocationInfoDTO {
 	private Long locationId;
     private String companyName;

@@ -18,9 +18,11 @@ import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table (name="role")
