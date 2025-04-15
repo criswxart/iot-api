@@ -15,15 +15,8 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 	 Optional<Company> findByCompanyApiKey(String companyApiKey);
 	 
 	 
-	 @Query(value = """
-	 		
-	 	   SELECT company_id, company_name, company_api_key, 
-           usernamec,  
-           TO_CHAR(company_created_at, 'DD-MM-YYYY HH24:MI') AS company_created_at, 
-           usernamem, 
-           TO_CHAR(company_modified_at, 'DD-MM-YYYY HH24:MI') AS company_modified_at,
-           is_company_active
-	 		FROM get_active_companies(:field, :value)					
+	 @Query(value = """	 		
+	 	   SELECT * FROM get_active_companies(:field, :value)					
 		    """, nativeQuery = true)
 	 List<CompanyInfoDTO> findCompanies(@Param("field") String field ,@Param("value") String value);	 
 	 
