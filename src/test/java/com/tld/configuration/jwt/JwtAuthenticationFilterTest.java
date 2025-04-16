@@ -94,9 +94,9 @@ public class JwtAuthenticationFilterTest {
 	    public void testExtractJwtFromRequest_noToken() throws Exception {
 	        when(request.getHeader("Authorization")).thenReturn(null);
 
-	        // Usar reflexión para invocar el método privado
+	      
 	        Method method = JwtAuthenticationFilter.class.getDeclaredMethod("extractJwtFromRequest", HttpServletRequest.class);
-	        method.setAccessible(true); // Hacer el método accesible
+	        method.setAccessible(true); 
 
 	        String token = (String) method.invoke(jwtAuthenticationFilter, request);
 
@@ -110,14 +110,14 @@ public class JwtAuthenticationFilterTest {
 	        // Mock the request
 	        when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
 
-	        // Use reflection to access the private method
+	       
 	        Method method = JwtAuthenticationFilter.class.getDeclaredMethod("extractJwtFromRequest", HttpServletRequest.class);
-	        method.setAccessible(true);  // Make the method accessible
+	        method.setAccessible(true);  
 
-	        // Invoke the method
+	       
 	        String token = (String) method.invoke(jwtAuthenticationFilter, request);
 
-	        // Assert that the token is correct
+	      
 	        assertNotNull(token);
 	        assertEquals(validToken, token);
 	    }

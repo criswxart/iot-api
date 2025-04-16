@@ -48,6 +48,6 @@ public class SecurityConfigTest {
     // Test del AuthenticationManager
     @Test
     public void testAuthenticationManager() {
-        assertNotNull(authenticationManager);  // Asegúrate de que el AuthenticationManager no sea nulo
+        assertNotNull(authenticationManager); 
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tld.entity.Users;
 import com.tld.jpa.repository.UserRepository;
-import com.tld.service.impl.UserServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,7 +40,7 @@ public class UserServiceImplTest {
     
     @Test
     void testRegisterUser() {
-        user.setUserPassword("plaintextpassword"); // Asegurar que coincida con el mock
+        user.setUserPassword("plaintextpassword"); 
 
         when(passwordEncoder.encode("plaintextpassword")).thenReturn("encodedPassword");
         when(userRepository.save(any(Users.class))).thenReturn(user);

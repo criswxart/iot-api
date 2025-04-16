@@ -24,7 +24,6 @@ public class RabbitMQProducerTest {
 
 	    @BeforeEach
 	    void setUp() {
-	        // Inicialización de los mocks
 	        rabbitMQProducer = new RabbitMQProducer(rabbitTemplate);
 	    }
 
@@ -32,23 +31,16 @@ public class RabbitMQProducerTest {
 	    void testSendMessage_success() throws Throwable {
 	        String message = "Test message";
 
-	        // Configura el comportamiento del mock para el retryTemplate
-	        // Usa doAnswer para simular que retryTemplate.execute() no lanza excepciones
 	        doAnswer(invocation -> {
-	            // Simula que no ocurre ninguna excepción y se ejecuta normalmente
-	            return null;  // Si el método esperado no tiene valor de retorno, devuelve null
+	            return null;  
 	        }).when(retryTemplate).execute(Mockito.any());
 
-	        // Configura el comportamiento del mock para el rabbitTemplate
 	        doNothing().when(rabbitTemplate).convertAndSend(anyString(), anyString());
 
-	        // Llama al método que queremos probar
 	        boolean result = rabbitMQProducer.sendMessage(message);
 
-	        // Verifica que el mensaje haya sido enviado a RabbitMQ
 	        verify(rabbitTemplate, times(1)).convertAndSend(anyString(), eq(message));
 
-	        // Asegúrate de que el método devuelve true
 	        assert(result);
 	    }
 	   

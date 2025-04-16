@@ -41,25 +41,22 @@ public class CompanyControllerTest {
 
     @Test
     void testAddCompany_Success() throws Exception {
-        // Creamos el DTO que se enviará en la solicitud.
         CompanyDTO companyDTO = new CompanyDTO();
         companyDTO.setCompanyName("Test Company");
 
-        // Creamos el DTO de respuesta que el servicio devolverá.
         CompanyInfoDTO companyInfoDTO = new CompanyInfoDTO();
-        companyInfoDTO.setCompanyId(1L);  // El campo id en la respuesta será 'companyId'
-        companyInfoDTO.setCompanyName("Test Company");  // El campo name en la respuesta será 'companyName'
+        companyInfoDTO.setCompanyId(1L); 
+        companyInfoDTO.setCompanyName("Test Company"); 
 
-        // Configuramos el mock para que el servicio devuelva el objeto 'companyInfoDTO' al agregar una nueva compañía.
         when(companyService.addCompany(any(CompanyDTO.class))).thenReturn(companyInfoDTO);
 
-        // Ejecutamos la solicitud POST y verificamos que la respuesta sea la esperada.
+        
         mockMvc.perform(post("/api/v1/company")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(companyDTO)))
-                .andExpect(status().isOk())  // Esperamos que la respuesta sea 200 OK
-                .andExpect(jsonPath("$.companyId").value(1))  // Verificamos que el campo 'companyId' tenga el valor esperado
-                .andExpect(jsonPath("$.companyName").value("Test Company"));  // Verificamos que el campo 'companyName' tenga el valor esperado
+                .andExpect(status().isOk())  
+                .andExpect(jsonPath("$.companyId").value(1))  
+                .andExpect(jsonPath("$.companyName").value("Test Company")); 
     }
 
 
@@ -79,8 +76,8 @@ public class CompanyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(companyDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.companyId").value(companyId))  // Ajustar para 'companyId'
-                .andExpect(jsonPath("$.companyName").value("Updated Company"));  // Ajustar para 'companyName'
+                .andExpect(jsonPath("$.companyId").value(companyId))  
+                .andExpect(jsonPath("$.companyName").value("Updated Company"));  
     }
 
 
@@ -89,21 +86,21 @@ public class CompanyControllerTest {
         String field = "name";
         String value = "Test Company";
 
-        // Creamos el DTO con los datos de la compañía que queremos devolver en la respuesta.
+       
         CompanyInfoDTO companyInfoDTO = new CompanyInfoDTO();
-        companyInfoDTO.setCompanyId(1L);  // 'companyId' en lugar de 'id'
-        companyInfoDTO.setCompanyName("Test Company");  // 'companyName' en lugar de 'name'
+        companyInfoDTO.setCompanyId(1L);  
+        companyInfoDTO.setCompanyName("Test Company"); 
 
-        // Configuramos el mock para que el servicio devuelva una lista con la compañía filtrada por 'name'.
+        
         when(companyService.getCompanies(field, value)).thenReturn(List.of(companyInfoDTO));
 
-        // Ejecutamos la solicitud GET y verificamos que la respuesta sea la esperada.
+        
         mockMvc.perform(get("/api/v1/company")
                         .param("field", field)
                         .param("value", value))
-                .andExpect(status().isOk())  // Esperamos que la respuesta sea 200 OK
-                .andExpect(jsonPath("$[0].companyId").value(1))  // Verificamos que el campo 'companyId' tenga el valor esperado
-                .andExpect(jsonPath("$[0].companyName").value("Test Company"));  // Verificamos que el campo 'companyName' tenga el valor esperado
+                .andExpect(status().isOk())  
+                .andExpect(jsonPath("$[0].companyId").value(1))  
+                .andExpect(jsonPath("$[0].companyName").value("Test Company"));  
     }
 
 
@@ -111,14 +108,14 @@ public class CompanyControllerTest {
     void testDeleteCompany_Success() throws Exception {
         Long companyId = 1L;
         CompanyInfoDTO companyInfoDTO = new CompanyInfoDTO();
-        companyInfoDTO.setCompanyId(companyId);  // Asegúrate de usar el nombre correcto del campo
+        companyInfoDTO.setCompanyId(companyId);  
         companyInfoDTO.setCompanyName("Test Company");
 
         when(companyService.deleteCompany(companyId)).thenReturn(companyInfoDTO);
 
         mockMvc.perform(delete("/api/v1/company/{companyId}", companyId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.companyId").value(companyId))  // Cambiar $.id por $.companyId
+                .andExpect(jsonPath("$.companyId").value(companyId))  
                 .andExpect(jsonPath("$.companyName").value("Test Company"));
     }
 

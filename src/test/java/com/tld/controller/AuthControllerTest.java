@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +59,7 @@ public class AuthControllerTest {
         Role role = new Role();
         role.setRoleName("ROLE_USER");
 
-        // Cambiado de singletonList a singleton para usar Set<Role>
+        
         user.setRole(Collections.singleton(role)); 
 
         Authentication auth = mock(Authentication.class);
@@ -119,7 +118,7 @@ public class AuthControllerTest {
         Role role = new Role();
         role.setRoleName("ROLE_USER");
 
-        // Cambiado a Set
+     
         user.setRole(Collections.singleton(role));
 
         when(jwtUtils.getUsernameFromToken("validToken")).thenReturn(username);

@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.tld.dto.MeasurementDTO;
 import com.tld.dto.info.MeasurementInfoDTO;
-import com.tld.entity.Sensor;
 
 public interface MeasurementService {
 	

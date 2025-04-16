@@ -31,10 +31,8 @@ public class JwtUtilsTest {
 
 	    @Test
 	    void testValidateToken_invalidToken() {
-	        // Usamos un token no válido
+	       
 	        String invalidToken = "invalid.token";
-
-	        // Verifica que el token sea inválido
 	        assertFalse(jwtUtils.validateToken(invalidToken));
 	    }
 
