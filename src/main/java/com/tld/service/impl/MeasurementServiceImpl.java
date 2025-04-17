@@ -70,6 +70,7 @@ public class MeasurementServiceImpl implements MeasurementService{
 	@Override
 	public void addSensorDataRabbit(MeasurementDTO measurementDTO) {
 		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "Solicitud recibida en impl addSensorDataRabbit");	
+		LogUtil.log(MeasurementServiceImpl.class, Level.INFO, "sensor API KEY "+measurementDTO.getApi_key());	
 		final Sensor sensor = sensorRepository.findBySensorApiKey(measurementDTO.getApi_key())
 				.orElseThrow(() -> new com.tld.exception.EntityNotFoundException("Sensor / Api key no encontrado. No se grabarán metricas recibidas"));		
 		saveMeasurementDataUsingHibernateAndJdbc(measurementDTO, sensor);		

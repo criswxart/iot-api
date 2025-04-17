@@ -32,9 +32,7 @@ public class LocationServiceImpl implements LocationService{
 	final LocationRepository locationRepository;
 	final CityRepository cityRepository;
 	final UserRepository userRepository;
-	final LocationMapper locationMapper;
-	//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.of("America/Santiago"));
-	
+	final LocationMapper locationMapper;	
 
 	@Override
 	public LocationInfoDTO addLocation(LocationDTO locationDTO) {			

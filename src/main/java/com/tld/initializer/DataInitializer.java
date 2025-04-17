@@ -224,9 +224,9 @@ public class DataInitializer {
 	                                     country.country_name, 
 	                                     location.location_meta,
 	                                     c.user_name AS location_created_by, 
-	                                     TO_CHAR(location_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_created_at,
+	                                     TO_CHAR(location_created_at AT TIME ZONE ''America/Santiago'', ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_created_at,
 	                                     m.user_name AS location_modified_by,
-	                                     TO_CHAR(location_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_modified_at,
+	                                     TO_CHAR(location_modified_at AT TIME ZONE ''America/Santiago'', ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS location_modified_at,
 	                                     location_is_active
 	                              FROM location
 	                              JOIN company ON company.company_id = location.company_id
@@ -265,9 +265,9 @@ public class DataInitializer {
 			        	    company_name VARCHAR(255),
 			        	    company_api_key VARCHAR(255),
 			        	    userNameC VARCHAR(255),
-			        	    company_created_at TIMESTAMP,  
+			        	    company_created_at VARCHAR(255),  
 			        	    userNameM VARCHAR(255),
-			        	    company_modified_at TIMESTAMP,
+			        	    company_modified_at VARCHAR(255),
 			        	    is_company_active  boolean
 			        	) AS $$
 			        	DECLARE
@@ -289,10 +289,10 @@ public class DataInitializer {
 		
 			        	    -- Construcción de la consulta base
 			        	    query := 'SELECT company.company_id, company.company_name, company.company_api_key,
-			        	                     c.user_name AS userNameC, 
-			        	                     company.company_created_at::TIMESTAMP, 
-			        	                     m.user_name AS userNameM, 
-			        	                     company.company_modified_at::TIMESTAMP,
+			        	                     c.user_name AS userNameC,
+			        	                     TO_CHAR(company.company_created_at AT TIME ZONE ''America/Santiago'', ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS company_created_at,			        	                      
+			        	                     m.user_name AS userNameM,			        	                     
+			        	                     TO_CHAR(company.company_modified_at AT TIME ZONE ''America/Santiago'', ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS company_modified_at,			        	                     
 			        	                     company.company_is_active
 			        	              FROM company 
 			        	              JOIN users c ON company.company_created_by = c.user_id
@@ -362,8 +362,8 @@ public class DataInitializer {
 										location.company_id, 									    
 										company_name,  		 
 								  		COALESCE(measurement_summary.sensor_total_measurements, 0) AS sensor_total_measurements,
-								  		TO_CHAR(sensor_created_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_created_at,							  		 
-										TO_CHAR(sensor_modified_at, ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_modified_at,
+								  		TO_CHAR(sensor_created_at AT TIME ZONE ''America/Santiago'', ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_created_at,							  		 
+										TO_CHAR(sensor_modified_at AT TIME ZONE ''America/Santiago'', ''DD-MM-YYYY HH24:MI'')::VARCHAR(255) AS sensor_modified_at,
 										sensor_is_active 		 
 								  from sensor 
 								  join location on
