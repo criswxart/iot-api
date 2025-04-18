@@ -87,7 +87,7 @@ public class MeasurementMapper {
 	        sensorDataInfoDTO.setMetric_name((String) row[13]);
 	        sensorDataInfoDTO.setMetric_value((Double) row[14]);
 	        sensorDataInfoDTO.setDatetime_epoch((Long) row[15]);
-	        sensorDataInfoDTO.setDatetime_legible(Instant.ofEpochMilli((Long) row[15]));
+	        sensorDataInfoDTO.setDatetime_legible(Instant.ofEpochSecond((Long) row[15]));
 
 	        sensorDataInfoList.add(sensorDataInfoDTO);
 	    }
@@ -137,7 +137,7 @@ public class MeasurementMapper {
 	        sensorDataInfoDTO.setMetric_name((String) row[13]);
 	        sensorDataInfoDTO.setMetric_value((Double) row[14]);
 	        sensorDataInfoDTO.setDatetime_epoch((Long) row[15]);
-	        sensorDataInfoDTO.setDatetime_legible(Instant.ofEpochMilli((Long) row[15]));
+	        sensorDataInfoDTO.setDatetime_legible(Instant.ofEpochSecond((Long) row[15]));
 
 	        // Añadimos el detalle al conjunto de registros
 	        measurementInfoDTO.getRecords().add(sensorDataInfoDTO);
