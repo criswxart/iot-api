@@ -9,25 +9,25 @@ public class InvalidCompanySensorException extends RuntimeException {
     // Constructor sin mensaje ni causa
     public InvalidCompanySensorException() {
         super("Invalid user");
-        this.errorDTO = new ErrorDTO("INVALID_USER", "Comapny y Sensor invalido", "Combinacion entre compania y sensor no existe.");
+        this.errorDTO = new ErrorDTO("INVALID_COMPANY_SENSOR_KEY", "Comapny y Sensor invalido", "Combinacion entre compania y sensor no existe.");
     }
 
     // Constructor con mensaje personalizado
     public InvalidCompanySensorException(String message) {
         super(message);
-        this.errorDTO = new ErrorDTO("INVALID_USER", message, "Combinacion entre compania y sensor no existe.");
+        this.errorDTO = new ErrorDTO("INVALID_COMPANY_SENSOR_KEY", message, "Combinacion entre compania y sensor no existe.");
     }
 
     // Constructor con mensaje, causa y ErrorDTO
     public InvalidCompanySensorException(String message, Throwable cause) {
         super(message, cause);
-        this.errorDTO = new ErrorDTO("INVALID_USER", message, "Combinacion entre compania y sensor no existe.");
+        this.errorDTO = new ErrorDTO("INVALID_COMPANY_SENSOR_KEY", message, "Combinacion entre compania y sensor no existe.");
     }
 
     // Constructor con causa y ErrorDTO
     public InvalidCompanySensorException(Throwable cause) {
         super(cause);
-        this.errorDTO = new ErrorDTO("INVALID_USER", "Invalid user", cause.getMessage());
+        this.errorDTO = new ErrorDTO("INVALID_COMPANY_SENSOR_KEY", "Invalid api key", cause.getMessage());
     }
 
     // Getter para el ErrorDTO
